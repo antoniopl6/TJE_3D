@@ -32,6 +32,8 @@ public:
 
 	Game( int window_width, int window_height, SDL_Window* window );
 
+	void RenderTerrainExample();
+
 	//main functions
 	void render( void );
 	void update( double dt );

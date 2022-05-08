@@ -66,10 +66,12 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
-void RenderTerrainExample() {
+void Game::RenderTerrainExample() {
 	Matrix44 m;
 	Vector3 halfSize = mesh->box.halfsize * 2;
 	EntityMesh* emeshIsland = new EntityMesh(mesh, texture, shader, Vector4(1, 1, 1, 1), m);
+	float lodDistance = 200.0f;
+	float noRenderDist = 1000000.0f;
 
 	for (size_t i = 0; i < 10; i++)
 	{
@@ -77,6 +79,25 @@ void RenderTerrainExample() {
 		{
 			emeshIsland->model = m;
 			m.setTranslation(halfSize.x * i, 0.0f, halfSize.z * j);
+
+			
+			Vector3 emeshPos = m.getTranslation();
+			//No renderizar lo que no este en vision de camara
+			BoundingBox worldAABB = transformBoundingBox(m, mesh->box);
+			if (!camera->testBoxInFrustum(worldAABB.center, worldAABB.halfsize)) {
+				continue;
+			}
+			Vector3 camPos = camera->eye;
+			float dist = emeshPos.distance(camPos);
+
+			if (dist > noRenderDist) {
+				continue;
+			}
+			//Ejemplo para renderizar un elemento a mas baja calidad una vez esta lo suficientemente lejos y asi conseguir eficiencia
+			if (dist < lodDistance) {
+				//Render otra isla a mas baja calidad
+			}
+
 			emeshIsland->render();
 		}
 	}
@@ -140,7 +161,6 @@ void Game::update(double seconds_elapsed)
 	}
 
 	//async input to move the camera around
-	//if(Input::isKeyPressed(SDL_SCANCODE_LSHIFT) ) speed *= 10; //move faster with left shift
 	if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->move(Vector3(0.0f, 0.0f,-1.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);

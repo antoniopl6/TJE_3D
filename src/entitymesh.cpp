@@ -33,9 +33,10 @@ void EntityMesh::render()
 }
 void EntityMesh::update(float dt) {
 	float speed = dt * 100; //the speed is defined by the seconds_elapsed so it goes constant
+	float rotSpeed = 90.0f * DEG2RAD * dt;
 	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 10; //move faster with left shift, para correr
 	if (Input::isKeyPressed(SDL_SCANCODE_UP)) model.translate(0.0f, 0.0f, speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) model.translate(0.0f, 0.0f, -speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) model.rotate(dt, Vector3(0.0f, -1.0f, 0.0f));
-	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) model.rotate(dt, Vector3(0.0f, 1.0f, 0.0f));
+	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) model.rotate(rotSpeed, Vector3(0.0f, -1.0f, 0.0f));
+	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) model.rotate(rotSpeed, Vector3(0.0f, 1.0f, 0.0f));
 }
