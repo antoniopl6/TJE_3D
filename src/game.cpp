@@ -102,6 +102,8 @@ void Game::RenderTerrainExample() {
 		}
 	}
 }
+
+
 //what to do when the image has to be draw
 void Game::render(void)
 {

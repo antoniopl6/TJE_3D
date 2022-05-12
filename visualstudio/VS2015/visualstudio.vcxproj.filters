@@ -79,6 +79,10 @@
     <ClCompile Include="..\..\src\play.cpp">
       <Filter>Stages</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\scene.cpp" />
+    <ClCompile Include="..\..\src\entitycamera.cpp">
+      <Filter>elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -154,6 +158,10 @@
     </ClInclude>
     <ClInclude Include="..\..\src\play.h">
       <Filter>Stages</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\scene.h" />
+    <ClInclude Include="..\..\src\entitycamera.h">
+      <Filter>elements</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

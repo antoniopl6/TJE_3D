@@ -40,3 +40,5 @@ void EntityMesh::update(float dt) {
 	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) model.rotate(rotSpeed, Vector3(0.0f, -1.0f, 0.0f));
 	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) model.rotate(rotSpeed, Vector3(0.0f, 1.0f, 0.0f));
 }
+
+
