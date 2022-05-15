@@ -35,6 +35,8 @@ public:
 
 	void RenderTerrainExample();
 
+	void RayPickCheck(Camera* cam);
+
 	//main functions
 	void render( void );
 	void update( double dt );

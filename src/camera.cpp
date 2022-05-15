@@ -5,6 +5,8 @@
 
 Camera* Camera::current = NULL;
 
+
+
 Camera::Camera()
 {
 	lookAt( Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0) );

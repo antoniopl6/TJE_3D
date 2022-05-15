@@ -4,22 +4,26 @@
 //Usa el patrón singleton
 #include "utils.h"
 #include "includes.h"
+#include "entity.h"
+#include "entitymesh.h"
+#include "camera.h"
 class Scene
 {
 
-	/*private static Scene instance = new Scene();
-	private std::vector<Entity*>;
-	private Scene()
+private:
+	Scene();
+public:
+	std::vector<Entity*> entities;
+
+	static Scene& getInstance()
 	{
+		static Scene instance;
+		return instance;
 	}
-	public:
-	static Scene Instance
-	{
-		get
-		{
-			return instance.Value;
-		}
-	}*/
+	void addEntityMesh(const char* meshName, const char* texName, const char* shader, Vector4 color, Matrix44 model);
+	void eraseEntity(int i);
+	//Retorna las entidades en camara para que sean renderizadas
+	std::vector<Entity*> getEntitiesInView(Camera* cam);
 };
 
 
