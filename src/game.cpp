@@ -109,12 +109,12 @@ void Game::RayPickCheck(Camera* cam) {
 	Vector3 rayOrgin = cam->eye;
 
 	Scene scene = Scene::getInstance();
-	//std::vector<Entity*> entities = scene->entities;
+	std::vector<Entity*> entities = scene.entities;
 
-	for (size_t i = 0; i < scene.entities.size(); i++)
+	for (size_t i = 0; i < entities.size(); i++)
 	{
-		//downCast
-		EntityMesh* entity = (EntityMesh*)scene.entities[i];
+		//downCast, se devería de hacer de una clase que fuera pickeable, cambiar a una clase diferente
+		EntityMesh* entity = (EntityMesh*)entities[i];
 		//si se puede hacer
 		if (entity) {
 			Vector3 pos;

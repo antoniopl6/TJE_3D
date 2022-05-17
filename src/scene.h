@@ -11,7 +11,7 @@ class Scene
 {
 
 private:
-	Scene();
+	Scene() { /*........*/ };
 public:
 	std::vector<Entity*> entities;
 
