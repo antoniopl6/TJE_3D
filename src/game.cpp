@@ -108,8 +108,8 @@ void Game::RayPickCheck(Camera* cam) {
 	Vector3 dir = cam->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
 	Vector3 rayOrgin = cam->eye;
 
-	Scene scene = Scene::getInstance();
-	std::vector<Entity*> entities = scene.entities;
+	Scene* scene = Scene::instance;
+	std::vector<Entity*> entities = scene->objects;
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{

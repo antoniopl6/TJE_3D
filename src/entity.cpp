@@ -4,8 +4,6 @@ Entity::Entity(Matrix44 model)
 {
 	this->model = model;
 }
-<<<<<<< Updated upstream
-=======
 
 Vector3 Entity::getPosition()
 {
@@ -13,7 +11,7 @@ Vector3 Entity::getPosition()
 }
 
 
-MonsterEntity::MonsterEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, Matrix44 model) : Entity::Entity(model) {
+MonsterEntity::MonsterEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, BoundingBox bounding, BoundingBox boundingCatchRange, BoundingBox boundingViewRange, Matrix44 model) : Entity::Entity(model) {
 	/*assert(mesh != null, "Null mesh given");
 	assert(texture != null, "Null texture given");
 	assert(shader != null, "Null shader given");*/
@@ -21,6 +19,9 @@ MonsterEntity::MonsterEntity(Mesh* mesh, Texture* texture, Shader* shader, Vecto
 	this->texture = texture;
 	this->shader = shader;
 	this->color = color;
+	this->bounding = bounding;
+	this->boundingCatchRange = boundingCatchRange;
+	this->boundingViewRange = boundingViewRange;
 }
 
 PickEntity::PickEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, Matrix44 model, PickType type) : Entity::Entity(model) {
@@ -41,7 +42,7 @@ SoundEntity::SoundEntity(Audio audio, Matrix44 model) : Entity::Entity(model) {
 
 void MonsterEntity::render(){
 	if (isRunning) {
-		//Take animation of running monster
+		//Render animation of running monster
 		
 	}
 	else {
@@ -52,7 +53,6 @@ void MonsterEntity::render(){
 
 }
 
-bool PickEntity::isInPickRange(Vector3 playerModel) {
-	Scene
+bool PickEntity::isInPickRange(Matrix44 mainModel) {
+
 }
->>>>>>> Stashed changes
