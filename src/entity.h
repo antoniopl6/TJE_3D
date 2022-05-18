@@ -19,6 +19,6 @@ public:
 	virtual void update(float elapsed_time) {};
 
 	//some useful methods...
-	Vector3 getPosition() {};
+	Vector3 getPosition();
 };
 #endif

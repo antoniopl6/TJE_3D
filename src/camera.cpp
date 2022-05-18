@@ -6,7 +6,6 @@
 Camera* Camera::current = NULL;
 
 
-
 Camera::Camera()
 {
 	lookAt( Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0) );
@@ -75,6 +74,7 @@ void Camera::rotate(float angle, const Vector3& axis)
 	updateViewMatrix();
 
 }
+
 
 void Camera::setOrthographic(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {
