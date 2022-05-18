@@ -11,22 +11,6 @@
 #include "camera.h"
 #include "game.h"
 
-/*
-enum EntityType {
-	NONE = 0,
-	PREFAB = 1,
-	CAMERA = 2,
-	REFLECTION_PROBE = 3,
-	DECALL = 4
-};
-
-enum LightType {
-	POINT = 0,
-	SPOT = 1,
-	DIRECTIONAL = 2
-};
-*/
-
 
 class Scene
 {

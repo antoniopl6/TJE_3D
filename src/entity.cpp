@@ -9,3 +9,5 @@ Vector3 Entity::getPosition()
 {
 	return model.getTranslation();
 }
+
+
