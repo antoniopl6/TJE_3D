@@ -17,32 +17,37 @@ class Scene
 public:
 
 	//Singleton
-	//static Scene* instance;
+	static Scene* instance;
 
 	//General features
 	Vector3 ambient_light;
 	Camera* main_camera;
+	Shader* shader;
 
 	//Scene shadows
 	FBO* fbo; //Frame Buffer Object
 	Texture* shadow_atlas; //Shadow map of the lights of the scene
 
 	//Entities
-	Entity* main_character;
-	Entity* monster;
-	std::vector<Entity*> objects;
-	std::vector<Entity*> lights;
-	std::vector<Entity*> sounds;
+	MainCharacterEntity* main_character;
+	MonsterEntity* monster;
+	std::vector<ObjectEntity*> objects;
+	std::vector<LightEntity*> lights;
+	std::vector<SoundEntity*> sounds;
+
+	//Counters
+	int num_objects;
+	int num_lights;
 
 	//Scene triggers
-	bool entity_trigger; //Triggers if an entity has changed his visibility or a visible entity has changed its model.
-	bool shadow_visibility_trigger; //Triggers changes in shadow casting or light visibility for lights that cast shadows.
+	bool camera_trigger; //Triggers if the camera has moved in the space.
 
 	//Methods
 	Scene();
 	void clear();
-	void addEntity(Entity*);
 	void load();
+	void addEntity(Entity* entity);
+	void AllocateMemory()
 
 
 };

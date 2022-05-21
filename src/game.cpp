@@ -8,6 +8,7 @@
 #include "animation.h"
 #include "entity.h"
 #include "entitymesh.h"
+#include "scene.h"
 
 
 #include <cmath>
@@ -24,10 +25,6 @@ float mouse_speed = 100.0f;
 FBO* fbo = NULL;
 
 using namespace std;
-
-
-/////////////////////////
-EntityMesh* emeshPrueba;
 
 Game* Game::instance = NULL;
 
@@ -48,21 +45,15 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//OpenGL flags
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
 	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
-
-
-	//load meshes and textures
-	mesh = Mesh::Get("data/island.ASE");
-	texture = Texture::Get("data/island_color.tga");
 	
-	// example of shader loading using the shaders manager
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	/////////////////////////////////////////////////////
-	emeshPrueba = new EntityMesh(Mesh::Get("data/GrimmFoxy.obj"), Texture::Get("data/GrimmFoxy_Shell.tga"), shader, Vector4(1, 1, 1, 1), Matrix44());
-	
-	//create our camera
+	//Create the main camera
 	camera = new Camera();
-	camera->lookAt(emeshPrueba->getPosition() + Vector3(0.f, 230.f, 300.f), emeshPrueba->getPosition() + Vector3(0.f, 230.f, 400.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
-	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 10000000.f); //set the projection, we want to be perspective
+	camera->lookAt(Vector3(0.f, 630.f, 300.f), Vector3(0.f, 630.f, 400.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
+	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 5000.f); //set the projection, we want to be perspective
+
+	//Create and load the scene
+	scene = new Scene();
+	scene->load();
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -152,7 +143,7 @@ void Game::render(void)
 	if(shader)
 	{
 		//Prueba para colocar la camara en tercera persona para el personaje
-		emeshPrueba->render();
+		//emeshPrueba->render();
 		//RenderTerrainExample();
 	}
 
@@ -168,44 +159,8 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
-	float speed = seconds_elapsed * mouse_speed * 4; //the speed is defined by the seconds_elapsed so it goes constant
-
-	//example
-	angle += (float)seconds_elapsed * 10.0f;
-
-	//Boost speed
-	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 1.5; //move faster with left shift
-
-	//mouse input to rotate the camera
-	if (((Input::mouse_state) || mouse_locked) && !turn_around) //is left button pressed?
-	{
-		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
-		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
-	}
-
-	//Camera front and side vectors
-	Vector3 camera_front = Vector3();
-	Vector3 camera_side = Vector3();
-	if ((Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D)) && !turn_around)
-	{
-		camera_front = ((camera->center - camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
-		if (Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
-		{
-			camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
-		}
-			
-	}
-
-	//Move the camera along with the main character
-	if (Input::isKeyPressed(SDL_SCANCODE_W) && !turn_around) camera->lookAt(camera->eye + camera_front * speed, camera->center + camera_front * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_A) && !turn_around) camera->lookAt(camera->eye - camera_side * speed, camera->center - camera_side * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_S) && !turn_around) camera->lookAt(camera->eye - camera_front * speed, camera->center - camera_front * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_D) && !turn_around) camera->lookAt(camera->eye + camera_side * speed, camera->center + camera_side * speed, camera->up);
-
-
-	//to navigate with the mouse fixed in the middle
-	if (mouse_locked)
-		Input::centerMouse();
+	//Update main character camera
+	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
 }
 
 //Keyboard event handler (sync input)
@@ -231,7 +186,7 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 		//Keep looking forward
-		case SDLK_q: camera->center *= -1.f, turn_around = false;
+		case SDLK_q: camera->center *= -1.f;
 	}
 }
 
