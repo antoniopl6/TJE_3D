@@ -12,8 +12,13 @@ public:
 	static std::map<std::string, Audio*> sLoadedAudios; //para nuestro manager
 	HSAMPLE sample; //aqui guardamos el handler del sample que retorna BASS_SampleLoad
 
-	Audio(); //importante poner sample a cero aqui
-	~Audio(); //aqui deberiamos liberar el sample con BASS_SampleFree
+	Audio() {
+		assert(BASS_Init(-1, 44100, 0, 0, NULL), "Error opening sound card."); //-1 significa usar el por defecto del sistema operativo
+		sample = 0;
+	};
+	~Audio() {
+		BASS_SampleFree(sample);
+	};
 
 	HCHANNEL play(float volume); //lanza el audio y retorna el channel donde suena
 

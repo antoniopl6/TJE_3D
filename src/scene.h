@@ -6,11 +6,9 @@
 #pragma once //Import things once
 #include "utils.h"
 #include "includes.h"
-#include "entity.h"
-#include "entitymesh.h"
 #include "camera.h"
 #include "game.h"
-
+#include "entity.h"
 
 class Scene
 {
@@ -29,10 +27,11 @@ public:
 
 	//Entities
 	Entity* main_character;
-	Entity* monster;
+	MonsterEntity* monster;
+
 	std::vector<Entity*> objects;
 	std::vector<Entity*> lights;
-	std::vector<Entity*> sounds;
+	std::vector<SoundEntity*> sounds;
 
 	//Scene triggers
 	bool entity_trigger; //Triggers if an entity has changed his visibility or a visible entity has changed its model.

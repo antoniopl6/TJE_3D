@@ -86,6 +86,7 @@
     <ClCompile Include="..\..\src\audio.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pathfinders.cpp" />
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -172,6 +173,7 @@
     <ClInclude Include="..\..\src\extra\bass.h">
       <Filter>extra</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\pathfinders.h" />
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">

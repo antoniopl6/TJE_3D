@@ -1,3 +1,4 @@
+/*
 #ifndef ENTITYMESH_H
 #define ENTITYMESH_H
 
@@ -26,3 +27,4 @@ public:
 	void update(float dt);
 };
 #endif
+*/

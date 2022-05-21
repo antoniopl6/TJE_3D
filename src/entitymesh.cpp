@@ -1,4 +1,4 @@
-#include "entitymesh.h"
+/*#include "entitymesh.h"
 
 EntityMesh::EntityMesh(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, Matrix44 model) : Entity::Entity(model) {
 	assert(mesh != null, "Null mesh given");
@@ -42,3 +42,4 @@ void EntityMesh::update(float dt) {
 }
 
 
+*/

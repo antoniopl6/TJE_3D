@@ -24,7 +24,7 @@ FBO* fbo = NULL;
 
 
 /////////////////////////
-EntityMesh* emeshPrueba;
+//EntityMesh* emeshPrueba;
 
 Game* Game::instance = NULL;
 
@@ -62,10 +62,34 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	// example of shader loading using the shaders manager
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 	/////////////////////////////////////////////////////
-	emeshPrueba = new EntityMesh(Mesh::Get("data/GrimmFoxy.obj"), Texture::Get("data/GrimmFoxy_Shell.tga"), shader, Vector4(1, 1, 1, 1), Matrix44());
+	//emeshPrueba = new EntityMesh(Mesh::Get("data/GrimmFoxy.obj"), Texture::Get("data/GrimmFoxy_Shell.tga"), shader, Vector4(1, 1, 1, 1), Matrix44());
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+
+	///////////////////
+	PruebaIAClase();
 }
+int W = 100;
+int H = 100;
+float tileSizeX = 10.0f;
+float tileSizeY = 10.0f;
+int startx;
+int starty;
+int targetx;
+int targety;
+uint8* grid;
+void Game::PruebaIAClase() {
+	// the map info should be an array W*H of bytes where 0 means block, 1 means walkable
+		grid = new uint8[W*H];
+		for (size_t i = 0; i < W*H; i++)
+		{
+			grid[i] = 1;
+		}
+	
+
+};
+
+/*
 void Game::RenderTerrainExample() {
 	Matrix44 m;
 	Vector3 halfSize = mesh->box.halfsize * 2;
@@ -126,7 +150,7 @@ void Game::RayPickCheck(Camera* cam) {
 		}
 	}
 }
-
+*/
 //what to do when the image has to be draw
 void Game::render(void)
 {
@@ -149,13 +173,13 @@ void Game::render(void)
 
 	if(shader)
 	{
-		//Prueba para colocar la camara en tercera persona para el personaje
-		Vector3 eye = emeshPrueba->model * Vector3(0.0f, 300.0f, -50.0f);
-		Vector3 center = emeshPrueba->model * Vector3(0.0f, 0.0f, 400.0f);
-		Vector3 up = emeshPrueba->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
-		camera->lookAt(eye, center, up);
-		emeshPrueba->render();
-		RenderTerrainExample();
+		////Prueba para colocar la camara en tercera persona para el personaje
+		//Vector3 eye = emeshPrueba->model * Vector3(0.0f, 300.0f, -50.0f);
+		//Vector3 center = emeshPrueba->model * Vector3(0.0f, 0.0f, 400.0f);
+		//Vector3 up = emeshPrueba->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
+		//camera->lookAt(eye, center, up);
+		//emeshPrueba->render();
+		//RenderTerrainExample();
 	}
 
 	//Draw the floor grid
@@ -191,7 +215,7 @@ void Game::update(double seconds_elapsed)
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
 	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->move(Vector3(-1.0f,0.0f, 0.0f) * speed);
 
-	emeshPrueba->update(seconds_elapsed); //Actualiza la posicion de la prueba de personaje, con las flechas
+	//emeshPrueba->update(seconds_elapsed); //Actualiza la posicion de la prueba de personaje, con las flechas
 
 	//to navigate with the mouse fixed in the middle
 	if (mouse_locked)
@@ -205,6 +229,52 @@ void Game::onKeyDown( SDL_KeyboardEvent event )
 	{
 		case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
 		case SDLK_F1: Shader::ReloadAll(); break; 
+
+		case SDLK_3: {
+			Vector2 mouse = Input::mouse_position;
+			Game* g = Game::instance;
+			Vector3 dir = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
+			Vector3 rayOrigin = camera->eye;
+
+			Vector3 spawnPos = RayPlaneCollision(Vector3(), Vector3(0, 1, 0), rayOrigin, dir);
+			startx = clamp(spawnPos.x / tileSizeX, 0, W);
+			starty = clamp(spawnPos.z / tileSizeY, 0, H);
+			break;
+		}
+		case SDLK_4: {
+			Vector2 mouse = Input::mouse_position;
+			Game* g = Game::instance;
+			Vector3 dir = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
+			Vector3 rayOrigin = camera->eye;
+
+			Vector3 spawnPos = RayPlaneCollision(Vector3(), Vector3(0, 1, 0), rayOrigin, dir);
+
+
+			targetx = clamp(spawnPos.x /tileSizeX, 0, W);
+			targety = clamp(spawnPos.z / tileSizeY, 0, H);
+
+			//here we must fill the map with all the info
+	//...
+	//when we want to find the shortest path, this array contains the shortest path, every value is the Nth position in the map, 100 steps max
+			int output[100];
+
+			//we call the path function, it returns the number of steps to reach target, otherwise 0
+			int path_steps = AStarFindPathNoTieDiag(
+				startx, starty, //origin (tienen que ser enteros)
+				targetx, targety, //target (tienen que ser enteros)
+				grid, //pointer to map data
+				W, H, //map width and height
+				output, //pointer where the final path will be stored
+				100); //max supported steps of the final path
+
+		//check if there was a path
+			if (path_steps != -1)
+			{
+				for (int i = 0; i < path_steps; ++i)
+					std::cout << "X: " << (output[i] % W) << ", Y: " << floor(output[i] / W) << std::endl;
+			}
+			break;
+		}
 	}
 }
 
