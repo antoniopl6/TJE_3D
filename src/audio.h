@@ -5,6 +5,7 @@
 #include <map>
 #include <string>
 #include "extra/bass.h"
+#include <assert.h>
 
 class Audio
 {

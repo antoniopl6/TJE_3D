@@ -16,6 +16,7 @@
 Mesh* mesh = NULL;
 Texture* texture = NULL;
 Shader* shader = NULL;
+bool turn_around = false;
 
 Animation* anim = NULL;
 float angle = 0;
@@ -48,8 +49,13 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//create our camera
 	camera = new Camera();
-	camera->lookAt(Vector3(0.f,100.f, 100.f),Vector3(0.f,0.f,0.f), Vector3(0.f,1.f,0.f)); //position the camera and point to 0,0,0
-	camera->setPerspective(70.f,window_width/(float)window_height,0.1f,10000000.f); //set the projection, we want to be perspective
+	camera->lookAt(Vector3(0.f, 630.f, 300.f), Vector3(0.f, 630.f, 400.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
+	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 5000.f); //set the projection, we want to be perspective
+
+
+	//Create and load the scene
+	scene = new Scene(instance->camera);
+	scene->load();
 
 	//load one texture without using the Texture Manager (Texture::Get would use the manager)
 	/*mesh = Mesh::Get("data/GrimmFoxy.obj");
@@ -126,6 +132,7 @@ void Game::RenderTerrainExample() {
 		}
 	}
 }
+
 void Game::RayPickCheck(Camera* cam) {
 	Vector2 mouse = Input::mouse_position;
 	Game* g = Game::instance;
@@ -197,29 +204,32 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
-	float speed = seconds_elapsed * mouse_speed * 5; //the speed is defined by the seconds_elapsed so it goes constant
+	//Update main character camera
+	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
 
-	//example
-	angle += (float)seconds_elapsed * 10.0f;
+	//float speed = seconds_elapsed * mouse_speed * 5; //the speed is defined by the seconds_elapsed so it goes constant
 
-	//mouse input to rotate the cam
-	if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked ) //is left button pressed?
-	{
-		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f,-1.0f,0.0f));
-		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector( Vector3(-1.0f,0.0f,0.0f)));
-	}
+	////example
+	//angle += (float)seconds_elapsed * 10.0f;
 
-	//async input to move the camera around
-	if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->move(Vector3(0.0f, 0.0f,-1.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->move(Vector3(-1.0f,0.0f, 0.0f) * speed);
+	////mouse input to rotate the cam
+	//if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked ) //is left button pressed?
+	//{
+	//	camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f,-1.0f,0.0f));
+	//	camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector( Vector3(-1.0f,0.0f,0.0f)));
+	//}
 
-	//emeshPrueba->update(seconds_elapsed); //Actualiza la posicion de la prueba de personaje, con las flechas
+	////async input to move the camera around
+	//if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
+	//if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->move(Vector3(0.0f, 0.0f,-1.0f) * speed);
+	//if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
+	//if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->move(Vector3(-1.0f,0.0f, 0.0f) * speed);
 
-	//to navigate with the mouse fixed in the middle
-	if (mouse_locked)
-		Input::centerMouse();
+	////emeshPrueba->update(seconds_elapsed); //Actualiza la posicion de la prueba de personaje, con las flechas
+
+	////to navigate with the mouse fixed in the middle
+	//if (mouse_locked)
+	//	Input::centerMouse();
 }
 
 //Keyboard event handler (sync input)
@@ -229,7 +239,13 @@ void Game::onKeyDown( SDL_KeyboardEvent event )
 	{
 		case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
 		case SDLK_F1: Shader::ReloadAll(); break; 
-
+		case SDLK_q:
+			if (!turn_around)
+			{
+				camera->center *= -1.f;
+				turn_around = true;
+			}
+			/////Ejemplo para probar IA y encontrar caminos, set starting points with 3 and then set target one with 4
 		case SDLK_3: {
 			Vector2 mouse = Input::mouse_position;
 			Game* g = Game::instance;

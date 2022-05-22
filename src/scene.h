@@ -7,8 +7,8 @@
 #include "utils.h"
 #include "includes.h"
 #include "camera.h"
-#include "game.h"
 #include "entity.h"
+#include "shader.h"
 
 class Scene
 {
@@ -20,28 +20,32 @@ public:
 	//General features
 	Vector3 ambient_light;
 	Camera* main_camera;
+	Shader* shader;
 
 	//Scene shadows
 	FBO* fbo; //Frame Buffer Object
 	Texture* shadow_atlas; //Shadow map of the lights of the scene
 
 	//Entities
-	Entity* main_character;
+	MainCharacterEntity* main_character;
 	MonsterEntity* monster;
-
-	std::vector<Entity*> objects;
-	std::vector<Entity*> lights;
+	std::vector<ObjectEntity*> objects;
+	std::vector<LightEntity*> lights;
 	std::vector<SoundEntity*> sounds;
+	int num_objects;
+	int num_lights;
 
 	//Scene triggers
+	bool camera_trigger; //Triggers if the camera has moved in the space.
 	bool entity_trigger; //Triggers if an entity has changed his visibility or a visible entity has changed its model.
 	bool shadow_visibility_trigger; //Triggers changes in shadow casting or light visibility for lights that cast shadows.
 
 	//Methods
-	Scene();
+	Scene(Camera* camera);
 	void clear();
-	void addEntity(Entity*);
 	void load();
+	void addEntity(Entity* entity);
+	void AllocateMemory();
 
 
 };
