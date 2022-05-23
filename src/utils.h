@@ -10,6 +10,7 @@
 
 #include "includes.h"
 #include "framework.h"
+#include "extra/cJSON.h"
 
 //General functions **************
 long getTime();
@@ -47,6 +48,29 @@ char* fetchBufferVec2(char* data, std::vector<Vector2>& vector);
 char* fetchBufferVec3u(char* data, std::vector<Vector3u>& vector);
 char* fetchBufferVec4ub(char* data, std::vector<Vector4ub>& vector);
 char* fetchBufferVec4(char* data, std::vector<Vector4>& vector);
+
+//Read JSON
+bool readJSONBoolean(cJSON* obj, const char* name, float default_value);
+float readJSONNumber(cJSON* obj, const char* name, float default_value);
+std::string readJSONString(cJSON* obj, const char* name, const char* default_str);
+bool readJSONVector(cJSON* obj, const char* name, std::vector<float>& dst);
+Vector3 readJSONVector3(cJSON* obj, const char* name, Vector3 default_value);
+Vector4 readJSONVector4(cJSON* obj, const char* name);
+
+//Write JSON
+void writeJSONBoolean(cJSON* obj, const char* name, bool boolean);
+void writeJSONNumber(cJSON* obj, const char* name, float number);
+void writeJSONString(cJSON* obj, const char* name, std::string str);
+void writeJSONVector3(cJSON* obj, const char* name, Vector3& vtr);
+void writeJSONVector4(cJSON* obj, const char* name, Vector4& vtr);
+
+//Replace JSON
+void replaceJSONBoolean(cJSON* obj, const char* name, bool boolean);
+void replaceJSONNumber(cJSON* obj, const char* name, float number);
+void replaceJSONString(cJSON* obj, const char* name, const char* string);
+void replaceJSONFloatVector(cJSON* obj, const char* name, float* vector, int size);
+void replaceJSONVector3(cJSON* obj, const char* name, Vector3 vector);
+void replaceJSONVector4(cJSON* obj, const char* name, Vector4 vector);
 
 
 #endif

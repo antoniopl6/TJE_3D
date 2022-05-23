@@ -131,6 +131,7 @@
     <ClCompile Include="..\..\src\entity.cpp" />
     <ClCompile Include="..\..\src\entitycamera.cpp" />
     <ClCompile Include="..\..\src\entitymesh.cpp" />
+    <ClCompile Include="..\..\src\extra\cJSON.cpp" />
     <ClCompile Include="..\..\src\extra\coldet\box.cpp" />
     <ClCompile Include="..\..\src\extra\coldet\box_bld.cpp" />
     <ClCompile Include="..\..\src\extra\coldet\coldet.cpp" />
@@ -163,6 +164,7 @@
     <ClInclude Include="..\..\src\entity.h" />
     <ClInclude Include="..\..\src\entitycamera.h" />
     <ClInclude Include="..\..\src\entitymesh.h" />
+    <ClInclude Include="..\..\src\extra\cJSON.h" />
     <ClInclude Include="..\..\src\extra\coldet\box.h" />
     <ClInclude Include="..\..\src\extra\coldet\coldet.h" />
     <ClInclude Include="..\..\src\extra\coldet\coldetimpl.h" />

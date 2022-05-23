@@ -1639,6 +1639,6 @@ Mesh* Mesh::Get(const char* filename)
 
 void Mesh::registerMesh( std::string name )
 {
-	this->name = name;
+	this->filename = name;
 	sMeshesLoaded[name] = this;
 }

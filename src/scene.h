@@ -3,14 +3,18 @@
 //En esta clase se almacenarán todas las entidades en la escena y contendrá metodos para facilitar el trabajo en ellas
 //Usa el patrón singleton
 
-#pragma once //Import things once
+#pragma once
 #include "utils.h"
 #include "includes.h"
 #include "entity.h"
-#include "entitymesh.h"
 #include "camera.h"
 #include "game.h"
+#include "shader.h"
 
+//Forward declaration
+class FBO;
+
+using namespace std;
 
 class Scene
 {
@@ -20,6 +24,7 @@ public:
 	static Scene* instance;
 
 	//General features
+	string scene_path;
 	Vector3 ambient_light;
 	Camera* main_camera;
 	Shader* shader;
@@ -42,13 +47,17 @@ public:
 	//Scene triggers
 	bool camera_trigger; //Triggers if the camera has moved in the space.
 
-	//Methods
+	//Constructor
 	Scene();
-	void clear();
-	void load();
-	void addEntity(Entity* entity);
-	void AllocateMemory()
 
+	//Entity methods
+	void clear();
+	void addEntity(Entity* entity);
+	void removeEntity(Entity* entity);
+
+	//JSON methods
+	bool load(const char* scene_filepath);
+	bool save();
 
 };
 

@@ -45,15 +45,17 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//OpenGL flags
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
 	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
+
+	//Create the scene
+	scene = new Scene();
 	
 	//Create the main camera
 	camera = new Camera();
-	camera->lookAt(Vector3(0.f, 630.f, 300.f), Vector3(0.f, 630.f, 400.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
-	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 5000.f); //set the projection, we want to be perspective
+	scene->main_camera = camera;
 
-	//Create and load the scene
-	scene = new Scene();
-	scene->load();
+	//Load the scene JSON
+	if (!scene->load("data/scene.json"))
+		exit(1);
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
