@@ -16,8 +16,6 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = NULL;
 	this->texture = NULL;
 	this->bounding_box_trigger = false;
-
-	updateBoundingBox();
 }
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
@@ -112,8 +110,6 @@ MonsterEntity::MonsterEntity()
 {
 	mesh = NULL;
 	texture = NULL;
-
-	updateBoundingBox();
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -171,8 +167,6 @@ ObjectEntity::ObjectEntity() {
 	this->mesh = NULL;
 	this->texture = NULL;
 	this->bounding_box_trigger = false;
-
-	updateBoundingBox();
 }
 
 void ObjectEntity::updateBoundingBox()
@@ -257,17 +251,21 @@ void LightEntity::load(cJSON* light_json)
 	std::string type_field = readJSONString(light_json, "light_type", "");
 
 	//Light features
-	if (type_field == "POINT") {
+	if (type_field == "POINT_LIGHT") {
 		light_type = LightType::POINT_LIGHT;
 	}
-	else if (type_field == "SPOT") {
+	else if (type_field == "SPOT_LIGHT") {
 		light_type = LightType::SPOT_LIGHT;
 		cone_angle = readJSONNumber(light_json, "cone_angle", cone_angle);
 		cone_exp = readJSONNumber(light_json, "cone_exp", cone_exp);
 	}
-	else if (type_field == "DIRECTIONAL") {
+	else if (type_field == "DIRECTIONAL_LIGHT") {
 		light_type = LightType::DIRECTIONAL_LIGHT;
 		area_size = readJSONNumber(light_json, "area_size", area_size);
+	}
+	else
+	{
+		cout << "ERROR: Light type " << type_field << " unknown" << endl;
 	}
 
 	//Shadow features
@@ -292,19 +290,19 @@ void LightEntity::save(cJSON* light_json)
 	switch (this->light_type)
 	{
 	case(LightType::POINT_LIGHT):
-		writeJSONString(light_json, "light_type", "POINT");
+		writeJSONString(light_json, "light_type", "POINT_LIGHT");
 		break;
 	case(LightType::SPOT_LIGHT):
 		writeJSONNumber(light_json, "cone_angle", this->cone_angle);
 		writeJSONNumber(light_json, "cone_exp", this->cone_exp);
 		writeJSONBoolean(light_json, "cast_shadows", this->cast_shadows);
 		writeJSONNumber(light_json, "shadow_bias", this->shadow_bias);
-		writeJSONString(light_json, "light_type", "SPOT");
+		writeJSONString(light_json, "light_type", "SPOT_LIGHT");
 		break;
 	case(LightType::DIRECTIONAL_LIGHT):
 		writeJSONNumber(light_json, "area_size", this->area_size);
 		writeJSONBoolean(light_json, "cast_shadows", this->cast_shadows);
-		writeJSONString(light_json, "light_type", "DIRECTIONAL");
+		writeJSONString(light_json, "light_type", "DIRECTIONAL_LIGHT");
 		break;
 	}
 
@@ -318,17 +316,34 @@ void LightEntity::update(float elapsed_time)
 
 }
 
+//Sounds
 SoundEntity::SoundEntity()
 {
+	this->name = "";
+	this->model = Matrix44();
+	this->entity_type = EntityType::SOUND;
 	this->filename = "";
 }
 
 void SoundEntity::load(cJSON* sound_json)
 {
+	//General
+	name = readJSONString(sound_json, "name", "");
 	filename = readJSONString(sound_json, "filename", "");
+
+	//Model
+	vector<float> sound_model;
+	readJSONVector(sound_json, "model", sound_model);
+	for (int i = 0; i < sound_model.size(); ++i) model.m[i] = sound_model[i];
 }
 
 void SoundEntity::save(cJSON* sound_json)
 {
+	//General
+	writeJSONString(sound_json, "name", this->name);
 	writeJSONString(sound_json, "filename", this->filename);
+
+	//Model
+	cJSON* sound_model = cJSON_CreateFloatArray(this->model.m, 16);
+	cJSON_AddItemToObject(sound_json, "model", sound_model);
 }

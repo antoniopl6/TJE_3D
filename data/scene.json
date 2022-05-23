@@ -1,0 +1,61 @@
+{
+	"ambient_light":	[0.0799999982118607, 0.12999999523162842, 0.18000000715255737],
+	"camera_position":	[0.0, 630.0, 300.0],
+	"camera_target":	[0.0, 630.0, 400.0],
+	"camera_fov":	80,
+	"camera_near": 0.1,
+	"camera_far": 5000.0,
+	"main_character":{
+		"name": "Adventurer",
+		"mesh": "",
+		"texture": "",
+		"model": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+	},
+	"monster":{
+		"name": "Demogorgon",
+		"mesh": "data/assets/monster/GrimmFoxy.obj",
+		"texture": "data/assets/monster/GrimmFoxy_Shell.tga",
+		"model": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]		
+	},
+	"objects":[{
+			"name": "Box",
+			"mesh": "data/assets/box/box.ASE",
+			"texture": "data/assets/rainbow.tga",
+			"model": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+		}, {
+			"name": "Sphere",
+			"mesh": "data/assets/sphere/sphere.obj",
+			"texture": "data/assets/rainbow.tga",
+			"model": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10.0, 10.0, 10.0, 1]
+		}],
+	"lights":[{
+			"name":	"lamp light",
+			"light_type":	"POINT_LIGHT",
+			"color":	[0.67000001668930054, 0.67000001668930054, 0.449999988079071],
+			"intensity":	3,
+			"max_distance":	250,
+			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 50.99102783203125, 54.991001129150391, 62.783000946044922, 1]
+		},
+		{
+			"name":	"flashlight",
+			"light_type":	"SPOT_LIGHT",
+			"color":	[1, 0.89999997615814209, 0.800000011920929],
+			"intensity":	5,
+			"max_distance":	1000,
+			"cone_angle":	20,
+			"cone_exp":	30,
+			"cast_shadows":	true,
+			"shadow_bias":	0.00100000004749745,
+			"model":	[-0.731353759765625, 0, 0.68199831247329712, 0, 0, 1, 0, 0, -0.68199831247329712, 0, -0.731353759765625, 0, 0.0, 0.0, 0.0, 1]
+		}],
+	"sounds":[{
+			"name": "shotgun_song",
+			"filename": "data/sounds/shotgun.mp3",
+			"model": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+		},
+		{
+			"name": "dreamer_song",
+			"filename": "data/sounds/dreamer.mp3",
+			"model": [1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+		}]
+}

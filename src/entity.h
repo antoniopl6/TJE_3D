@@ -145,7 +145,7 @@ public:
 	virtual void update(float elapsed_time) override;
 };
 
-class SoundEntity {
+class SoundEntity : public Entity{
 public:	
 	string filename;
 
@@ -153,8 +153,8 @@ public:
 	SoundEntity();
 
 	//JSON methods
-	void load(cJSON* sound_json);
-	void save(cJSON* sound_json);
+	virtual void load(cJSON* sound_json) override;
+	virtual void save(cJSON* sound_json) override;
 };
 
 #endif

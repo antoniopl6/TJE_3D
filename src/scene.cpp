@@ -245,10 +245,12 @@ bool Scene::save()
 	//Main Character JSON
 	cJSON* main_json = cJSON_AddObjectToObject(scene_json, "main_character");
 	main_character->save(main_json);
+	main_character->updateBoundingBox();
 
 	//Monster JSON
 	cJSON* monster_json = cJSON_AddObjectToObject(scene_json, "monster");
 	monster->save(monster_json);
+	monster->updateBoundingBox();
 	
 	//Objects JSON
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
@@ -256,6 +258,7 @@ bool Scene::save()
 	{
 		cJSON* object_json = cJSON_CreateObject();
 		objects[i]->save(object_json);
+		objects[i]->updateBoundingBox();
 		cJSON_AddItemToArray(objects_json, object_json);
 	}
 
