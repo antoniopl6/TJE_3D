@@ -5,17 +5,13 @@
 #pragma once
 #include "includes.h"
 #include "utils.h"
-#include "game.h"
 #include "input.h"
+#include "camera.h"
 #include "mesh.h"
 #include "texture.h"
 #include "framework.h"
 
-//forward declaration
-class Camera;
-
 using namespace std;
-
 
 enum EntityType {
 	MAIN = 0,
@@ -31,10 +27,11 @@ enum ObjectType {
 };
 
 enum LightType {
-	POINT = 0,
-	SPOT = 1,
-	DIRECTIONAL = 2
+	POINT_LIGHT = 0,
+	SPOT_LIGHT = 1,
+	DIRECTIONAL_LIGHT = 2
 };
+
 
 class Entity {
 public:

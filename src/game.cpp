@@ -7,7 +7,6 @@
 #include "input.h"
 #include "animation.h"
 #include "entity.h"
-#include "entitymesh.h"
 #include "scene.h"
 
 
@@ -60,6 +59,8 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
+
+/*
 void Game::RenderTerrainExample() {
 	Matrix44 m;
 	Vector3 halfSize = mesh->box.halfsize * 2;
@@ -96,6 +97,7 @@ void Game::RenderTerrainExample() {
 		}
 	}
 }
+*/
 
 /*
 void Game::RayPickCheck(Camera* cam) {
@@ -163,6 +165,7 @@ void Game::update(double seconds_elapsed)
 {
 	//Update main character camera
 	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+
 }
 
 //Keyboard event handler (sync input)

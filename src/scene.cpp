@@ -1,5 +1,8 @@
 #include "scene.h"
+#include "game.h"
 #include <fstream> 
+
+Scene* Scene::instance = NULL;
 
 Scene::Scene()
 {
@@ -98,7 +101,7 @@ void Scene::removeEntity(Entity* entity)
 	}
 }
 
-bool Scene::load(const char* scene_filepath) 
+bool Scene::load(const char* scene_filepath)
 {
 	//JSON content var
 	std::string content;
@@ -139,6 +142,7 @@ bool Scene::load(const char* scene_filepath)
 	{
 		MainCharacterEntity* main_character = new MainCharacterEntity();
 		main_character->load(main_json);
+		main_character->camera = main_camera;
 		this->main_character = main_character;
 	}
 	else
@@ -213,7 +217,6 @@ bool Scene::load(const char* scene_filepath)
 	cJSON_Delete(scene_json);
 
 	return true;
-
 }
 
 bool Scene::save()

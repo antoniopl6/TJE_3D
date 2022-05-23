@@ -1,5 +1,6 @@
 #include "entity.h"
 
+
 Vector3 Entity::getPosition()
 {
 	return model.getTranslation();
@@ -66,10 +67,6 @@ void MainCharacterEntity::updateBoundingBox()
 
 void MainCharacterEntity::load(cJSON* main_json)
 {
-	//Main camera
-	Scene* scene = Scene::instance;
-	camera = scene->main_camera;
-
 	//Name
 	name = readJSONString(main_json, "name", name.c_str());
 
@@ -232,7 +229,7 @@ LightEntity::LightEntity()
 	//General features
 	this->name = "";
 	this->entity_type = LIGHT;
-	this->light_type = LightType::POINT;
+	this->light_type = LightType::POINT_LIGHT;
 	this->color.set(1.0f, 1.0f, 1.0f);
 	this->intensity = 1;
 	this->max_distance = 100;
@@ -261,15 +258,15 @@ void LightEntity::load(cJSON* light_json)
 
 	//Light features
 	if (type_field == "POINT") {
-		light_type = LightType::POINT;
+		light_type = LightType::POINT_LIGHT;
 	}
 	else if (type_field == "SPOT") {
-		light_type = LightType::SPOT;
+		light_type = LightType::SPOT_LIGHT;
 		cone_angle = readJSONNumber(light_json, "cone_angle", cone_angle);
 		cone_exp = readJSONNumber(light_json, "cone_exp", cone_exp);
 	}
 	else if (type_field == "DIRECTIONAL") {
-		light_type = LightType::DIRECTIONAL;
+		light_type = LightType::DIRECTIONAL_LIGHT;
 		area_size = readJSONNumber(light_json, "area_size", area_size);
 	}
 
@@ -294,17 +291,17 @@ void LightEntity::save(cJSON* light_json)
 	//Specific features
 	switch (this->light_type)
 	{
-	case(LightType::POINT):
+	case(LightType::POINT_LIGHT):
 		writeJSONString(light_json, "light_type", "POINT");
 		break;
-	case(LightType::SPOT):
+	case(LightType::SPOT_LIGHT):
 		writeJSONNumber(light_json, "cone_angle", this->cone_angle);
 		writeJSONNumber(light_json, "cone_exp", this->cone_exp);
 		writeJSONBoolean(light_json, "cast_shadows", this->cast_shadows);
 		writeJSONNumber(light_json, "shadow_bias", this->shadow_bias);
 		writeJSONString(light_json, "light_type", "SPOT");
 		break;
-	case(LightType::DIRECTIONAL):
+	case(LightType::DIRECTIONAL_LIGHT):
 		writeJSONNumber(light_json, "area_size", this->area_size);
 		writeJSONBoolean(light_json, "cast_shadows", this->cast_shadows);
 		writeJSONString(light_json, "light_type", "DIRECTIONAL");

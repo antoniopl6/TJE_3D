@@ -8,7 +8,6 @@
 #include "includes.h"
 #include "entity.h"
 #include "camera.h"
-#include "game.h"
 #include "shader.h"
 
 //Forward declaration
@@ -36,9 +35,9 @@ public:
 	//Entities
 	MainCharacterEntity* main_character;
 	MonsterEntity* monster;
-	std::vector<ObjectEntity*> objects;
-	std::vector<LightEntity*> lights;
-	std::vector<SoundEntity*> sounds;
+	vector<ObjectEntity*> objects;
+	vector<LightEntity*> lights;
+	vector<SoundEntity*> sounds;
 
 	//Counters
 	int num_objects;
