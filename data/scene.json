@@ -1,32 +1,67 @@
 {
 	"ambient_light":	[0.0799999982118607, 0.12999999523162842, 0.18000000715255737],
-	"camera_position":	[0, 630, 297.20001220703125],
-	"camera_target":	[0, 630, 397.20001220703125],
+	"camera_position":	[0.0139999408274889, 630, 280.41943359375],
+	"camera_target":	[-0.48599794507026672, 630, 380.41818237304688],
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
 	"camera_far":	5000,
 	"main_character":	{
 		"name":	"Adventurer",
+		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 		"mesh":	"",
-		"texture":	"",
-		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+		"material":	{
+			"transparency":	"NO_ALPHA",
+			"alpha_cutoff":	0.5,
+			"two_sided":	0,
+			"occlusion_factor":	1,
+			"roughness_factor":	1,
+			"metallic_factor":	0,
+			"emissive_factor":	[1, 1, 1]
+		}
 	},
 	"monster":	{
 		"name":	"Demogorgon",
-		"mesh":	"",
-		"texture":	"data/assets/monster/GrimmFoxy_Shell.tga",
-		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+		"mesh":	"data/assets/monster/GrimmFoxy.obj",
+		"material":	{
+			"transparency":	"NO_ALPHA",
+			"alpha_cutoff":	0.5,
+			"two_sided":	0,
+			"occlusion_factor":	1,
+			"roughness_factor":	1,
+			"metallic_factor":	0,
+			"emissive_factor":	[1, 1, 1],
+			"color_texture":	"data/assets/monster/GrimmFoxy_Shell.tga"
+		}
 	},
 	"objects":	[{
 			"name":	"Box",
-			"mesh":	"",
-			"texture":	"data/assets/rainbow.tga",
-			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
+			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+			"mesh":	"data/assets/box/box.ASE",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	0,
+				"occlusion_factor":	1,
+				"roughness_factor":	1,
+				"metallic_factor":	0,
+				"emissive_factor":	[1, 1, 1],
+				"color_texture":	"data/assets/rainbow.tga"
+			}
 		}, {
 			"name":	"Sphere",
-			"mesh":	"",
-			"texture":	"data/assets/rainbow.tga",
-			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 10, 10, 1]
+			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 10, 10, 1],
+			"mesh":	"data/assets/sphere/sphere.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	0,
+				"occlusion_factor":	1,
+				"roughness_factor":	1,
+				"metallic_factor":	0,
+				"emissive_factor":	[1, 1, 1],
+				"color_texture":	"data/assets/rainbow.tga"
+			}
 		}],
 	"lights":	[{
 			"name":	"lamp light",

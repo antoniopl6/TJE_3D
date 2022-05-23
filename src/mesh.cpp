@@ -1548,6 +1548,7 @@ Mesh* Mesh::Get(const char* filename)
 		return it->second;
 
 	Mesh* m = new Mesh();
+	m->filename = filename;
 	std::string name = filename;
 
 	//detect format
@@ -1639,6 +1640,5 @@ Mesh* Mesh::Get(const char* filename)
 
 void Mesh::registerMesh( std::string name )
 {
-	this->filename = name;
 	sMeshesLoaded[name] = this;
 }

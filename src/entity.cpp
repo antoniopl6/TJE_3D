@@ -14,7 +14,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->entity_type = EntityType::MAIN;
 	this->camera = new Camera();
 	this->mesh = NULL;
-	this->texture = NULL;
+	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
@@ -68,6 +68,11 @@ void MainCharacterEntity::load(cJSON* main_json)
 	//Name
 	name = readJSONString(main_json, "name", name.c_str());
 
+	//Model
+	vector<float> main_model;
+	readJSONVector(main_json, "model", main_model);
+	for (int i = 0; i < main_model.size(); ++i) model.m[i] = main_model[i];
+
 	//Mesh
 	string mesh_path = readJSONString(main_json, "mesh", "");
 	if (!mesh_path.empty())
@@ -75,31 +80,36 @@ void MainCharacterEntity::load(cJSON* main_json)
 	else
 		cout << "ERROR: Main character mesh hasn't been found at: " << mesh_path << endl;
 	
-	//Texture
-	string texture_path = readJSONString(main_json, "texture", "");
-	if (!texture_path.empty())
-		texture = Texture::Get(texture_path.c_str());
-	else
-		cout << "ERROR: Main character texture hasn't been found at: " << texture_path << endl;
-
-	//Model
-	vector<float> main_model;
-	readJSONVector(main_json, "model", main_model);
-	for (int i = 0; i < main_model.size(); ++i) model.m[i] = main_model[i];
+	//Material
+	if (!mesh_path.empty())
+	{
+		Material* material = Material::Get(mesh_path.c_str());
+		if (material)
+			this->material = material;
+		else
+		{
+			cJSON* material_json = cJSON_GetObjectItemCaseSensitive(main_json, "material");
+			this->material->load(material_json);
+			this->material->registerMaterial(mesh_path.c_str());
+		}
+	}
 }
 
 void MainCharacterEntity::save(cJSON* main_json)
 {
-	//General
+	//Name
 	writeJSONString(main_json, "name", name.c_str());
-	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
-	else writeJSONString(main_json, "mesh", "");
-	if(texture) writeJSONString(main_json, "texture", texture->filename);
-	else writeJSONString(main_json, "texture", "");
 
 	//Model
 	cJSON* main_model = cJSON_CreateFloatArray(this->model.m, 16);
 	cJSON_AddItemToObject(main_json, "model", main_model);
+
+	//Mesh
+	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
+	else writeJSONString(main_json, "mesh", "");
+
+	//Material
+	if (material)material->save(main_json);
 }
 
 void MainCharacterEntity::update(float elapsed_time)
@@ -111,7 +121,7 @@ void MainCharacterEntity::update(float elapsed_time)
 MonsterEntity::MonsterEntity()
 {
 	mesh = NULL;
-	texture = NULL;
+	material = new Material();
 	bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
@@ -125,38 +135,50 @@ void MonsterEntity::load(cJSON* monster_json)
 	//Name
 	name = readJSONString(monster_json, "name", name.c_str());
 
-	//Mesh
-	string mesh_path = readJSONString(monster_json, "mesh", "");
-	if (!mesh_path.empty())
-		mesh = Mesh::Get(mesh_path.c_str());
-	else
-		cout << "ERROR: Monster mesh hasn't been found at: " << mesh_path << endl;
-
-	//Texture
-	string texture_path = readJSONString(monster_json, "texture", "");
-	if (!texture_path.empty())
-		texture = Texture::Get(texture_path.c_str());
-	else
-		cout << "ERROR: Monster texture hasn't been found at: " << texture_path << endl;
-
 	//Model
 	vector<float> monster_model;
 	readJSONVector(monster_json, "model", monster_model);
 	for (int i = 0; i < monster_model.size(); ++i) model.m[i] = monster_model[i];
+
+	//Mesh
+	string mesh_path = readJSONString(monster_json, "mesh", "");
+	if (!mesh_path.empty())
+	{
+		mesh = Mesh::Get(mesh_path.c_str());
+	}
+	else
+		cout << "ERROR: Monster mesh hasn't been found at: " << mesh_path << endl;
+
+	//Material
+	if (!mesh_path.empty())
+	{
+		Material* material = Material::Get(mesh_path.c_str());
+		if (material)
+			this->material = material;
+		else
+		{
+			cJSON* material_json = cJSON_GetObjectItemCaseSensitive(monster_json, "material");
+			this->material->load(material_json);
+			this->material->registerMaterial(mesh_path.c_str());
+		}
+	}
 }
 
 void MonsterEntity::save(cJSON* monster_json)
 {
-	//General
+	//Name
 	writeJSONString(monster_json, "name", name.c_str());
-	if(mesh) writeJSONString(monster_json, "mesh", mesh->filename);
-	else writeJSONString(monster_json, "mesh", "");
-	if(texture) writeJSONString(monster_json, "texture", texture->filename);
-	else writeJSONString(monster_json, "texture", "");
 
 	//Model
 	cJSON* monster_model = cJSON_CreateFloatArray(this->model.m, 16);
 	cJSON_AddItemToObject(monster_json, "model", monster_model);
+
+	//Mesh
+	if (mesh) writeJSONString(monster_json, "mesh", mesh->filename);
+	else writeJSONString(monster_json, "mesh", "");
+
+	//Material
+	if (material)material->save(monster_json);
 }
 
 void MonsterEntity::update(float elapsed_time)
@@ -170,7 +192,7 @@ ObjectEntity::ObjectEntity() {
 	this->model = Matrix44();
 	this->entity_type = EntityType::OBJECT;
 	this->mesh = NULL;
-	this->texture = NULL;
+	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
@@ -184,37 +206,47 @@ void ObjectEntity::load(cJSON* object_json)
 	//Name
 	name = readJSONString(object_json, "name", name.c_str());
 
+	//Model
+	vector<float> object_model;
+	readJSONVector(object_json, "model", object_model);
+	for (int i = 0; i < object_model.size(); ++i) model.m[i] = object_model[i];
+
 	//Mesh
 	string mesh_path = readJSONString(object_json, "mesh", "");
 	if (!mesh_path.empty())
 		mesh = Mesh::Get(mesh_path.c_str());
 	else
 		cout << "ERROR: " << name << " mesh hasn't been found at: " << mesh_path << endl;
-
-	//Texture
-	string texture_path = readJSONString(object_json, "texture", "");
-	if (!texture_path.empty())
-		texture = Texture::Get(texture_path.c_str());
-	else
-		cout << "ERROR: " << name << " texture hasn't been found at: " << texture_path << endl;
-
-	//Model
-	vector<float> object_model;
-	readJSONVector(object_json, "model", object_model);
-	for (int i = 0; i < object_model.size(); ++i) model.m[i] = object_model[i];
+	//Material
+	if (!mesh_path.empty())
+	{
+		Material* material = Material::Get(mesh_path.c_str());
+		if (material)
+			this->material = material;
+		else
+		{
+			cJSON* material_json = cJSON_GetObjectItemCaseSensitive(object_json, "material");
+			this->material->load(material_json);
+			this->material->registerMaterial(mesh_path.c_str());
+		}
+	}	
 }
 
 void ObjectEntity::save(cJSON* object_json)
 {
-	//General
+	//Name
 	writeJSONString(object_json, "name", name.c_str());
-	if(mesh) writeJSONString(object_json, "mesh", mesh->filename);
-	else writeJSONString(object_json, "mesh", "");
-	if(texture) writeJSONString(object_json, "texture", texture->filename);
-	else writeJSONString(object_json, "texture", "");
+	
 	//Model
 	cJSON* object_model = cJSON_CreateFloatArray(this->model.m, 16);
 	cJSON_AddItemToObject(object_json, "model", object_model);
+	
+	//Mesh
+	if(mesh) writeJSONString(object_json, "mesh", mesh->filename);
+	else writeJSONString(object_json, "mesh", "");
+	
+	//Material
+	if (material)material->save(object_json);
 
 }
 

@@ -80,6 +80,9 @@
     <ClCompile Include="..\..\src\extra\cJSON.cpp">
       <Filter>extra</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\material.cpp">
+      <Filter>gfx</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -156,6 +159,9 @@
     <ClInclude Include="..\..\src\scene.h" />
     <ClInclude Include="..\..\src\extra\cJSON.h">
       <Filter>extra</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\material.h">
+      <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

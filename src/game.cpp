@@ -57,6 +57,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	if (!scene->load("data/scene.json"))
 		exit(1);
 
+	//This class will be the one in charge of rendering all 
+	//renderer = new Renderer();
+
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
@@ -130,6 +133,9 @@ void Game::RayPickCheck(Camera* cam) {
 //what to do when the image has to be draw
 void Game::render(void)
 {
+	//be sure no errors present in opengl before start
+	checkGLErrors();
+	
 	//set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -145,11 +151,10 @@ void Game::render(void)
 	glDisable(GL_CULL_FACE);
   
 
-	if(shader)
+	if(scene->shader)
 	{
-		//Prueba para colocar la camara en tercera persona para el personaje
-		//emeshPrueba->render();
-		//RenderTerrainExample();
+		//Render the scene
+		//renderer->renderScene(scene);
 	}
 
 	//Draw the floor grid

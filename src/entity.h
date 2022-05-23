@@ -8,7 +8,7 @@
 #include "input.h"
 #include "camera.h"
 #include "mesh.h"
-#include "texture.h"
+#include "material.h"
 #include "framework.h"
 
 using namespace std;
@@ -59,7 +59,7 @@ public:
 	//Main features
 	Camera* camera;
 	Mesh* mesh;
-	Texture* texture;
+	Material* material;
 	BoundingBox world_bounding_box;
 
 	//Triggers
@@ -82,7 +82,7 @@ public:
 
 	//Monster features
 	Mesh* mesh;
-	Texture* texture;
+	Material* material;
 	BoundingBox world_bounding_box;
 
 	//Triggers
@@ -102,7 +102,7 @@ class ObjectEntity : public Entity {
 public:
 	
 	Mesh* mesh;
-	Texture* texture;
+	Material* material;
 	BoundingBox world_bounding_box;
 
 	//Triggers

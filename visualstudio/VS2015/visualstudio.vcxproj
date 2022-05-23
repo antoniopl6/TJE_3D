@@ -147,6 +147,7 @@
     <ClCompile Include="..\..\src\input.cpp" />
     <ClCompile Include="..\..\src\intro.cpp" />
     <ClCompile Include="..\..\src\main.cpp" />
+    <ClCompile Include="..\..\src\material.cpp" />
     <ClCompile Include="..\..\src\mesh.cpp" />
     <ClCompile Include="..\..\src\play.cpp" />
     <ClCompile Include="..\..\src\rendertotexture.cpp" />
@@ -176,6 +177,7 @@
     <ClInclude Include="..\..\src\includes.h" />
     <ClInclude Include="..\..\src\input.h" />
     <ClInclude Include="..\..\src\intro.h" />
+    <ClInclude Include="..\..\src\material.h" />
     <ClInclude Include="..\..\src\mesh.h" />
     <ClInclude Include="..\..\src\play.h" />
     <ClInclude Include="..\..\src\rendertotexture.h" />
