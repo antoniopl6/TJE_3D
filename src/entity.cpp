@@ -1,23 +1,21 @@
 #include "entity.h"
-
+#include "scene.h"
 
 Vector3 Entity::getPosition()
 {
 	return model.getTranslation();
 }
 
-MainCharacterEntity::MainCharacterEntity(string name, Matrix44 model, Camera* camera, Mesh* mesh, Texture* texture) {
-	/*assert((mesh != null), "Null mesh given");
-	assert(texture != null, "Null texture given");*/
-	this->name = name;
-	this->model = model;
-	this->entity_type = EntityType::MAIN;
-	this->camera = camera;
-	this->mesh = mesh;
-	this->texture = texture;
-	this->bounding_box_trigger = false;
 
-	updateBoundingBox();
+//Main character
+MainCharacterEntity::MainCharacterEntity() {
+	this->name = "";
+	this->model = Matrix44();
+	this->entity_type = EntityType::MAIN;
+	this->camera = new Camera();
+	this->mesh = NULL;
+	this->texture = NULL;
+	this->bounding_box_trigger = false;
 }
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
@@ -50,35 +48,142 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	}
 
 	//Move the camera along with the main character
-	if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->lookAt(camera->eye + camera_front * speed, camera->center + camera_front * speed, camera->up);
+	/*if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->lookAt(camera->eye + camera_front * speed, camera->center + camera_front * speed, camera->up);
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->lookAt(camera->eye - camera_side * speed, camera->center - camera_side * speed, camera->up);
 	if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->lookAt(camera->eye - camera_front * speed, camera->center - camera_front * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->lookAt(camera->eye + camera_side * speed, camera->center + camera_side * speed, camera->up);
-
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->lookAt(camera->eye + camera_side * speed, camera->center + camera_side * speed, camera->up);*/
+	Vector3 nextPos;
+	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = camera_front * speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = camera_side * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = camera_front * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = camera_side * speed;
+	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
+	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
 	//To navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
 }
-
+//void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
+//{
+//	float speed = seconds_elapsed * 100; //the speed is defined by the seconds_elapsed so it goes constant
+//	float rotSpeed = 90.0f * DEG2RAD * seconds_elapsed;
+//	Matrix44 newmodel;
+//	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 10; //move faster with left shift, para correr
+//	if (Input::isKeyPressed(SDL_SCANCODE_UP)) newmodel.translate(0.0f, 0.0f, speed);
+//	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) newmodel.translate(0.0f, 0.0f, -speed);
+//	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) newmodel.rotate(rotSpeed, Vector3(0.0f, -1.0f, 0.0f));
+//	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) newmodel.rotate(rotSpeed, Vector3(0.0f, 1.0f, 0.0f));
+//	Scene::instance->testCollisions(model.)
+//}
 void MainCharacterEntity::updateBoundingBox()
 {
 	world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
+void MainCharacterEntity::load(cJSON* main_json)
+{
+	//Name
+	name = readJSONString(main_json, "name", name.c_str());
+
+	//Mesh
+	string mesh_path = readJSONString(main_json, "mesh", "");
+	if (!mesh_path.empty())
+		mesh = Mesh::Get(mesh_path.c_str());
+	else
+		cout << "ERROR: Main character mesh hasn't been found at: " << mesh_path << endl;
+	
+	//Texture
+	string texture_path = readJSONString(main_json, "texture", "");
+	if (!texture_path.empty())
+		texture = Texture::Get(texture_path.c_str());
+	else
+		cout << "ERROR: Main character texture hasn't been found at: " << texture_path << endl;
+
+	//Model
+	vector<float> main_model;
+	readJSONVector(main_json, "model", main_model);
+	for (int i = 0; i < main_model.size(); ++i) model.m[i] = main_model[i];
+}
+
+void MainCharacterEntity::save(cJSON* main_json)
+{
+	//General
+	writeJSONString(main_json, "name", name.c_str());
+	writeJSONString(main_json, "mesh", mesh->filename);
+	writeJSONString(main_json, "texture", texture->filename);
+
+	//Model
+	cJSON* main_model = cJSON_CreateFloatArray(this->model.m, 16);
+	cJSON_AddItemToObject(main_json, "model", main_model);
+}
+
+void MainCharacterEntity::update(float elapsed_time)
+{
+
+}
+
 //Monster
+MonsterEntity::MonsterEntity()
+{
+	mesh = NULL;
+	texture = NULL;
+}
+
+void MonsterEntity::updateBoundingBox()
+{
+	world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+}
+
+void MonsterEntity::load(cJSON* monster_json)
+{
+	//Name
+	name = readJSONString(monster_json, "name", name.c_str());
+
+	//Mesh
+	string mesh_path = readJSONString(monster_json, "mesh", "");
+	if (!mesh_path.empty())
+		mesh = Mesh::Get(mesh_path.c_str());
+	else
+		cout << "ERROR: Monster mesh hasn't been found at: " << mesh_path << endl;
+
+	//Texture
+	string texture_path = readJSONString(monster_json, "texture", "");
+	if (!texture_path.empty())
+		texture = Texture::Get(texture_path.c_str());
+	else
+		cout << "ERROR: Monster texture hasn't been found at: " << texture_path << endl;
+
+	//Model
+	vector<float> monster_model;
+	readJSONVector(monster_json, "model", monster_model);
+	for (int i = 0; i < monster_model.size(); ++i) model.m[i] = monster_model[i];
+}
+
+void MonsterEntity::save(cJSON* monster_json)
+{
+	//General
+	writeJSONString(monster_json, "name", name.c_str());
+	writeJSONString(monster_json, "mesh", mesh->filename);
+	writeJSONString(monster_json, "texture", texture->filename);
+
+	//Model
+	cJSON* monster_model = cJSON_CreateFloatArray(this->model.m, 16);
+	cJSON_AddItemToObject(monster_json, "model", monster_model);
+}
+
+void MonsterEntity::update(float elapsed_time)
+{
+
+}
 
 //Objects
-ObjectEntity::ObjectEntity(string name, Matrix44 model, Mesh* mesh, Texture* texture) {
-	/*assert(mesh != null, "Null mesh given");
-	assert(texture != null, "Null texture given");*/
-	this->name = name;
-	this->model = model;
+ObjectEntity::ObjectEntity() {
+	this->name = "";
+	this->model = Matrix44();
 	this->entity_type = EntityType::OBJECT;
-	this->mesh = mesh;
-	this->texture = texture;
+	this->mesh = NULL;
+	this->texture = NULL;
 	this->bounding_box_trigger = false;
-
-	updateBoundingBox();
 }
 
 void ObjectEntity::updateBoundingBox()
@@ -86,67 +191,176 @@ void ObjectEntity::updateBoundingBox()
 	world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
-//Lights
-LightEntity::LightEntity(string name, Vector3 color, float intensity, float max_distance, int light_type, float cone_angle, float cone_exp, float area_size, bool cast_shadows, float shadow_bias)
+void ObjectEntity::load(cJSON* object_json)
 {
-	this->name = name;
-	this->entity_type = EntityType::LIGHT;
-	this->color = color;
-	this->intensity = intensity;
-	this->max_distance = max_distance;
-	this->light_type = (LightType)light_type;
-	this->cone_angle = cone_angle;
-	this->cone_exp = cone_exp;
-	this->area_size = area_size;
-	this->cast_shadows = cast_shadows;
-	this->shadow_bias = shadow_bias;
+	//Name
+	name = readJSONString(object_json, "name", name.c_str());
+
+	//Mesh
+	string mesh_path = readJSONString(object_json, "mesh", "");
+	if (!mesh_path.empty())
+		mesh = Mesh::Get(mesh_path.c_str());
+	else
+		cout << "ERROR: " << name << " mesh hasn't been found at: " << mesh_path << endl;
+
+	//Texture
+	string texture_path = readJSONString(object_json, "texture", "");
+	if (!texture_path.empty())
+		texture = Texture::Get(texture_path.c_str());
+	else
+		cout << "ERROR: " << name << " texture hasn't been found at: " << texture_path << endl;
+
+	//Model
+	vector<float> object_model;
+	readJSONVector(object_json, "model", object_model);
+	for (int i = 0; i < object_model.size(); ++i) model.m[i] = object_model[i];
+}
+
+void ObjectEntity::save(cJSON* object_json)
+{
+	//General
+	writeJSONString(object_json, "name", name.c_str());
+	writeJSONString(object_json, "mesh", mesh->filename);
+	writeJSONString(object_json, "texture", texture->filename);
+
+	//Model
+	cJSON* object_model = cJSON_CreateFloatArray(this->model.m, 16);
+	cJSON_AddItemToObject(object_json, "model", object_model);
+
+}
+
+void ObjectEntity::update(float elapsed_time)
+{
+
+}
+
+//Lights
+LightEntity::LightEntity() 
+{
+	//General features
+	this->name = "";
+	this->entity_type = LIGHT;
+	this->light_type = LightType::POINT_LIGHT;
+	this->color.set(1.0f, 1.0f, 1.0f);
+	this->intensity = 1;
+	this->max_distance = 100;
+
+	//Spot light
+	this->cone_angle = 45;
+	this->cone_exp = 30;
+
+	//Directional light
+	this->area_size = 1000;
+
+	//Shadows
+	this->cast_shadows = false;
+	this->shadow_bias = 0.001;
 	this->shadow_camera = NULL;
 }
 
-MonsterEntity::MonsterEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, BoundingBox bounding, BoundingBox boundingCatchRange, BoundingBox boundingViewRange, Matrix44 model) {
-	/*assert(mesh != null, "Null mesh given");
-	assert(texture != null, "Null texture given");
-	assert(shader != null, "Null shader given");*/
-	this->model = model;
-	this->mesh = mesh;
-	this->texture = texture;
-	this->shader = shader;
-	this->color = color;
-	this->bounding = bounding;
-	this->boundingCatchRange = boundingCatchRange;
-	this->boundingViewRange = boundingViewRange;
-}
+void LightEntity::load(cJSON* light_json)
+{
+	//General features
+	name = readJSONString(light_json, "name", name.c_str());
+	color = readJSONVector3(light_json, "color", color);
+	intensity = readJSONNumber(light_json, "intensity", intensity);
+	max_distance = readJSONNumber(light_json, "max_distance", max_distance);
+	std::string type_field = readJSONString(light_json, "light_type", "");
 
-PickEntity::PickEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, Matrix44 model, PickType type) {
-	/*assert(mesh != null, "Null mesh given");
-	assert(texture != null, "Null texture given");
-	assert(shader != null, "Null shader given");*/
-	this->model = model;
-	this->mesh = mesh;
-	this->texture = texture;
-	this->shader = shader;
-	this->color = color;
-	this->type = type;
-}
-
-SoundEntity::SoundEntity(Audio audio, Matrix44 model) {
-	this->audio = audio;
-	this->model = model;
-}
-
-void MonsterEntity::render(){
-	if (isRunning) {
-		//Render animation of running monster
-		
+	//Light features
+	if (type_field == "POINT_LIGHT") {
+		light_type = LightType::POINT_LIGHT;
 	}
-	else {
-
-
+	else if (type_field == "SPOT_LIGHT") {
+		light_type = LightType::SPOT_LIGHT;
+		cone_angle = readJSONNumber(light_json, "cone_angle", cone_angle);
+		cone_exp = readJSONNumber(light_json, "cone_exp", cone_exp);
+	}
+	else if (type_field == "DIRECTIONAL_LIGHT") {
+		light_type = LightType::DIRECTIONAL_LIGHT;
+		area_size = readJSONNumber(light_json, "area_size", area_size);
+	}
+	else
+	{
+		cout << "ERROR: Light type " << type_field << " unknown" << endl;
 	}
 
+	//Shadow features
+	cast_shadows = readJSONBoolean(light_json, "cast_shadows", cast_shadows);
+	shadow_bias = readJSONNumber(light_json, "shadow_bias", shadow_bias);
+
+	//Model
+	vector<float> light_model;
+	readJSONVector(light_json, "model", light_model);
+	for (int i = 0; i < light_model.size(); ++i) model.m[i] = light_model[i];
+}
+
+void LightEntity::save(cJSON* light_json)
+{
+	//General features
+	writeJSONString(light_json, "name", this->name.c_str());
+	writeJSONVector3(light_json, "color", this->color);
+	writeJSONNumber(light_json, "intensity", this->intensity);
+	writeJSONNumber(light_json, "max_distance", this->max_distance);
+
+	//Specific features
+	switch (this->light_type)
+	{
+	case(LightType::POINT_LIGHT):
+		writeJSONString(light_json, "light_type", "POINT_LIGHT");
+		break;
+	case(LightType::SPOT_LIGHT):
+		writeJSONNumber(light_json, "cone_angle", this->cone_angle);
+		writeJSONNumber(light_json, "cone_exp", this->cone_exp);
+		writeJSONBoolean(light_json, "cast_shadows", this->cast_shadows);
+		writeJSONNumber(light_json, "shadow_bias", this->shadow_bias);
+		writeJSONString(light_json, "light_type", "SPOT_LIGHT");
+		break;
+	case(LightType::DIRECTIONAL_LIGHT):
+		writeJSONNumber(light_json, "area_size", this->area_size);
+		writeJSONBoolean(light_json, "cast_shadows", this->cast_shadows);
+		writeJSONString(light_json, "light_type", "DIRECTIONAL_LIGHT");
+		break;
+	}
+
+	//Model
+	cJSON* light_model = cJSON_CreateFloatArray(this->model.m, 16);
+	cJSON_AddItemToObject(light_json, "model", light_model);
+}
+
+void LightEntity::update(float elapsed_time)
+{
 
 }
 
-bool PickEntity::isInPickRange(Matrix44 mainModel) {
-	return false;
+//Sounds
+SoundEntity::SoundEntity()
+{
+	this->name = "";
+	this->model = Matrix44();
+	this->entity_type = EntityType::SOUND;
+	this->filename = "";
+}
+
+void SoundEntity::load(cJSON* sound_json)
+{
+	//General
+	name = readJSONString(sound_json, "name", "");
+	filename = readJSONString(sound_json, "filename", "");
+
+	//Model
+	vector<float> sound_model;
+	readJSONVector(sound_json, "model", sound_model);
+	for (int i = 0; i < sound_model.size(); ++i) model.m[i] = sound_model[i];
+}
+
+void SoundEntity::save(cJSON* sound_json)
+{
+	//General
+	writeJSONString(sound_json, "name", this->name);
+	writeJSONString(sound_json, "filename", this->filename);
+
+	//Model
+	cJSON* sound_model = cJSON_CreateFloatArray(this->model.m, 16);
+	cJSON_AddItemToObject(sound_json, "model", sound_model);
 }

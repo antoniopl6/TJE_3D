@@ -3,12 +3,18 @@
 //En esta clase se almacenarán todas las entidades en la escena y contendrá metodos para facilitar el trabajo en ellas
 //Usa el patrón singleton
 
-#pragma once //Import things once
+#pragma once
 #include "utils.h"
 #include "includes.h"
-#include "camera.h"
 #include "entity.h"
+#include "camera.h"
 #include "shader.h"
+#include "mainentity.h"
+
+//Forward declaration
+class FBO;
+
+using namespace std;
 
 class Scene
 {
@@ -18,6 +24,7 @@ public:
 	static Scene* instance;
 
 	//General features
+	string scene_path;
 	Vector3 ambient_light;
 	Camera* main_camera;
 	Shader* shader;
@@ -29,24 +36,29 @@ public:
 	//Entities
 	MainCharacterEntity* main_character;
 	MonsterEntity* monster;
-	std::vector<ObjectEntity*> objects;
-	std::vector<LightEntity*> lights;
-	std::vector<SoundEntity*> sounds;
+	vector<ObjectEntity*> objects;
+	vector<LightEntity*> lights;
+	vector<SoundEntity*> sounds;
+
+	//Counters
 	int num_objects;
 	int num_lights;
 
 	//Scene triggers
 	bool camera_trigger; //Triggers if the camera has moved in the space.
-	bool entity_trigger; //Triggers if an entity has changed his visibility or a visible entity has changed its model.
-	bool shadow_visibility_trigger; //Triggers changes in shadow casting or light visibility for lights that cast shadows.
 
-	//Methods
-	Scene(Camera* camera);
+	//Constructor
+	Scene();
+
+	//Entity methods
 	void clear();
-	void load();
 	void addEntity(Entity* entity);
-	void AllocateMemory();
-
+	void removeEntity(Entity* entity);
+	void renderEntities();
+	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
+	//JSON methods
+	bool load(const char* scene_filepath);
+	bool save();
 
 };
 

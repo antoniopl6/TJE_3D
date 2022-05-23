@@ -37,7 +37,7 @@ public:
 	static long num_meshes_rendered;
 	static long num_triangles_rendered;
 
-	std::string name;
+	std::string filename;
 
 	std::vector<sSubmeshInfo> submeshes; //contains info about every submesh
 

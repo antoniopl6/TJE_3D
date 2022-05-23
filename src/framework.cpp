@@ -1276,3 +1276,4 @@ Vector3 reflect(const Vector3& I, const Vector3& N)
 {
 	return I - (2.0 * N.dot(I)) * N;
 }
+

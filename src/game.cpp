@@ -7,7 +7,7 @@
 #include "input.h"
 #include "animation.h"
 #include "entity.h"
-#include "entitymesh.h"
+#include "scene.h"
 
 
 #include <cmath>
@@ -23,9 +23,7 @@ float angle = 0;
 float mouse_speed = 100.0f;
 FBO* fbo = NULL;
 
-
-/////////////////////////
-//EntityMesh* emeshPrueba;
+using namespace std;
 
 Game* Game::instance = NULL;
 
@@ -47,32 +45,19 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	glEnable( GL_CULL_FACE ); //render both sides of every triangle
 	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
 
-	//create our camera
+	//Create the scene
+	scene = new Scene();
+	
+	//Create the main camera
 	camera = new Camera();
-	camera->lookAt(Vector3(0.f, 630.f, 300.f), Vector3(0.f, 630.f, 400.f), Vector3(0.f, 1.f, 0.f)); //position the camera and point to 0,0,0
-	camera->setPerspective(70.f, window_width / (float)window_height, 0.1f, 5000.f); //set the projection, we want to be perspective
+	scene->main_camera = camera;
 
+	//Load the scene JSON
+	if (!scene->load("data/scene.json"))
+		exit(1);
 
-	//Create and load the scene
-	scene = new Scene(instance->camera);
-	scene->load();
-
-	//load one texture without using the Texture Manager (Texture::Get would use the manager)
-	/*mesh = Mesh::Get("data/GrimmFoxy.obj");
-	
-	texture = Texture::Get("data/GrimmFoxy_Shell.tga");*/
-	mesh = Mesh::Get("data/island.ASE");
-
-	texture = Texture::Get("data/island_color.tga");
-	
-	// example of shader loading using the shaders manager
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	/////////////////////////////////////////////////////
-	//emeshPrueba = new EntityMesh(Mesh::Get("data/GrimmFoxy.obj"), Texture::Get("data/GrimmFoxy_Shell.tga"), shader, Vector4(1, 1, 1, 1), Matrix44());
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
-
-	///////////////////
 	PruebaIAClase();
 }
 int W = 100;
@@ -86,15 +71,14 @@ int targety;
 uint8* grid;
 void Game::PruebaIAClase() {
 	// the map info should be an array W*H of bytes where 0 means block, 1 means walkable
-		grid = new uint8[W*H];
-		for (size_t i = 0; i < W*H; i++)
-		{
-			grid[i] = 1;
-		}
-	
+	grid = new uint8[W*H];
+	for (size_t i = 0; i < W*H; i++)
+	{
+		grid[i] = 1;
+	}
+
 
 };
-
 /*
 void Game::RenderTerrainExample() {
 	Matrix44 m;
@@ -132,15 +116,17 @@ void Game::RenderTerrainExample() {
 		}
 	}
 }
+*/
 
+/*
 void Game::RayPickCheck(Camera* cam) {
 	Vector2 mouse = Input::mouse_position;
 	Game* g = Game::instance;
 	Vector3 dir = cam->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
 	Vector3 rayOrgin = cam->eye;
 
-	Scene* scene = Scene::instance;
-	std::vector<Entity*> entities = scene->objects;
+	Scene scene = Scene::getInstance();
+	std::vector<Entity*> entities = scene.entities;
 
 	for (size_t i = 0; i < entities.size(); i++)
 	{
@@ -158,6 +144,7 @@ void Game::RayPickCheck(Camera* cam) {
 	}
 }
 */
+
 //what to do when the image has to be draw
 void Game::render(void)
 {
@@ -174,24 +161,22 @@ void Game::render(void)
 	glDisable(GL_BLEND);
 	glEnable(GL_DEPTH_TEST);
 	glDisable(GL_CULL_FACE);
-   
-	//create model matrix for cube
-	//m.rotate(angle*DEG2RAD, Vector3(0, 1, 0));
+  
 
-	if(shader)
-	{
-		////Prueba para colocar la camara en tercera persona para el personaje
-		//Vector3 eye = emeshPrueba->model * Vector3(0.0f, 300.0f, -50.0f);
-		//Vector3 center = emeshPrueba->model * Vector3(0.0f, 0.0f, 400.0f);
-		//Vector3 up = emeshPrueba->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
-		//camera->lookAt(eye, center, up);
+	//if(shader)
+	//{
+		//Prueba para colocar la camara en tercera persona para el personaje
 		//emeshPrueba->render();
 		//RenderTerrainExample();
-	}
+	//Vector3 eye = scene->main_character->model * Vector3(0.0f, 300.0f, -50.0f);
+	//	Vector3 center = scene->main_character->model * Vector3(0.0f, 0.0f, 400.0f);
+	//	Vector3 up = scene->main_character->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
+	//	camera->lookAt(eye, center, up);
+	scene->renderEntities();
+	//}
 
 	//Draw the floor grid
 	drawGrid();
-
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
 
@@ -199,103 +184,85 @@ void Game::render(void)
 	SDL_GL_SwapWindow(this->window);
 }
 
-
-
-
 void Game::update(double seconds_elapsed)
 {
 	//Update main character camera
 	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
 
-	//float speed = seconds_elapsed * mouse_speed * 5; //the speed is defined by the seconds_elapsed so it goes constant
-
-	////example
-	//angle += (float)seconds_elapsed * 10.0f;
-
-	////mouse input to rotate the cam
-	//if ((Input::mouse_state & SDL_BUTTON_LEFT) || mouse_locked ) //is left button pressed?
-	//{
-	//	camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f,-1.0f,0.0f));
-	//	camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector( Vector3(-1.0f,0.0f,0.0f)));
-	//}
-
-	////async input to move the camera around
-	//if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->move(Vector3(0.0f, 0.0f, 1.0f) * speed);
-	//if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->move(Vector3(0.0f, 0.0f,-1.0f) * speed);
-	//if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->move(Vector3(1.0f, 0.0f, 0.0f) * speed);
-	//if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->move(Vector3(-1.0f,0.0f, 0.0f) * speed);
-
-	////emeshPrueba->update(seconds_elapsed); //Actualiza la posicion de la prueba de personaje, con las flechas
-
-	////to navigate with the mouse fixed in the middle
-	//if (mouse_locked)
-	//	Input::centerMouse();
 }
 
 //Keyboard event handler (sync input)
 void Game::onKeyDown( SDL_KeyboardEvent event )
 {
-	switch(event.keysym.sym)
+	switch (event.keysym.sym)
 	{
-		case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
-		case SDLK_F1: Shader::ReloadAll(); break; 
-		case SDLK_q:
-			if (!turn_around)
-			{
-				camera->center *= -1.f;
-				turn_around = true;
-			}
-			/////Ejemplo para probar IA y encontrar caminos, set starting points with 3 and then set target one with 4
-		case SDLK_3: {
-			Vector2 mouse = Input::mouse_position;
-			Game* g = Game::instance;
-			Vector3 dir = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
-			Vector3 rayOrigin = camera->eye;
-
-			Vector3 spawnPos = RayPlaneCollision(Vector3(), Vector3(0, 1, 0), rayOrigin, dir);
-			startx = clamp(spawnPos.x / tileSizeX, 0, W);
-			starty = clamp(spawnPos.z / tileSizeY, 0, H);
-			break;
+	case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
+	case SDLK_F1: Shader::ReloadAll(); break;
+	case SDLK_q:
+		if (!turn_around)
+		{
+			camera->center *= -1.f;
+			turn_around = true;
 		}
-		case SDLK_4: {
-			Vector2 mouse = Input::mouse_position;
-			Game* g = Game::instance;
-			Vector3 dir = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
-			Vector3 rayOrigin = camera->eye;
+		/////Ejemplo para probar IA y encontrar caminos, set starting points with 3 and then set target one with 4
+	case SDLK_3: {
+		Vector2 mouse = Input::mouse_position;
+		Game* g = Game::instance;
+		Vector3 dir = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
+		Vector3 rayOrigin = camera->eye;
 
-			Vector3 spawnPos = RayPlaneCollision(Vector3(), Vector3(0, 1, 0), rayOrigin, dir);
+		Vector3 spawnPos = RayPlaneCollision(Vector3(), Vector3(0, 1, 0), rayOrigin, dir);
+		startx = clamp(spawnPos.x / tileSizeX, 0, W);
+		starty = clamp(spawnPos.z / tileSizeY, 0, H);
+		break;
+	}
+	case SDLK_4: {
+		Vector2 mouse = Input::mouse_position;
+		Game* g = Game::instance;
+		Vector3 dir = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
+		Vector3 rayOrigin = camera->eye;
+
+		Vector3 spawnPos = RayPlaneCollision(Vector3(), Vector3(0, 1, 0), rayOrigin, dir);
 
 
-			targetx = clamp(spawnPos.x /tileSizeX, 0, W);
-			targety = clamp(spawnPos.z / tileSizeY, 0, H);
+		targetx = clamp(spawnPos.x / tileSizeX, 0, W);
+		targety = clamp(spawnPos.z / tileSizeY, 0, H);
 
-			//here we must fill the map with all the info
-	//...
-	//when we want to find the shortest path, this array contains the shortest path, every value is the Nth position in the map, 100 steps max
-			int output[100];
+		//here we must fill the map with all the info
+//...
+//when we want to find the shortest path, this array contains the shortest path, every value is the Nth position in the map, 100 steps max
+		int output[100];
 
-			//we call the path function, it returns the number of steps to reach target, otherwise 0
-			int path_steps = AStarFindPathNoTieDiag(
-				startx, starty, //origin (tienen que ser enteros)
-				targetx, targety, //target (tienen que ser enteros)
-				grid, //pointer to map data
-				W, H, //map width and height
-				output, //pointer where the final path will be stored
-				100); //max supported steps of the final path
+		//we call the path function, it returns the number of steps to reach target, otherwise 0
+		int path_steps = AStarFindPathNoTieDiag(
+			startx, starty, //origin (tienen que ser enteros)
+			targetx, targety, //target (tienen que ser enteros)
+			grid, //pointer to map data
+			W, H, //map width and height
+			output, //pointer where the final path will be stored
+			100); //max supported steps of the final path
 
-		//check if there was a path
-			if (path_steps != -1)
-			{
-				for (int i = 0; i < path_steps; ++i)
-					std::cout << "X: " << (output[i] % W) << ", Y: " << floor(output[i] / W) << std::endl;
-			}
-			break;
+	//check if there was a path
+		if (path_steps != -1)
+		{
+			for (int i = 0; i < path_steps; ++i)
+				std::cout << "X: " << (output[i] % W) << ", Y: " << floor(output[i] / W) << std::endl;
 		}
+		break;
+	}
+	/*case SDLK_9: {
+		printf("x: %f, y: %f, z: %f", camera->center.x, camera->center.y, camera->center.z);
+	}*/
 	}
 }
 
 void Game::onKeyUp(SDL_KeyboardEvent event)
 {
+	switch (event.keysym.sym)
+	{
+		//Keep looking forward
+		case SDLK_q: camera->center *= -1.f;
+	}
 }
 
 void Game::onGamepadButtonDown(SDL_JoyButtonEvent event)

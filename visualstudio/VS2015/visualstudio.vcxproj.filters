@@ -67,9 +67,6 @@
     <ClCompile Include="..\..\src\entity.cpp">
       <Filter>elements</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\entitymesh.cpp">
-      <Filter>elements</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\intro.cpp">
       <Filter>Stages</Filter>
     </ClCompile>
@@ -80,13 +77,16 @@
       <Filter>Stages</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\scene.cpp" />
-    <ClCompile Include="..\..\src\entitycamera.cpp">
-      <Filter>elements</Filter>
+    <ClCompile Include="..\..\src\extra\cJSON.cpp">
+      <Filter>extra</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\audio.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pathfinders.cpp" />
+    <ClCompile Include="..\..\src\mainentity.cpp">
+      <Filter>elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -151,9 +151,6 @@
     <ClInclude Include="..\..\src\entity.h">
       <Filter>elements</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\entitymesh.h">
-      <Filter>elements</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\stage.h">
       <Filter>Stages</Filter>
     </ClInclude>
@@ -164,16 +161,19 @@
       <Filter>Stages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\scene.h" />
-    <ClInclude Include="..\..\src\entitycamera.h">
-      <Filter>elements</Filter>
+    <ClInclude Include="..\..\src\extra\cJSON.h">
+      <Filter>extra</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\audio.h">
       <Filter>gfx</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\pathfinders.h" />
     <ClInclude Include="..\..\src\extra\bass.h">
       <Filter>extra</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\pathfinders.h" />
+    <ClInclude Include="..\..\src\mainentity.h">
+      <Filter>elements</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <Filter Include="extra">

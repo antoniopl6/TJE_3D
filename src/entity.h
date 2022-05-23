@@ -1,31 +1,26 @@
 
 #ifndef ENTITY_H
 #define ENTITY_H
-#pragma once 
+
+#pragma once
 #include "includes.h"
 #include "utils.h"
-#include "mesh.h"
-#include "texture.h"
-#include "audio.h"
-#include "animation.h"
-#include "pathfinders.h"
 #include "input.h"
 #include "camera.h"
-#include <assert.h>
-
-//forward declaration
-class Camera;
-class Mesh;
-class Texture;
-
+#include "mesh.h"
+#include "texture.h"
+#include "framework.h"
+#include "audio.h"
 
 
 using namespace std;
+
 enum EntityType {
 	MAIN = 0,
 	MONSTER = 1,
 	OBJECT = 2,
-	LIGHT = 3
+	LIGHT = 3,
+	SOUND = 4
 };
 
 enum ObjectType {
@@ -34,16 +29,14 @@ enum ObjectType {
 };
 
 enum LightType {
-	LPOINT = 0,
-	LSPOT = 1,
-	LDIRECTIONAL = 2
+	POINT_LIGHT = 0,
+	SPOT_LIGHT = 1,
+	DIRECTIONAL_LIGHT = 2
 };
-
 
 
 class Entity {
 public:
-
 	Entity() {}; //constructor
 	virtual ~Entity() {}; //destructor
 
@@ -54,14 +47,17 @@ public:
 
 	//Methods overwritten by derived classes 
 	virtual void update(float elapsed_time) {};
-	void virtual updateBoundingBox() {};
+	virtual void load(cJSON* entity_json) {};
+	virtual void save(cJSON* entity_json) {};
+	virtual void updateBoundingBox() {};
 
 	//Some useful methods...
 	Vector3 getPosition();
 };
-class MainCharacterEntity : public Entity {
-public:
 
+class MainCharacterEntity: public Entity {
+public:
+	
 	//Main features
 	Camera* camera;
 	Mesh* mesh;
@@ -71,37 +67,36 @@ public:
 	//Triggers
 	bool bounding_box_trigger;
 
-	MainCharacterEntity(string name, Matrix44 model, Camera* camera, Mesh* mesh, Texture* texture); //constructor
+	MainCharacterEntity(); //constructor
 
 	//Methods
 	void updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
-	void updateMainMesh();
-	void virtual updateBoundingBox();
-	virtual void update(float elapsed_time) {};
+
+	//Inherited methods
+	virtual void updateBoundingBox() override;
+	virtual void load(cJSON* main_json) override;
+	virtual void save(cJSON* main_json) override;
+	virtual void update(float elapsed_time) override;
 };
-class MonsterEntity: public Entity{
+
+class MonsterEntity : public Entity {
 public:
+
+	//Monster features
 	Mesh* mesh;
 	Texture* texture;
-	Shader* shader;
-	Vector4 color;
-	//Bounding for colisions
-	BoundingBox bounding;
-	//Bounding to catch the character
-	BoundingBox boundingCatchRange;
-	//Bounding to see the character and start following
-	BoundingBox boundingViewRange;
-	Animation* animRunning;
-	Animation* animWalking;
-
+	BoundingBox world_bounding_box;
 	float speed = 30.f;
 	bool isRunning;
 	bool isFollowing;
+	//Methods
+	MonsterEntity();
 
-	MonsterEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, BoundingBox bounding, BoundingBox boundingCatchRange, BoundingBox boundingViewRange, Matrix44 model);
-
-	void render();
-	void update(float elapsed_time) {};
+	//Inherited methods
+	virtual void updateBoundingBox() override;
+	virtual void load(cJSON* monster_json) override;
+	virtual void save(cJSON* monster_json) override;
+	virtual void update(float elapsed_time) override;
 	//Metodos en IA
 	void updateNoFollow(float elapsed_time);
 	void updateFollow(float elapsed_time);
@@ -110,43 +105,9 @@ public:
 	bool isInCatchRange(Matrix44 mainModel);
 };
 
-class PickEntity : public Entity {
-public:
-	enum PickType {
-		KEY = 1,
-		RECOLECTABLE = 2,
-	};
-	Mesh* mesh;
-	Texture* texture;
-	Shader* shader;
-	Vector4 color;
-	PickType type;
-	BoundingBox boundingPickRange;
-
-	PickEntity(Mesh* mesh, Texture* texture, Shader* shader, Vector4 color, Matrix44 model, PickType type);
-
-	//methods overwritten 
-	void render() {};
-	void update(float elapsed_time) {};
-	bool isInPickRange(Matrix44 mainModel);
-
-};
-class SoundEntity : public Entity {
-public:
-	Audio audio;
-
-	SoundEntity(Audio audio, Matrix44 model);
-
-	void render() {};
-	void update(float elapsed_time) {};
-	void playSample();
-	void stopAudio();
-	void changeVol(float new_v);
-};
-
 class ObjectEntity : public Entity {
 public:
-
+	
 	Mesh* mesh;
 	Texture* texture;
 	BoundingBox world_bounding_box;
@@ -154,11 +115,13 @@ public:
 	//Triggers
 	bool bounding_box_trigger;
 
-	ObjectEntity(string name, Matrix44 model, Mesh* mesh, Texture* texture); //constructor
+	ObjectEntity(); //constructor
 
-	//Methods
-	void virtual updateBoundingBox();
-	virtual void update(float elapsed_time) {};
+	//Inherited methods
+	virtual void updateBoundingBox() override;
+	virtual void load(cJSON* object_json) override;
+	virtual void save(cJSON* object_json) override;
+	virtual void update(float elapsed_time) override;
 
 };
 
@@ -180,14 +143,31 @@ public:
 
 	//Shadows
 	bool cast_shadows;
-	int shadow_index;
 	float shadow_bias;
 	Camera* shadow_camera;
 
-	//Methods
-	LightEntity(string name, Vector3 color, float intensity, float max_distance, int light_type, float cone_angle, float cone_exp, float area_size, bool cast_shadows, float shadow_bias); //constructor
-	virtual void update(float elapsed_time) {};
+	//Constructor
+	LightEntity(); 
+
+	//Inherited methods
+	virtual void load(cJSON* light_json) override;
+	virtual void save(cJSON* light_json) override;
+	virtual void update(float elapsed_time) override;
 };
 
+class SoundEntity : public Entity{
+public:	
+	string filename;
+	Audio audio;
+	//Methods
+	SoundEntity();
+	void playSample();
+	void stopAudio();
+	void changeVol(float new_v);
+
+	//JSON methods
+	virtual void load(cJSON* sound_json) override;
+	virtual void save(cJSON* sound_json) override;
+};
 
 #endif
