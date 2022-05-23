@@ -10,7 +10,7 @@ Scene::Scene()
 	instance = this;
 
 	//General features
-	scene_path = "";
+	filename = "";
 	ambient_light = Vector3(1.f,1.f,1.f);
 	main_camera = Game::instance->camera;
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
@@ -112,6 +112,8 @@ bool Scene::load(const char* scene_filepath)
 		cout << "ERROR: The Scene JSON has not been found at: " << scene_filepath << endl;
 		return false;
 	}
+
+	filename = scene_filepath;
 
 	//Parse JSON content
 	cJSON* scene_json = cJSON_Parse(content.c_str());
@@ -223,15 +225,15 @@ bool Scene::save()
 {
 	std::string content;
 
-	if (!readFile(scene_path, content))
+	if (!readFile(filename, content))
 	{
-		cout << "ERROR: The Scene JSON has not been found at: " << scene_path << endl;
+		cout << "ERROR: The Scene JSON has not been found at: " << filename << endl;
 		return false;
 	}
 
 	//Create JSON
 	cJSON* scene_json = cJSON_CreateObject();
-
+ 
 	//Add scene properties
 	writeJSONVector3(scene_json, "ambient_light", ambient_light);
 	
@@ -245,12 +247,10 @@ bool Scene::save()
 	//Main Character JSON
 	cJSON* main_json = cJSON_AddObjectToObject(scene_json, "main_character");
 	main_character->save(main_json);
-	main_character->updateBoundingBox();
 
 	//Monster JSON
 	cJSON* monster_json = cJSON_AddObjectToObject(scene_json, "monster");
 	monster->save(monster_json);
-	monster->updateBoundingBox();
 	
 	//Objects JSON
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
@@ -258,7 +258,6 @@ bool Scene::save()
 	{
 		cJSON* object_json = cJSON_CreateObject();
 		objects[i]->save(object_json);
-		objects[i]->updateBoundingBox();
 		cJSON_AddItemToArray(objects_json, object_json);
 	}
 
@@ -267,7 +266,7 @@ bool Scene::save()
 	for (int i = 0; i < lights.size(); i++)
 	{
 		cJSON* light_json = cJSON_CreateObject();
-		lights[i]->save(objects_json);
+		lights[i]->save(light_json);
 		cJSON_AddItemToArray(lights_json, light_json);
 	}
 

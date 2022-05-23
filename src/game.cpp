@@ -26,6 +26,7 @@ FBO* fbo = NULL;
 using namespace std;
 
 Game* Game::instance = NULL;
+bool scene_saved = false;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -163,8 +164,45 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
+	//Update Main Character
+	MainCharacterEntity* character = scene->main_character;
+	if (character->bounding_box_trigger)
+	{
+		character->updateBoundingBox();
+		character->bounding_box_trigger = false;
+	}
+
+	//Update Monster
+	MonsterEntity* monster = scene->monster;
+	if (monster->bounding_box_trigger)
+	{
+		monster->updateBoundingBox();
+		monster->bounding_box_trigger = false;
+	}
+
+	//Update Objects
+	for (int i = 0; i < scene->objects.size(); ++i)
+	{
+		ObjectEntity* object = scene->objects[i];
+		if (object->bounding_box_trigger) {
+			object->updateBoundingBox();
+		}
+	}
+
+	//Update Lights
+
 	//Update main character camera
 	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+
+	//Save scene
+	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
+	{
+		if (!scene_saved)
+		{
+			scene->save();
+			scene_saved = true;
+		}
+	}
 
 }
 

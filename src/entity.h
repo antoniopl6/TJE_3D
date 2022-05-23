@@ -85,6 +85,9 @@ public:
 	Texture* texture;
 	BoundingBox world_bounding_box;
 
+	//Triggers
+	bool bounding_box_trigger;
+
 	//Methods
 	MonsterEntity();
 

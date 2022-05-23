@@ -1,6 +1,6 @@
 #include "entity.h"
 
-
+//Entity
 Vector3 Entity::getPosition()
 {
 	return model.getTranslation();
@@ -15,7 +15,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->camera = new Camera();
 	this->mesh = NULL;
 	this->texture = NULL;
-	this->bounding_box_trigger = false;
+	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
@@ -60,7 +60,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 void MainCharacterEntity::updateBoundingBox()
 {
-	world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void MainCharacterEntity::load(cJSON* main_json)
@@ -92,8 +92,10 @@ void MainCharacterEntity::save(cJSON* main_json)
 {
 	//General
 	writeJSONString(main_json, "name", name.c_str());
-	writeJSONString(main_json, "mesh", mesh->filename);
-	writeJSONString(main_json, "texture", texture->filename);
+	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
+	else writeJSONString(main_json, "mesh", "");
+	if(texture) writeJSONString(main_json, "texture", texture->filename);
+	else writeJSONString(main_json, "texture", "");
 
 	//Model
 	cJSON* main_model = cJSON_CreateFloatArray(this->model.m, 16);
@@ -110,11 +112,12 @@ MonsterEntity::MonsterEntity()
 {
 	mesh = NULL;
 	texture = NULL;
+	bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
 void MonsterEntity::updateBoundingBox()
 {
-	world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void MonsterEntity::load(cJSON* monster_json)
@@ -146,8 +149,10 @@ void MonsterEntity::save(cJSON* monster_json)
 {
 	//General
 	writeJSONString(monster_json, "name", name.c_str());
-	writeJSONString(monster_json, "mesh", mesh->filename);
-	writeJSONString(monster_json, "texture", texture->filename);
+	if(mesh) writeJSONString(monster_json, "mesh", mesh->filename);
+	else writeJSONString(monster_json, "mesh", "");
+	if(texture) writeJSONString(monster_json, "texture", texture->filename);
+	else writeJSONString(monster_json, "texture", "");
 
 	//Model
 	cJSON* monster_model = cJSON_CreateFloatArray(this->model.m, 16);
@@ -166,12 +171,12 @@ ObjectEntity::ObjectEntity() {
 	this->entity_type = EntityType::OBJECT;
 	this->mesh = NULL;
 	this->texture = NULL;
-	this->bounding_box_trigger = false;
+	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
 void ObjectEntity::updateBoundingBox()
 {
-	world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if(mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void ObjectEntity::load(cJSON* object_json)
@@ -203,9 +208,10 @@ void ObjectEntity::save(cJSON* object_json)
 {
 	//General
 	writeJSONString(object_json, "name", name.c_str());
-	writeJSONString(object_json, "mesh", mesh->filename);
-	writeJSONString(object_json, "texture", texture->filename);
-
+	if(mesh) writeJSONString(object_json, "mesh", mesh->filename);
+	else writeJSONString(object_json, "mesh", "");
+	if(texture) writeJSONString(object_json, "texture", texture->filename);
+	else writeJSONString(object_json, "texture", "");
 	//Model
 	cJSON* object_model = cJSON_CreateFloatArray(this->model.m, 16);
 	cJSON_AddItemToObject(object_json, "model", object_model);

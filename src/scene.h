@@ -23,7 +23,7 @@ public:
 	static Scene* instance;
 
 	//General features
-	string scene_path;
+	string filename;
 	Vector3 ambient_light;
 	Camera* main_camera;
 	Shader* shader;
