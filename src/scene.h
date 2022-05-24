@@ -48,7 +48,7 @@ public:
 	int atlas_scope;
 
 	//Scene triggers
-	bool camera_trigger; //Triggers if the camera has moved in the space.
+
 
 	//Constructor
 	Scene();

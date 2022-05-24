@@ -57,54 +57,12 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	if (!scene->load("data/scene.json"))
 		exit(1);
 
-	//This class will be the one in charge of rendering all 
-	renderer = new Renderer();
-
-	//Create Shadow Atlas: We create a dynamic atlas to be resizable
-	renderer->createShadowAtlas();
+	//This class will be the one in charge of rendering the scene
+	renderer = new Renderer(scene);
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
-
-/*
-void Game::RenderTerrainExample() {
-	Matrix44 m;
-	Vector3 halfSize = mesh->box.halfsize * 2;
-	EntityMesh* emeshIsland = new EntityMesh(mesh, texture, shader, Vector4(1, 1, 1, 1), m);
-	float lodDistance = 200.0f;
-	float noRenderDist = 1000000.0f;
-
-	for (size_t i = 0; i < 10; i++)
-	{
-		for (size_t j = 0; j < 10; j++)
-		{
-			emeshIsland->model = m;
-			m.setTranslation(halfSize.x * i, 0.0f, halfSize.z * j);
-
-			
-			Vector3 emeshPos = m.getTranslation();
-			//No renderizar lo que no este en vision de camara
-			BoundingBox worldAABB = transformBoundingBox(m, mesh->box);
-			if (!camera->testBoxInFrustum(worldAABB.center, worldAABB.halfsize)) {
-				continue;
-			}
-			Vector3 camPos = camera->eye;
-			float dist = emeshPos.distance(camPos);
-
-			if (dist > noRenderDist) {
-				continue;
-			}
-			//Ejemplo para renderizar un elemento a mas baja calidad una vez esta lo suficientemente lejos y asi conseguir eficiencia
-			if (dist < lodDistance) {
-				//Render otra isla a mas baja calidad
-			}
-
-			emeshIsland->render();
-		}
-	}
-}
-*/
 
 /*
 void Game::RayPickCheck(Camera* cam) {
@@ -126,7 +84,7 @@ void Game::RayPickCheck(Camera* cam) {
 			Vector3 normal;
 			if (entity->mesh->testRayCollision(entity->model, rayOrgin, dir, pos, normal)) {
 				//Se cogería el objeto
-				scene.eraseEntity(i);
+				scene.removeEntity(entity);
 			}
 		}
 	}
@@ -137,7 +95,7 @@ void Game::RayPickCheck(Camera* cam) {
 void Game::render(void)
 {
 	//Render the scene
-	renderer->renderScene(scene);
+	renderer->renderScene();
 
 	//Draw the floor grid
 	drawGrid();

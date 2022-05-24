@@ -1,4 +1,5 @@
 #include "renderer.h"
+#include "game.h"
 
 constexpr int SHOW_ATLAS_RESOLUTION = 300;
 constexpr int SHADOW_MAP_RESOLUTION = 2048;
@@ -16,15 +17,24 @@ bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
 	else return true;
 }
 
-void Renderer::renderScene(Scene* scene)
+Renderer(Scene* scene) {
+	
+	//Set scene and camera
+	this->scene = scene;
+	this->camera = scene->main_camera;
+
+	//Create render calls vector
+	createRenderCalls();
+
+	//Create Shadow Atlas: We create a dynamic atlas to be resizable
+	createShadowAtlas();
+}
+
+void Renderer::renderScene()
 {	
 	//If there aren't lights in the scene don't render nothing
 	if (scene->lights.empty()) 
 		return;
-
-	//Set current scene and camera
-	this->scene = scene;
-	this->camera = scene->main_camera;
 
 	//Set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
@@ -34,9 +44,6 @@ void Renderer::renderScene(Scene* scene)
 
 	//Check gl errors before starting
 	checkGLErrors();
-
-	//Create render calls vector
-	createRenderCalls();
 
 	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
 	computeShadowMap();
@@ -53,12 +60,12 @@ void Renderer::renderScene(Scene* scene)
 	for (int i = 0; i < render_calls.size(); i++)
 	{
 		RenderCall* rc = render_calls[i];
-		//if bounding box is inside the camera frustum then the object is probably visible
 		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
 		{
 			renderDrawCall(shader, render_calls[i], camera);
 		}
 	}
+	shader->disable();
 
 	//Debug shadow maps
 	if (scene->show_atlas) showShadowAtlas();
@@ -370,8 +377,6 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 		final_light = min(max_num_lights + final_light, lights_size - 1);
 
 	}
-	//disable shader
-	shader->disable();
 
 	//set the render state as it was before to avoid problems with future renders
 	glDisable(GL_BLEND);

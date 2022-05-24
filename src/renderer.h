@@ -1,6 +1,9 @@
+
+#ifndef RENDERER_H
+#define RENDERER_H
+
 #pragma once
-#include "includes.h"
-#include "game.h"
+#include "scene.h"
 #include "fbo.h"
 #include <algorithm>
 
@@ -37,8 +40,11 @@ public:
 	//Render variables
 	std::vector<RenderCall*> render_calls; // Here we store each RenderCall to be sent to the GPU.
 
+	//Constructor
+	Renderer(Scene* scene);
+
 	//Renders several elements of the scene
-	void renderScene(Scene* scene);
+	void renderScene();
 
 	//Intialize the render calls vector
 	void createRenderCalls();
@@ -61,4 +67,6 @@ public:
 	void showShadowAtlas();
 
 };
+
+#endif
 

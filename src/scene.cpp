@@ -28,7 +28,7 @@ Scene::Scene()
 	atlas_scope = 0;
 
 	//Scene triggers: We set them true just for the first iteration
-	camera_trigger = true;
+
 
 }
 
@@ -88,6 +88,9 @@ void Scene::addEntity(Entity* entity)
 	case(EntityType::LIGHT):
 		lights.push_back((LightEntity*)entity);
 		break;
+	case(EntityType::SOUND):
+		sounds.push_back((SoundEntity*)entity);
+		break;
 	}
 }
 
@@ -96,6 +99,12 @@ void Scene::removeEntity(Entity* entity)
 	//Only for entity vectors
 	switch (entity->entity_type)
 	{
+	case(EntityType::MAIN):
+		if (main_character == entity) main_character = NULL;
+		break;
+	case(EntityType::MONSTER):
+		if (monster == entity) monster = NULL;
+		break;
 	case(EntityType::OBJECT):
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			if (*it == entity) objects.erase(it);
@@ -106,7 +115,14 @@ void Scene::removeEntity(Entity* entity)
 			if (*it == entity) lights.erase(it);
 		}
 		break;
+	case(EntityType::SOUND):
+		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
+			if (*it == entity) sounds.erase(it);
+		}
+		break;
 	}
+
+	delete entity;
 }
 
 bool Scene::load(const char* scene_filepath)
