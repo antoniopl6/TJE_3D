@@ -125,7 +125,30 @@ void Scene::removeEntity(Entity* entity)
 
 	delete entity;
 }
+Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
+{
+	Vector3 coll;
+	Vector3 collnorm;
+	nextPos = currPos + nextPos;
+	if (monster->mesh->testSphereCollision(monster->model, nextPos, 20.0f, coll, collnorm)) {
+		Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
+		nextPos = currPos - push_away;
+		//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
+		return nextPos;
+	};
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		ObjectEntity* object = objects[i];
+		if (objects[i]->mesh->testSphereCollision(object->model, nextPos, 20.0f, coll, collnorm)) {
+			Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
+			nextPos = currPos - push_away;
+			//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
+			return nextPos;
+		};
+	}
+	return nextPos;
 
+}
 bool Scene::load(const char* scene_filepath)
 {
 	//JSON content var

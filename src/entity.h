@@ -88,7 +88,9 @@ public:
 
 	//Triggers
 	bool bounding_box_trigger;
-
+	//Bools
+	bool isRunning;
+	bool isFollowing;
 	//Methods
 	MonsterEntity();
 
@@ -97,6 +99,7 @@ public:
 	virtual void load(cJSON* monster_json) override;
 	virtual void save(cJSON* monster_json) override;
 	virtual void update(float elapsed_time) override;
+	void updateFollow(float elapsed_time, Camera* camera);
 };
 
 class ObjectEntity : public Entity {

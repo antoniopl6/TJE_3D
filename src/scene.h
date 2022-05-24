@@ -58,6 +58,7 @@ public:
 	void clear();
 	void addEntity(Entity* entity);
 	void removeEntity(Entity* entity);
+	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
 
 	//JSON methods
 	bool load(const char* scene_filepath);

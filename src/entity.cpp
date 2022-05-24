@@ -1,4 +1,5 @@
 #include "entity.h"
+#include "scene.h"
 
 //Entity
 Vector3 Entity::getPosition()
@@ -49,11 +50,17 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	}
 
 	//Move the camera along with the main character
-	if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->lookAt(camera->eye + camera_front * speed, camera->center + camera_front * speed, camera->up);
+	/*if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->lookAt(camera->eye + camera_front * speed, camera->center + camera_front * speed, camera->up);
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->lookAt(camera->eye - camera_side * speed, camera->center - camera_side * speed, camera->up);
 	if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->lookAt(camera->eye - camera_front * speed, camera->center - camera_front * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->lookAt(camera->eye + camera_side * speed, camera->center + camera_side * speed, camera->up);
-
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->lookAt(camera->eye + camera_side * speed, camera->center + camera_side * speed, camera->up);*/
+	Vector3 nextPos;
+	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = camera_front * speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = camera_side * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = camera_front * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = camera_side * speed;
+	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
+	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
 	//To navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
@@ -128,6 +135,7 @@ MonsterEntity::MonsterEntity()
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+	this->isFollowing = true;
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -192,7 +200,38 @@ void MonsterEntity::update(float elapsed_time)
 {
 
 }
+float sign(float num) {
+	return num >= 0.0f ? 1.0f : -1.0f;
+}
+void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
+{
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	Vector3 toTarget = model.getTranslation() - camera->eye;
 
+	float dist = toTarget.length();
+	toTarget.normalize();
+
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+	float speed = 80.0f;
+	//Change the rotation based on main character pos
+
+	//model.setTranslation(model.getTranslation().x - toTarget.x * speed * elapsed_time, 0, model.getTranslation().z - toTarget.z * speed * elapsed_time);
+
+	if (forwardDot < 0.98f && forwardDot > 0.30f) {
+
+		model.rotate(speed * elapsed_time * DEG2RAD * sign(sideDot), Vector3(0, 1, 0));
+	}
+
+	//move monster
+	//if (dist > 4.0f) {
+		//model.setTranslation(model.getTranslation().x - toTarget.x * speed * elapsed_time, model.getTranslation().y, model.getTranslation().z - toTarget.z * speed * elapsed_time);
+	//}
+	/*else if (dist > 30.0f) {
+		this->isFollowing = false;
+	}*/
+}
 //Objects
 ObjectEntity::ObjectEntity() {
 	this->name = "";

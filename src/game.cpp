@@ -143,6 +143,9 @@ void Game::update(double seconds_elapsed)
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
+	if (monster->isFollowing) {
+		monster->updateFollow(elapsed_time, camera);
+	}
 
 	//Update Objects
 	for (int i = 0; i < scene->objects.size(); ++i)
