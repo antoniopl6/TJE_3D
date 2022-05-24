@@ -9,6 +9,8 @@
     #define M_PI_2 1.57079632679489661923
 #endif
 
+using namespace std;
+
 //**************************************
 float Vector2::distance(const Vector2& v)
 {
@@ -219,6 +221,15 @@ void Matrix44::transpose()
 {
    std::swap(m[1],m[4]); std::swap(m[2],m[8]); std::swap(m[3],m[12]);
    std::swap(m[6],m[9]); std::swap(m[7],m[13]); std::swap(m[11],m[14]);
+}
+
+void Matrix44::printMatrix()
+{
+	cout << endl << "Printing Matrix..." << endl << endl;
+	cout << M[0][0] << "\t\t" << M[0][1] << "\t\t" << M[0][2] << "\t\t" << M[0][3] << endl;
+	cout << M[1][0] << "\t\t" << M[1][1] << "\t\t" << M[1][2] << "\t\t" << M[1][3] << endl;
+	cout << M[2][0] << "\t\t" << M[2][1] << "\t\t" << M[2][2] << "\t\t" << M[2][3] << endl;
+	cout << M[3][0] << "\t\t" << M[3][1] << "\t\t" << M[3][2] << "\t\t" << M[3][3] << endl;
 }
 
 Vector3 Matrix44::rotateVector(const Vector3& v) const

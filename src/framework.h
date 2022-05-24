@@ -214,6 +214,7 @@ class Matrix44
 		void setIdentity();
 		void transpose();
 		void normalizeAxis();
+		void printMatrix();
 
 		//get base vectors
 		Vector3 rightVector() { return Vector3(m[0],m[1],m[2]); }

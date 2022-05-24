@@ -61,6 +61,9 @@ public:
 	//Singlepass lighting
 	void SinglePassLoop(Shader* shader, Mesh* mesh);
 
+	//Multipass lighting
+	void MultiPassLoop(Shader* shader, Mesh* mesh);
+
 	//Shadow Atlas
 	void createShadowAtlas();
 	void computeShadowMap();

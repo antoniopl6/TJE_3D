@@ -1,10 +1,10 @@
 {
-	"ambient_light":	[0.0799999982118607, 0.12999999523162842, 0.18000000715255737],
-	"camera_position":	[0.0139999408274889, 630, 280.41943359375],
-	"camera_target":	[-0.48599794507026672, 630, 380.41818237304688],
+	"ambient_light":	[1.0, 1.0, 1.0],
+	"camera_position":	[100, 80, 100],
+	"camera_target":	[0, 80, 0],
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
-	"camera_far":	1000,
+	"camera_far":	3000,
 	"main_character":	{
 		"name":	"Adventurer",
 		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
@@ -36,7 +36,7 @@
 	},
 	"objects":	[{
 			"name":	"Box",
-			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -300, 0, 300, 1],
 			"mesh":	"data/assets/box/box.ASE",
 			"material":	{
 				"transparency":	"NO_ALPHA",
@@ -50,7 +50,7 @@
 			}
 		}, {
 			"name":	"Sphere",
-			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 10, 10, 10, 1],
+			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 300, 0, 300, 1],
 			"mesh":	"data/assets/sphere/sphere.obj",
 			"material":	{
 				"transparency":	"NO_ALPHA",
@@ -66,8 +66,8 @@
 	"lights":	[{
 			"name":	"lamp light",
 			"color":	[0.67000001668930054, 0.67000001668930054, 0.449999988079071],
-			"intensity":	3,
-			"max_distance":	250,
+			"intensity":	100,
+			"max_distance":	5000,
 			"light_type":	"POINT_LIGHT",
 			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 50.99102783203125, 54.991001129150391, 62.783000946044922, 1]
 		}, {

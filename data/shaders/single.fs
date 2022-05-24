@@ -163,7 +163,9 @@ void main()
 	vec3 tangent_space_normal;
 	if(u_normal_mapping) tangent_space_normal = texture2D( u_normal_texture, v_uv ).xyz;
 	vec4 color = texture2D(u_color_texture, v_uv );
-	vec3 omr = texture2D(u_omr_texture,v_uv).xyz;	
+	vec3 omr = texture2D(u_omr_texture,v_uv).xyz;
+
+	FragColor = vec4(0.5,0.7,0.1, 1.0);	
 
 	//ZBuffer-Test
 	if(color.a < u_alpha_cutoff)
@@ -260,6 +262,5 @@ void main()
 		vec3 emissive_light = texture2D(u_emissive_texture,v_uv).xyz;
 		color.rgb += emissive_light;
 	}
-	//FragColor = vec4(0.5,0.7,0.1, 1.0);
 	FragColor = color;
 }

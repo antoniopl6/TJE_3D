@@ -93,15 +93,24 @@ void Game::RayPickCheck(Camera* cam) {
 
 //what to do when the image has to be draw
 void Game::render(void)
-{
+{	
+	//Set the clear color (the background color)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	// Clear the window and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Check gl errors before starting
+	checkGLErrors();
+
 	//Enable view camera
 	camera->enable();
 
+	//Draw the floor grid
+	//drawGrid();
+
 	//Render the scene
 	renderer->renderScene();
-
-	//Draw the floor grid
-	drawGrid();
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);

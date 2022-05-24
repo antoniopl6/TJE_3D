@@ -45,7 +45,7 @@ char* fetchEndLine(char* data);
 char* fetchBufferFloat(char* data, std::vector<float>& vector, int num = 0);
 char* fetchBufferVec3(char* data, std::vector<Vector3>& vector);
 char* fetchBufferVec2(char* data, std::vector<Vector2>& vector);
-char* fetchBufferVec3u(char* data, std::vector<Vector3u>& vector);
+char* fetchBufferVec3u(char* data, std::vector<unsigned int>& vector);
 char* fetchBufferVec4ub(char* data, std::vector<Vector4ub>& vector);
 char* fetchBufferVec4(char* data, std::vector<Vector4>& vector);
 

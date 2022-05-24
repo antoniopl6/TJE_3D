@@ -1,5 +1,6 @@
 #include "renderer.h"
 #include "game.h"
+#include "framework.h"
 
 constexpr int SHOW_ATLAS_RESOLUTION = 300;
 constexpr int SHADOW_MAP_RESOLUTION = 2048;
@@ -62,31 +63,8 @@ void Renderer::createRenderCalls()
 	sort(render_calls.begin(), render_calls.end(), sortRenderCall);
 }
 
-//Set the render shader and scene uniforms
-void Renderer::setSceneUniforms(Shader* shader)
-{
-	//Upload scene uniforms
-	shader->setUniform("u_ambient_light", scene->ambient_light);
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setUniform("u_camera_position", camera->eye);
-	shader->setUniform("u_time", getTime());
-	shader->setUniform("u_num_shadows", (float)scene->num_shadows);
-
-	//Shadow Atlas
-	if (scene->shadow_atlas)
-	{
-		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
-		shader->setUniform("u_shadows", 1);
-	}
-	else
-	{
-		shader->setUniform("u_shadows", 0);
-	}
-
-}
-
 void Renderer::renderScene()
-{	
+{
 	//no shader? then nothing to render
 	if (!scene->shader)
 		return;
@@ -105,29 +83,18 @@ void Renderer::renderScene()
 	checkGLErrors();
 
 	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
-	computeShadowMap();
-
-	//Enable the shader with which scene entities are rendered
-	Shader* shader = scene->shader;
-	shader->enable();
-
-	//Set scene uniforms
-	setSceneUniforms(shader);
+	computeShadowMap();	
 	
 	//Entity render
 	for (int i = 0; i < render_calls.size(); i++)
 	{
 		RenderCall* rc = render_calls[i];
-		renderDrawCall(shader, rc, camera);
+		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
+			renderDrawCall(scene->shader , rc, camera);
 	}
-
-	//Disable the shader
-	shader->disable();
 
 	//Debug shadow maps
 	if (scene->show_atlas) showShadowAtlas();
-
-	//Reset scene triggers
 
 }
 
@@ -138,6 +105,9 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
 		return;
 	assert(glGetError() == GL_NO_ERROR);
+
+	//Enable shader
+	shader->enable();
 
 	//Textures
 	Texture* color_texture = NULL;
@@ -187,12 +157,23 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	if (normal_texture) shader->setUniform("u_normal_mapping", 1);
 	else shader->setUniform("u_normal_mapping", 0);
 
+	//Shadow Atlas
+	if (scene->shadow_atlas)
+		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
+
+	//Upload scene uniforms
+	shader->setUniform("u_ambient_light", scene->ambient_light);
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_camera_position", camera->eye);
+	shader->setUniform("u_time", getTime());
+	shader->setUniform("u_num_shadows", (float)scene->num_shadows);
+
 	//Upload entity uniforms
-	shader->setUniform("u_model", rc->model);
+	shader->setMatrix44("u_model", *rc->model);
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
 	//Single pass lighting
-	SinglePassLoop(shader, rc->mesh);
+	MultiPassLoop(shader, rc->mesh);
 }
 
 //Singlepass lighting
@@ -271,27 +252,27 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			//Specific light properties
 			switch (light->light_type)
 			{
-				case(LightType::POINT_LIGHT):
-					lights_type[j] = light->light_type;
-					break;
-				case (LightType::SPOT_LIGHT):
-					spots_direction[j] = light->model.rotateVector(Vector3(0, 0, -1));
-					spots_cone[j] = Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD));
-					lights_type[j] = light->light_type;
-					break;
-				case (LightType::DIRECTIONAL_LIGHT):
-					directionals_front[j] = light->model.rotateVector(Vector3(0, 0, -1));
-					lights_type[j] = light->light_type;
-					break;
+			case(LightType::POINT_LIGHT):
+				lights_type[j] = light->light_type;
+				break;
+			case (LightType::SPOT_LIGHT):
+				spots_direction[j] = light->model.rotateVector(Vector3(0, 0, -1));
+				spots_cone[j] = Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD));
+				lights_type[j] = light->light_type;
+				break;
+			case (LightType::DIRECTIONAL_LIGHT):
+				directionals_front[j] = light->model.rotateVector(Vector3(0, 0, -1));
+				lights_type[j] = light->light_type;
+				break;
 			}
 
 			//Shadow properties
 			if (scene->shadow_atlas && light->cast_shadows)
-			{		
+			{
 				cast_shadows[j] = 1;
-				shadows_index[j] = (float) light->shadow_index;
+				shadows_index[j] = (float)light->shadow_index;
 				shadows_bias[j] = light->shadow_bias;
-				shadows_vp[j] = light->shadow_camera->viewprojection_matrix;	
+				shadows_vp[j] = light->shadow_camera->viewprojection_matrix;
 			}
 			else
 			{
@@ -299,7 +280,7 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			}
 
 			//Update iterator
-			j++;		
+			j++;
 		}
 
 		//Upload light uniforms
@@ -327,6 +308,80 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 		final_light = min(max_num_lights + final_light, lights_size - 1);
 
 	}
+	//disable shader
+	shader->disable();
+
+	//set the render state as it was before to avoid problems with future renders
+	glDisable(GL_BLEND);
+	glDepthFunc(GL_LESS);
+}
+
+//Multipass lighting
+void Renderer::MultiPassLoop(Shader* shader, Mesh* mesh)
+{
+	//Blending support
+	glDepthFunc(GL_LEQUAL);
+
+	//Multi pass lighting
+	for (int i = 0; i < scene->lights.size(); i++) {
+
+		if (i == 0) shader->setUniform("u_last_iteration", 0);
+
+		if (i == 1)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			shader->setUniform("u_ambient_light", Vector3());//reset the ambient light
+		}
+		if (i == scene->lights.size() - 1) shader->setUniform("u_last_iteration", 1);
+
+		//Current light
+		LightEntity* light = scene->lights[i];
+
+		//Light uniforms
+		shader->setUniform("u_light_position", light->model.getTranslation());
+		shader->setUniform("u_light_color", light->color);
+		shader->setUniform("u_light_intensity", light->intensity);
+		shader->setUniform("u_light_max_distance", light->max_distance);
+
+		//Specific light uniforms
+		switch (light->light_type)
+		{
+		case(LightType::POINT_LIGHT):
+			shader->setUniform("u_light_type", 0);
+			break;
+		case (LightType::SPOT_LIGHT):
+			shader->setVector3("u_spot_direction", light->model.rotateVector(Vector3(0, 0, -1)));
+			shader->setUniform("u_spot_cone", Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD)));
+			shader->setUniform("u_light_type", 1);
+			break;
+		case (LightType::DIRECTIONAL_LIGHT):
+			shader->setVector3("u_directional_front", light->model.rotateVector(Vector3(0, 0, -1)));
+			shader->setUniform("u_area_size", light->area_size);
+			shader->setUniform("u_light_type", 2);
+			break;
+		}
+
+		//Shadow uniforms
+		if (scene->shadow_atlas && light->cast_shadows)
+		{
+			shader->setUniform("u_cast_shadows", 1);
+			shader->setUniform("u_shadow_index", (float)light->shadow_index);
+			shader->setUniform("u_shadow_bias", light->shadow_bias);
+			shader->setMatrix44("u_shadow_vp", light->shadow_camera->viewprojection_matrix);
+			shader->setUniform("u_num_shadows", (float)scene->num_shadows);
+		}
+		else
+		{
+			shader->setUniform("u_cast_shadows", 0);
+		}
+
+		//do the draw call that renders the mesh into the screen
+		mesh->render(GL_TRIANGLES);
+	}
+
+	//disable shader
+	shader->disable();
 
 	//set the render state as it was before to avoid problems with future renders
 	glDisable(GL_BLEND);
@@ -359,7 +414,7 @@ void Renderer::renderDepthMap(RenderCall* rc, Camera* light_camera)
 	shader->enable();
 
 	//Upload scene uniforms
-	shader->setUniform("u_model", rc->model);
+	shader->setMatrix44("u_model", *rc->model);
 	shader->setUniform("u_viewprojection", light_camera->viewprojection_matrix);
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 

@@ -14,7 +14,6 @@ Scene::Scene()
 	ambient_light = Vector3(1.f,1.f,1.f);
 	main_camera = Game::instance->camera;
 	shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs"); //Select shader to render the render calls
-	cout << shader << endl;
 
 	//Shadow Atlas
 	fbo = NULL;
