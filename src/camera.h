@@ -40,6 +40,9 @@ public:
 	Matrix44 projection_matrix;
 	Matrix44 viewprojection_matrix;
 
+	//trigger
+	bool trigger; //Triggers if the camera has moved in the space.
+
 	Camera();
 
 	//set as current

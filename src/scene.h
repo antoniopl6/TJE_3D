@@ -49,7 +49,7 @@ public:
 	int atlas_scope;
 
 	//Scene triggers
-	bool camera_trigger; //Triggers if the camera has moved in the space.
+
 
 	//Constructor
 	Scene();
@@ -58,7 +58,6 @@ public:
 	void clear();
 	void addEntity(Entity* entity);
 	void removeEntity(Entity* entity);
-	void renderEntities();
 	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
 
 	//JSON methods

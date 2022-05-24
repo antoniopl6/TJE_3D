@@ -11,6 +11,8 @@ class Shader; //for binding
 class Image; //for displace
 class Skeleton; //for skinned meshes
 
+#define OPENGL_ES3 1
+
 //version from 11/5/2020
 #define MESH_BIN_VERSION 11 //this is used to regenerate bins if the format changes
 
@@ -44,7 +46,7 @@ public:
 	std::vector< Vector3 > vertices; //here we store the vertices
 	std::vector< Vector3 > normals;	 //here we store the normals
 	std::vector< Vector2 > uvs;	 //here we store the texture coordinates
-	std::vector< Vector2 > uvs1; //secondary sets of uvs
+	std::vector< Vector2 > m_uvs1; //secondary sets of uvs
 	std::vector< Vector4 > colors; //here we store the colors
 	
 	struct tInterleaved {
@@ -55,7 +57,7 @@ public:
 
 	std::vector< tInterleaved > interleaved; //to render interleaved
 
-	std::vector< Vector3u > indices; //for indexed meshes
+	std::vector<unsigned int> m_indices; //for indexed meshes
 
 	//for animated meshes
 	std::vector< Vector4ub > bones; //tells which bones afect the vertex (4 max)
@@ -87,16 +89,15 @@ public:
 
 	void render( unsigned int primitive, int submesh_id = -1, int num_instances = 0 );
 	void renderInstanced(unsigned int primitive, const Matrix44* instanced_models, int number);
-	void renderInstanced(unsigned int primitive, const std::vector<Vector3> positions, const char* uniform_name );
 	void renderBounding( const Matrix44& model, bool world_bounding = true );
 	void renderFixedPipeline(int primitive); //sloooooooow
-	void renderAnimated(unsigned int primitive, Skeleton *sk);
+	//void renderAnimated(unsigned int primitive, Skeleton *sk);
 
 	void enableBuffers(Shader* shader);
 	void drawCall(unsigned int primitive, int submesh_id, int num_instances);
 	void disableBuffers(Shader* shader);
 
-	bool readBin(const char* filename);
+	bool readBin(const char* filename, bool bFromNetwork);
 	bool writeBin(const char* filename);
 
 	unsigned int getNumSubmeshes() { return (unsigned int)submeshes.size(); }
@@ -110,8 +111,10 @@ public:
 	bool testSphereCollision(Matrix44 model, Vector3 center, float radius, Vector3& collision, Vector3& normal);
 
 	//loader
-	static Mesh* Get(const char* filename);
+	static Mesh* Get(const char* filename, bool bFromNetwork = false, bool skip_load = false);
+	static void Release();
 	void registerMesh(std::string name);
+	void nameMesh(std::string filename);
 
 	//create help meshes
 	void createQuad(float center_x, float center_y, float w, float h, bool flip_uvs);

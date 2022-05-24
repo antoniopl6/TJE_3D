@@ -1,11 +1,10 @@
+
 #ifndef RENDERER_H
 #define RENDERER_H
+
 #pragma once
-#include "includes.h"
-#include "fbo.h"
-#include "mesh.h"
-#include "material.h"
 #include "scene.h"
+#include "fbo.h"
 #include <algorithm>
 
 
@@ -41,14 +40,17 @@ public:
 	//Render variables
 	std::vector<RenderCall*> render_calls; // Here we store each RenderCall to be sent to the GPU.
 
+	//Constructor
+	Renderer(Scene* scene);
+
 	//Renders several elements of the scene
-	void renderScene(Scene* scene);
+	void renderScene();
 
 	//Intialize the render calls vector
 	void createRenderCalls();
 
-	//Set the render shader and scene uniforms
-	Shader* Renderer::setRender();
+	//Set scene uniforms
+	void setSceneUniforms(Shader* shader);
 
 	//Render a draw call
 	void renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera);
@@ -59,11 +61,15 @@ public:
 	//Singlepass lighting
 	void SinglePassLoop(Shader* shader, Mesh* mesh);
 
+	//Multipass lighting
+	void MultiPassLoop(Shader* shader, Mesh* mesh);
+
 	//Shadow Atlas
-	void createShadowAtlas(Scene* scene);
+	void createShadowAtlas();
 	void computeShadowMap();
 	void showShadowAtlas();
 
 };
 
 #endif
+

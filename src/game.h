@@ -5,12 +5,13 @@
 #ifndef GAME_H
 #define GAME_H
 
+#pragma once
 #include "includes.h"
 #include "camera.h"
 #include "utils.h"
 #include "scene.h"
-#include "pathfinders.h"
 #include "renderer.h"
+
 class Game
 {
 public:
@@ -35,7 +36,7 @@ public:
 	bool mouse_locked; //tells if the mouse is locked (not seen)
 
 	Game( int window_width, int window_height, SDL_Window* window );
-	void PruebaIAClase();
+
 	void RenderTerrainExample();
 
 	void RayPickCheck(Camera* cam);

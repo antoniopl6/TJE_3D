@@ -1,6 +1,7 @@
 #include "entity.h"
 #include "scene.h"
 
+//Entity
 Vector3 Entity::getPosition()
 {
 	return model.getTranslation();
@@ -14,7 +15,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->model = Matrix44();
 	this->entity_type = EntityType::MAIN;
 	this->camera = new Camera();
-	this->mesh = NULL;
+	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
@@ -64,18 +65,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	if (mouse_locked)
 		Input::centerMouse();
 }
-//void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
-//{
-//	float speed = seconds_elapsed * 100; //the speed is defined by the seconds_elapsed so it goes constant
-//	float rotSpeed = 90.0f * DEG2RAD * seconds_elapsed;
-//	Matrix44 newmodel;
-//	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 10; //move faster with left shift, para correr
-//	if (Input::isKeyPressed(SDL_SCANCODE_UP)) newmodel.translate(0.0f, 0.0f, speed);
-//	if (Input::isKeyPressed(SDL_SCANCODE_DOWN)) newmodel.translate(0.0f, 0.0f, -speed);
-//	if (Input::isKeyPressed(SDL_SCANCODE_LEFT)) newmodel.rotate(rotSpeed, Vector3(0.0f, -1.0f, 0.0f));
-//	if (Input::isKeyPressed(SDL_SCANCODE_RIGHT)) newmodel.rotate(rotSpeed, Vector3(0.0f, 1.0f, 0.0f));
-//	Scene::instance->testCollisions(model.)
-//}
+
 void MainCharacterEntity::updateBoundingBox()
 {
 	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
@@ -98,7 +88,7 @@ void MainCharacterEntity::load(cJSON* main_json)
 		mesh = Mesh::Get(mesh_path.c_str());
 	else
 		cout << "ERROR: Main character mesh hasn't been found at: " << mesh_path << endl;
-
+	
 	//Material
 	if (!mesh_path.empty())
 	{
@@ -125,7 +115,7 @@ void MainCharacterEntity::save(cJSON* main_json)
 	cJSON_AddItemToObject(main_json, "model", main_model);
 
 	//Mesh
-	if (mesh) writeJSONString(main_json, "mesh", mesh->filename);
+	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
 	else writeJSONString(main_json, "mesh", "");
 
 	//Material
@@ -142,9 +132,10 @@ MonsterEntity::MonsterEntity()
 {
 	this->name = "";
 	this->visible = true;
-	this->mesh = NULL;
+	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+	this->isFollowing = true;
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -162,7 +153,7 @@ void MonsterEntity::load(cJSON* monster_json)
 	vector<float> monster_model;
 	readJSONVector(monster_json, "model", monster_model);
 	for (int i = 0; i < monster_model.size(); ++i) model.m[i] = monster_model[i];
-	
+
 	//Mesh
 	string mesh_path = readJSONString(monster_json, "mesh", "");
 	if (!mesh_path.empty())
@@ -185,7 +176,6 @@ void MonsterEntity::load(cJSON* monster_json)
 			this->material->registerMaterial(mesh_path.c_str());
 		}
 	}
-
 }
 
 void MonsterEntity::save(cJSON* monster_json)
@@ -211,20 +201,53 @@ void MonsterEntity::update(float elapsed_time)
 
 }
 
+float sign(float num) {
+	return num >= 0.0f ? 1.0f : -1.0f;
+}
+
+void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
+{
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	Vector3 toTarget = model.getTranslation() - camera->eye;
+
+	float dist = toTarget.length();
+	toTarget.normalize();
+
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+	float speed = 100.0f;
+	//Change the rotation based on main character pos
+
+	//model.setTranslation(model.getTranslation().x - toTarget.x * speed * elapsed_time, 0, model.getTranslation().z - toTarget.z * speed * elapsed_time);
+
+	if (forwardDot < 0.98f && forwardDot > 0.30f) {
+		
+		model.rotate(speed * elapsed_time * DEG2RAD * sign(sideDot), Vector3(0, 1, 0));
+	}
+
+	//move monster
+	//if (dist > 4.0f) {
+		//model.setTranslation(model.getTranslation().x - toTarget.x * speed * elapsed_time, model.getTranslation().y, model.getTranslation().z - toTarget.z * speed * elapsed_time);
+	//}
+	/*else if (dist > 30.0f) {
+		this->isFollowing = false;
+	}*/
+}
 //Objects
 ObjectEntity::ObjectEntity() {
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();
 	this->entity_type = EntityType::OBJECT;
-	this->mesh = NULL;
+	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
 void ObjectEntity::updateBoundingBox()
 {
-	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if(mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void ObjectEntity::load(cJSON* object_json)
@@ -256,7 +279,7 @@ void ObjectEntity::load(cJSON* object_json)
 			this->material->load(material_json);
 			this->material->registerMaterial(mesh_path.c_str());
 		}
-	}
+	}	
 }
 
 void ObjectEntity::save(cJSON* object_json)
@@ -264,15 +287,15 @@ void ObjectEntity::save(cJSON* object_json)
 	//General features
 	writeJSONString(object_json, "name", name.c_str());
 	writeJSONBoolean(object_json, "visible", visible);
-
+	
 	//Model
 	cJSON* object_model = cJSON_CreateFloatArray(this->model.m, 16);
 	cJSON_AddItemToObject(object_json, "model", object_model);
-
+	
 	//Mesh
-	if (mesh) writeJSONString(object_json, "mesh", mesh->filename);
+	if(mesh) writeJSONString(object_json, "mesh", mesh->filename);
 	else writeJSONString(object_json, "mesh", "");
-
+	
 	//Material
 	if (material)material->save(object_json);
 

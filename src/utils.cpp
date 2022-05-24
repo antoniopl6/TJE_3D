@@ -438,14 +438,14 @@ char* fetchBufferVec2(char* data, std::vector<Vector2>& vector)
 	return data;
 }
 
-char* fetchBufferVec3u(char* data, std::vector<Vector3u>& vector)
+char* fetchBufferVec3u(char* data, std::vector<unsigned int>& vector)
 {
-	//int pos = 0;
+	int pos = 0;
 	std::vector<float> floats;
 	data = fetchBufferFloat(data, floats);
-	vector.resize(floats.size() / 3);
-	for (int i = 0; i < floats.size(); i += 3)
-		vector[i / 3].set(floats[i], floats[i + 1], floats[i + 2]);
+	vector.resize(floats.size());
+	for (int i = 0; i < floats.size(); i++)
+		vector[i] = (unsigned int)(floats[i]);
 	return data;
 }
 

@@ -1,11 +1,27 @@
 #include "renderer.h"
 #include "game.h"
+#include "framework.h"
 
 constexpr int SHOW_ATLAS_RESOLUTION = 300;
 constexpr int SHADOW_MAP_RESOLUTION = 2048;
 
 using namespace std;
 
+//Constructor
+Renderer::Renderer(Scene* scene)
+{
+	//Set scene and camera
+	this->scene = scene;
+	this->camera = scene->main_camera;
+
+	//Create render calls vector
+	createRenderCalls();
+
+	//Create Shadow Atlas: We create a dynamic atlas to be resizable
+	createShadowAtlas();
+}
+
+//Sort render calls by transparency and distance to camera
 bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
 {
 	AlphaMode rc1_alpha = rc1->material->alpha_mode;
@@ -17,124 +33,69 @@ bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
 	else return true;
 }
 
-void Renderer::renderScene(Scene* scene)
-{	
-	//If there aren't lights in the scene don't render nothing
-	if (scene->lights.empty()) 
-		return;
-	
-	//Set current scene and camera
-	this->scene = scene;
-	this->camera = scene->main_camera;
-
-	//Set the clear color (the background color)
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	// Clear the window and the depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-	
-	//Check gl errors before starting
-	checkGLErrors();
-
-	//Create render calls vector
-	createRenderCalls();
-
-	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
-	computeShadowMap();
-	
-	//Enable view camera after computing shadow maps
-	camera->enable();
-
-	//Render shader
-	Shader* shader = setRender();
-	if (!shader)
-		return;
-	
-	//Entity render
-	
-	for (int i = 1; i < render_calls.size(); i++)
-	{
-		RenderCall* rc = render_calls[i];
-		//if bounding box is inside the camera frustum then the object is probably visible
-		//if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
-		{
-			
-			renderDrawCall(shader, rc, camera);
-		}
-	}
-
-	//Debug shadow maps
-	if (scene->show_atlas) showShadowAtlas();
-
-	//Reset scene triggers
-
-}
-
 //Intialize render calls vector
 void Renderer::createRenderCalls()
 {
 	//Clear the render calls vector
 	render_calls.clear();
 
-	//Reserve memory for the render calls vector
-	render_calls.resize(2 + scene->objects.size());
-
 	//Main character render call
 	MainCharacterEntity* mc = scene->main_character; 
-	//MonsterEntity* monster = scene->monster;
-	//if (mc->visible && mc->mesh && mc->material)
-		//render_calls[0] = new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera);
-		//render_calls[0] = new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera);
-		//render_calls.push_back(new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera));
-	//printf("%f,    ", render_calls[0]->model->_44);
-	//printf("%f,    ", render_calls[0]->model->_44);
+	if (mc->visible && mc->mesh && mc->material)
+		render_calls.push_back(new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera));
+
 	//Monster render call
 	MonsterEntity* monster = scene->monster;
-	if (monster->visible && monster->mesh && monster->material) 
-		//render_calls.push_back(new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera));
-		render_calls[1] = new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera);;
-	//printf("%f,    ", render_calls[1]->model->_44);
-	//printf("%f,    ", render_calls[0]->model->_44);
+	if (monster->visible && monster->mesh && monster->material)
+		render_calls.push_back(new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera));
+
 	//Objects render calls	
-	int object_index = 2;
-	for (int i = 1; i < scene->objects.size(); ++i)
+	for (int i = 0; i < scene->objects.size(); ++i)
 	{
 		ObjectEntity* object = scene->objects[i];
 		if (object->visible && object->mesh && object->material)
 		{
-			//render_calls.push_back(new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box, camera));
-			render_calls[object_index] = new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box,camera);
-			object_index++;
+			render_calls.push_back(new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box,camera));
 		}
 	}
 
 	//Now we sort the RenderCalls vector according to the boolean method sortRenderCall
-	//sort(render_calls.begin(), render_calls.end(), sortRenderCall);
+	sort(render_calls.begin(), render_calls.end(), sortRenderCall);
 }
 
-//Set the render shader and scene uniforms
-Shader* Renderer::setRender()
+void Renderer::renderScene()
 {
-	//Render shader
-	Shader* shader = NULL;
-
-	//Select shader to render the render calls
-	//shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs");
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
-	assert(glGetError() == GL_NO_ERROR);
-	
 	//no shader? then nothing to render
-	if (!shader)
-		return NULL;
-	shader->enable();
-	
-	//Upload scene uniforms
-	shader->setUniform("u_ambient_light", scene->ambient_light);
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setUniform("u_camera_position", camera->eye);
-	shader->setUniform("u_time", getTime());
+	if (!scene->shader)
+		return;
 
-	return shader;
+	//If there aren't lights in the scene don't render nothing
+	if (scene->lights.empty()) 
+		return;
+
+	//Set the clear color (the background color)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	// Clear the window and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Check gl errors before starting
+	checkGLErrors();
+
+	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
+	computeShadowMap();	
+	
+	//Entity render
+	for (int i = 0; i < render_calls.size(); i++)
+	{
+		RenderCall* rc = render_calls[i];
+		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
+			renderDrawCall(scene->shader , rc, camera);
+	}
+
+	//Debug shadow maps
+	if (scene->show_atlas) showShadowAtlas();
+
 }
 
 //Render a draw call
@@ -144,6 +105,9 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
 		return;
 	assert(glGetError() == GL_NO_ERROR);
+
+	//Enable shader
+	shader->enable();
 
 	//Textures
 	Texture* color_texture = NULL;
@@ -189,53 +153,27 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	if (normal_texture) shader->setTexture("u_normal_texture", normal_texture, 3);
 	//if(occlusion_texture) shader->setTexture("u_occlussion_texture", occlusion_texture, 4);
 
-	////Upload entity uniforms
-	shader->setUniform("u_model", rc->model);
+	//Normal mapping
+	if (normal_texture) shader->setUniform("u_normal_mapping", 1);
+	else shader->setUniform("u_normal_mapping", 0);
+
+	//Shadow Atlas
+	if (scene->shadow_atlas)
+		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
+
+	//Upload scene uniforms
+	shader->setUniform("u_ambient_light", scene->ambient_light);
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_camera_position", camera->eye);
+	shader->setUniform("u_time", getTime());
+	shader->setUniform("u_num_shadows", (float)scene->num_shadows);
+
+	//Upload entity uniforms
+	shader->setMatrix44("u_model", *rc->model);
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
 	//Single pass lighting
 	SinglePassLoop(shader, rc->mesh);
-}
-
-//Render basic draw call
-void Renderer::renderDepthMap(RenderCall* rc, Camera* light_camera)
-{
-	//In case there is nothing to do
-	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
-		return;
-	assert(glGetError() == GL_NO_ERROR);
-
-	//Define locals to simplify coding
-	Shader* shader = NULL;
-
-	//Select whether to render both sides of the triangles
-	if (rc->material->two_sided) glDisable(GL_CULL_FACE);
-	else glEnable(GL_CULL_FACE);
-	assert(glGetError() == GL_NO_ERROR);
-
-	//chose a shader
-	shader = Shader::Get("data/shaders/depth.vs", "data/shaders/color.fs");
-	assert(glGetError() == GL_NO_ERROR);
-
-	//no shader? then nothing to render
-	if (!shader)
-		return;
-	shader->enable();
-
-	//Upload scene uniforms
-	shader->setUniform("u_model", rc->model);
-	shader->setUniform("u_viewprojection", light_camera->viewprojection_matrix);
-	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
-
-	//Disable blending
-	glDepthFunc(GL_LESS);
-	glDisable(GL_BLEND);
-
-	//do the draw call that renders the mesh into the screen
-	rc->mesh->render(GL_TRIANGLES);
-
-	//disable shader
-	shader->disable();
 }
 
 //Singlepass lighting
@@ -309,32 +247,32 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			lights_position[j] = light->model.getTranslation();
 			lights_color[j] = light->color;
 			lights_intensity[j] = light->intensity;
-			lights_max_distance[j] = light->max_distance;
+			lights_max_distance[j] = light->max_distance;			
 
 			//Specific light properties
 			switch (light->light_type)
 			{
-				case(LightType::POINT_LIGHT):
-					lights_type[j] = light->light_type;
-					break;
-				case (LightType::SPOT_LIGHT):
-					spots_direction[j] = light->model.rotateVector(Vector3(0, 0, -1));
-					spots_cone[j] = Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD));
-					lights_type[j] = light->light_type;
-					break;
-				case (LightType::DIRECTIONAL_LIGHT):
-					directionals_front[j] = light->model.rotateVector(Vector3(0, 0, -1));
-					lights_type[j] = light->light_type;
-					break;
+			case(LightType::POINT_LIGHT):
+				lights_type[j] = light->light_type;
+				break;
+			case (LightType::SPOT_LIGHT):
+				spots_direction[j] = light->model.rotateVector(Vector3(0, 0, -1));
+				spots_cone[j] = Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD));
+				lights_type[j] = light->light_type;
+				break;
+			case (LightType::DIRECTIONAL_LIGHT):
+				directionals_front[j] = light->model.rotateVector(Vector3(0, 0, -1));
+				lights_type[j] = light->light_type;
+				break;
 			}
 
 			//Shadow properties
 			if (scene->shadow_atlas && light->cast_shadows)
-			{		
+			{
 				cast_shadows[j] = 1;
-				shadows_index[j] = (float) light->shadow_index;
+				shadows_index[j] = (float)light->shadow_index;
 				shadows_bias[j] = light->shadow_bias;
-				shadows_vp[j] = light->shadow_camera->viewprojection_matrix;	
+				shadows_vp[j] = light->shadow_camera->viewprojection_matrix;
 			}
 			else
 			{
@@ -342,7 +280,7 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			}
 
 			//Update iterator
-			j++;		
+			j++;
 		}
 
 		//Upload light uniforms
@@ -361,18 +299,6 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 		shader->setUniform1Array("u_shadows_index", &shadows_index[0], num_lights);
 		shader->setUniform1Array("u_shadows_bias", &shadows_bias[0], num_lights);
 		shader->setMatrix44Array("u_shadows_vp", &shadows_vp[0], num_lights);
-		shader->setUniform("u_num_shadows", (float)scene->num_shadows);
-
-		//Shadow Atlas
-		if (scene->shadow_atlas) 
-		{
-			shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
-			shader->setUniform("u_shadows", 1);
-		}
-		else
-		{
-			shader->setUniform("u_shadows", 0);
-		}
 
 		//do the draw call that renders the mesh into the screen
 		mesh->render(GL_TRIANGLES);
@@ -390,8 +316,121 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 	glDepthFunc(GL_LESS);
 }
 
+//Multipass lighting
+void Renderer::MultiPassLoop(Shader* shader, Mesh* mesh)
+{
+	//Blending support
+	glDepthFunc(GL_LEQUAL);
+
+	//Multi pass lighting
+	for (int i = 0; i < scene->lights.size(); i++) {
+
+		if (i == 0) shader->setUniform("u_last_iteration", 0);
+
+		if (i == 1)
+		{
+			glEnable(GL_BLEND);
+			glBlendFunc(GL_SRC_ALPHA, GL_ONE);
+			shader->setUniform("u_ambient_light", Vector3());//reset the ambient light
+		}
+		if (i == scene->lights.size() - 1) shader->setUniform("u_last_iteration", 1);
+
+		//Current light
+		LightEntity* light = scene->lights[i];
+
+		//Light uniforms
+		shader->setUniform("u_light_position", light->model.getTranslation());
+		shader->setUniform("u_light_color", light->color);
+		shader->setUniform("u_light_intensity", light->intensity);
+		shader->setUniform("u_light_max_distance", light->max_distance);
+
+		//Specific light uniforms
+		switch (light->light_type)
+		{
+		case(LightType::POINT_LIGHT):
+			shader->setUniform("u_light_type", 0);
+			break;
+		case (LightType::SPOT_LIGHT):
+			shader->setVector3("u_spot_direction", light->model.rotateVector(Vector3(0, 0, -1)));
+			shader->setUniform("u_spot_cone", Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD)));
+			shader->setUniform("u_light_type", 1);
+			break;
+		case (LightType::DIRECTIONAL_LIGHT):
+			shader->setVector3("u_directional_front", light->model.rotateVector(Vector3(0, 0, -1)));
+			shader->setUniform("u_area_size", light->area_size);
+			shader->setUniform("u_light_type", 2);
+			break;
+		}
+
+		//Shadow uniforms
+		if (scene->shadow_atlas && light->cast_shadows)
+		{
+			shader->setUniform("u_cast_shadows", 1);
+			shader->setUniform("u_shadow_index", (float)light->shadow_index);
+			shader->setUniform("u_shadow_bias", light->shadow_bias);
+			shader->setMatrix44("u_shadow_vp", light->shadow_camera->viewprojection_matrix);
+			shader->setUniform("u_num_shadows", (float)scene->num_shadows);
+		}
+		else
+		{
+			shader->setUniform("u_cast_shadows", 0);
+		}
+
+		//do the draw call that renders the mesh into the screen
+		mesh->render(GL_TRIANGLES);
+	}
+
+	//disable shader
+	shader->disable();
+
+	//set the render state as it was before to avoid problems with future renders
+	glDisable(GL_BLEND);
+	glDepthFunc(GL_LESS);
+}
+
+//Render basic draw call
+void Renderer::renderDepthMap(RenderCall* rc, Camera* light_camera)
+{
+	//In case there is nothing to do
+	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
+		return;
+	assert(glGetError() == GL_NO_ERROR);
+
+	//Define locals to simplify coding
+	Shader* shader = NULL;
+
+	//Select whether to render both sides of the triangles
+	if (rc->material->two_sided) glDisable(GL_CULL_FACE);
+	else glEnable(GL_CULL_FACE);
+	assert(glGetError() == GL_NO_ERROR);
+
+	//chose a shader
+	shader = Shader::Get("data/shaders/depth.vs", "data/shaders/color.fs");
+	assert(glGetError() == GL_NO_ERROR);
+
+	//no shader? then nothing to render
+	if (!shader)
+		return;
+	shader->enable();
+
+	//Upload scene uniforms
+	shader->setMatrix44("u_model", *rc->model);
+	shader->setUniform("u_viewprojection", light_camera->viewprojection_matrix);
+	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
+
+	//Disable blending
+	glDepthFunc(GL_LESS);
+	glDisable(GL_BLEND);
+
+	//do the draw call that renders the mesh into the screen
+	rc->mesh->render(GL_TRIANGLES);
+
+	//disable shader
+	shader->disable();
+}
+
 //Create a shadow atlas
-void Renderer::createShadowAtlas(Scene* scene)
+void Renderer::createShadowAtlas()
 {
 	//Compute the number of shadows of the scene and the shadow index of each light
 	int shadow_index = 0;
@@ -480,7 +519,7 @@ void Renderer::computeShadowMap()
 		//Enable camera
 		shadow_camera->enable();
 
-		for (int i = 1; i < render_calls.size(); i++)
+		for (int i = 0; i < render_calls.size(); ++i)
 		{
 			RenderCall* rc = render_calls[i];
 			if (rc->material->alpha_mode == AlphaMode::BLEND)
@@ -537,7 +576,7 @@ void Renderer::showShadowAtlas()
 				glViewport((light->shadow_index - starting_shadow) * SHOW_ATLAS_RESOLUTION + shadow_offset, 0, SHOW_ATLAS_RESOLUTION, SHOW_ATLAS_RESOLUTION);
 
 				//Render the shadow map with the linearized shader
-				Shader* shader = Shader::getDefaultShader("linearize");
+				Shader* shader = Shader::Get("quad.vs","linearize.fs");
 				shader->enable();
 				shader->setUniform("u_camera_nearfar", Vector2(light->shadow_camera->near_plane, light->shadow_camera->far_plane));
 				shader->setUniform("u_shadow_index", (float)light->shadow_index);

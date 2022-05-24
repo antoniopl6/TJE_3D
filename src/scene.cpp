@@ -11,9 +11,9 @@ Scene::Scene()
 
 	//General features
 	filename = "";
-	ambient_light = Vector3(1.f, 1.f, 1.f);
+	ambient_light = Vector3(1.f,1.f,1.f);
 	main_camera = Game::instance->camera;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
+	shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs"); //Select shader to render the render calls
 
 	//Shadow Atlas
 	fbo = NULL;
@@ -29,7 +29,7 @@ Scene::Scene()
 	atlas_scope = 0;
 
 	//Scene triggers: We set them true just for the first iteration
-	camera_trigger = true;
+
 
 }
 
@@ -89,45 +89,23 @@ void Scene::addEntity(Entity* entity)
 	case(EntityType::LIGHT):
 		lights.push_back((LightEntity*)entity);
 		break;
+	case(EntityType::SOUND):
+		sounds.push_back((SoundEntity*)entity);
+		break;
 	}
 }
-void Scene::renderEntities()
-{
-	////get the last camera that was activated
-	//Camera* camera = Camera::current;
-	//Matrix44 model = monster->model;
-	////enable shader and pass uniforms
-	//shader->enable();
-	//shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	//shader->setUniform("u_model", model);
-	//shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	//shader->setTexture("u_texture", monster->texture, 0);
-	////render the mesh using the shader
-	//monster->mesh->render(GL_TRIANGLES);
-	////disable the shader after finishing rendering
-	//shader->disable();
-	//...
-	
-}
-Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
-{
-	Vector3 coll;
-	Vector3 collnorm;
-	nextPos = currPos + nextPos;
-	if (!monster->mesh->testSphereCollision(monster->model, nextPos, 20.0f, coll, collnorm)) {
-		return nextPos;
-	};
-	Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
-	nextPos = currPos - push_away;
-	//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
-	return nextPos;
 
-}
 void Scene::removeEntity(Entity* entity)
 {
 	//Only for entity vectors
 	switch (entity->entity_type)
 	{
+	case(EntityType::MAIN):
+		if (main_character == entity) main_character = NULL;
+		break;
+	case(EntityType::MONSTER):
+		if (monster == entity) monster = NULL;
+		break;
 	case(EntityType::OBJECT):
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			if (*it == entity) objects.erase(it);
@@ -138,7 +116,39 @@ void Scene::removeEntity(Entity* entity)
 			if (*it == entity) lights.erase(it);
 		}
 		break;
+	case(EntityType::SOUND):
+		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
+			if (*it == entity) sounds.erase(it);
+		}
+		break;
 	}
+
+	delete entity;
+}
+
+Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
+{
+	Vector3 coll;
+	Vector3 collnorm;
+	nextPos = currPos + nextPos;
+	if (monster->mesh->testSphereCollision(monster->model, nextPos, 20.0f, coll, collnorm)) {
+		Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
+		nextPos = currPos - push_away;
+		//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
+		return nextPos;
+	};
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		ObjectEntity* object = objects[i];
+		if (objects[i]->mesh->testSphereCollision(object->model, nextPos, 20.0f, coll, collnorm)) {
+			Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
+			nextPos = currPos - push_away;
+			//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
+			return nextPos;
+		};
+	}
+	return nextPos;
+
 }
 
 bool Scene::load(const char* scene_filepath)
@@ -273,10 +283,10 @@ bool Scene::save()
 
 	//Create JSON
 	cJSON* scene_json = cJSON_CreateObject();
-
+ 
 	//Add scene properties
 	writeJSONVector3(scene_json, "ambient_light", ambient_light);
-
+	
 	//Add main camera properties
 	writeJSONVector3(scene_json, "camera_position", main_camera->eye);
 	writeJSONVector3(scene_json, "camera_target", main_camera->center);
@@ -291,7 +301,7 @@ bool Scene::save()
 	//Monster JSON
 	cJSON* monster_json = cJSON_AddObjectToObject(scene_json, "monster");
 	monster->save(monster_json);
-
+	
 	//Objects JSON
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
 	for (int i = 0; i < objects.size(); i++)
@@ -338,3 +348,4 @@ bool Scene::save()
 
 	return true;
 }
+

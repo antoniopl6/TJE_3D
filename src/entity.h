@@ -8,11 +8,8 @@
 #include "input.h"
 #include "camera.h"
 #include "mesh.h"
-#include "texture.h"
-#include "framework.h"
 #include "material.h"
-#include "audio.h"
-
+#include "framework.h"
 
 using namespace std;
 
@@ -88,11 +85,9 @@ public:
 	Mesh* mesh;
 	Material* material;
 	BoundingBox world_bounding_box;
-	float speed = 30.f;
 
 	//Triggers
 	bool bounding_box_trigger;
-
 	//Bools
 	bool isRunning;
 	bool isFollowing;
@@ -104,12 +99,7 @@ public:
 	virtual void load(cJSON* monster_json) override;
 	virtual void save(cJSON* monster_json) override;
 	virtual void update(float elapsed_time) override;
-	//Metodos en IA
-	void updateNoFollow(float elapsed_time);
-	void updateFollow(float elapsed_time);
-	////
-	bool isInViewRange(Matrix44 mainModel);
-	bool isInCatchRange(Matrix44 mainModel);
+	void updateFollow(float elapsed_time, Camera* camera);
 };
 
 class ObjectEntity : public Entity {
@@ -155,7 +145,7 @@ public:
 	Camera* shadow_camera;
 
 	//Constructor
-	LightEntity();
+	LightEntity(); 
 
 	//Inherited methods
 	virtual void load(cJSON* light_json) override;
@@ -166,12 +156,9 @@ public:
 class SoundEntity : public Entity{
 public:	
 	string filename;
-	Audio audio;
+
 	//Methods
 	SoundEntity();
-	void playSample();
-	void stopAudio();
-	void changeVol(float new_v);
 
 	//JSON methods
 	virtual void load(cJSON* sound_json) override;

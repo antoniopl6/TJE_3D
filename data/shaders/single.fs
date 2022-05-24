@@ -12,14 +12,15 @@ uniform sampler2D u_omr_texture;
 uniform sampler2D u_normal_texture;
 uniform sampler2D u_shadow_atlas;
 
+//Normal mapping
+uniform bool u_normal_mapping;
+
 //Scene uniforms
 uniform vec3 u_camera_position;
-uniform vec4 u_color;
 uniform float u_time;
 uniform float u_alpha_cutoff;
 uniform vec3 u_ambient_light;
 uniform bool u_last_iteration;
-uniform int u_num_lights;
 
 //Single pass maximum number of lights to render
 const int MAX_LIGHTS = 5;
@@ -30,6 +31,7 @@ uniform vec3 u_lights_color[MAX_LIGHTS];
 uniform float u_lights_intensity[MAX_LIGHTS];
 uniform float u_lights_max_distance[MAX_LIGHTS];
 uniform int u_lights_type[MAX_LIGHTS];
+uniform int u_num_lights;
 
 //Spot lights uniforms
 uniform vec3 u_spots_direction[MAX_LIGHTS];
@@ -159,9 +161,11 @@ void main()
 
 	//Load texture values with texture interpolated coordinates
 	vec3 tangent_space_normal;
-	if(u_normal_texture) tangent_space_normal = texture2D( u_normal_texture, v_uv ).xyz;
-	color *= texture2D( u_color_texture, v_uv );
-	vec3 omr = texture2D(u_omr_texture,v_uv).xyz;	
+	if(u_normal_mapping) tangent_space_normal = texture2D( u_normal_texture, v_uv ).xyz;
+	vec4 color = texture2D(u_color_texture, v_uv );
+	vec3 omr = texture2D(u_omr_texture,v_uv).xyz;
+
+	FragColor = vec4(0.5,0.7,0.1, 1.0);	
 
 	//ZBuffer-Test
 	if(color.a < u_alpha_cutoff)
@@ -172,7 +176,7 @@ void main()
 
 	//Normal mapping
 	vec3 normal_vector;
-	if(u_normal_texture) normal_vector = perturbNormal(interpolated_normal, v_world_position, v_uv, tangent_space_normal);//Normal map
+	if(u_normal_mapping) normal_vector = perturbNormal(interpolated_normal, v_world_position, v_uv, tangent_space_normal);//Normal map
 	else normal_vector = interpolated_normal;//Interpolated Normal
 
 	//Compute ambient factor
