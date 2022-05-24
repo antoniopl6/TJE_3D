@@ -10,6 +10,7 @@ Vector3 Entity::getPosition()
 //Main character
 MainCharacterEntity::MainCharacterEntity() {
 	this->name = "";
+	this->visible = true;
 	this->model = Matrix44();
 	this->entity_type = EntityType::MAIN;
 	this->camera = new Camera();
@@ -65,8 +66,9 @@ void MainCharacterEntity::updateBoundingBox()
 
 void MainCharacterEntity::load(cJSON* main_json)
 {
-	//Name
+	//General features
 	name = readJSONString(main_json, "name", name.c_str());
+	visible = readJSONBoolean(main_json, "visible", visible);
 
 	//Model
 	vector<float> main_model;
@@ -97,8 +99,9 @@ void MainCharacterEntity::load(cJSON* main_json)
 
 void MainCharacterEntity::save(cJSON* main_json)
 {
-	//Name
+	//General features
 	writeJSONString(main_json, "name", name.c_str());
+	writeJSONBoolean(main_json, "visible", visible);
 
 	//Model
 	cJSON* main_model = cJSON_CreateFloatArray(this->model.m, 16);
@@ -120,9 +123,11 @@ void MainCharacterEntity::update(float elapsed_time)
 //Monster
 MonsterEntity::MonsterEntity()
 {
-	mesh = NULL;
-	material = new Material();
-	bounding_box_trigger = true; //Set it to true for the first iteration
+	this->name = "";
+	this->visible = true;
+	this->mesh = NULL;
+	this->material = new Material();
+	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -132,8 +137,9 @@ void MonsterEntity::updateBoundingBox()
 
 void MonsterEntity::load(cJSON* monster_json)
 {
-	//Name
+	//General features
 	name = readJSONString(monster_json, "name", name.c_str());
+	visible = readJSONBoolean(monster_json, "visible", visible);
 
 	//Model
 	vector<float> monster_model;
@@ -166,8 +172,9 @@ void MonsterEntity::load(cJSON* monster_json)
 
 void MonsterEntity::save(cJSON* monster_json)
 {
-	//Name
+	//General features
 	writeJSONString(monster_json, "name", name.c_str());
+	writeJSONBoolean(monster_json, "visible", visible);
 
 	//Model
 	cJSON* monster_model = cJSON_CreateFloatArray(this->model.m, 16);
@@ -189,6 +196,7 @@ void MonsterEntity::update(float elapsed_time)
 //Objects
 ObjectEntity::ObjectEntity() {
 	this->name = "";
+	this->visible = true;
 	this->model = Matrix44();
 	this->entity_type = EntityType::OBJECT;
 	this->mesh = NULL;
@@ -203,8 +211,9 @@ void ObjectEntity::updateBoundingBox()
 
 void ObjectEntity::load(cJSON* object_json)
 {
-	//Name
+	//General features
 	name = readJSONString(object_json, "name", name.c_str());
+	visible = readJSONBoolean(object_json, "visible", visible);
 
 	//Model
 	vector<float> object_model;
@@ -234,8 +243,9 @@ void ObjectEntity::load(cJSON* object_json)
 
 void ObjectEntity::save(cJSON* object_json)
 {
-	//Name
+	//General features
 	writeJSONString(object_json, "name", name.c_str());
+	writeJSONBoolean(object_json, "visible", visible);
 	
 	//Model
 	cJSON* object_model = cJSON_CreateFloatArray(this->model.m, 16);
@@ -260,6 +270,7 @@ LightEntity::LightEntity()
 {
 	//General features
 	this->name = "";
+	this->visible = true;
 	this->entity_type = LIGHT;
 	this->light_type = LightType::POINT_LIGHT;
 	this->color.set(1.0f, 1.0f, 1.0f);
@@ -283,6 +294,7 @@ void LightEntity::load(cJSON* light_json)
 {
 	//General features
 	name = readJSONString(light_json, "name", name.c_str());
+	visible = readJSONBoolean(light_json, "visible", visible);
 	color = readJSONVector3(light_json, "color", color);
 	intensity = readJSONNumber(light_json, "intensity", intensity);
 	max_distance = readJSONNumber(light_json, "max_distance", max_distance);
@@ -320,6 +332,7 @@ void LightEntity::save(cJSON* light_json)
 {
 	//General features
 	writeJSONString(light_json, "name", this->name.c_str());
+	writeJSONBoolean(light_json, "visible", visible);
 	writeJSONVector3(light_json, "color", this->color);
 	writeJSONNumber(light_json, "intensity", this->intensity);
 	writeJSONNumber(light_json, "max_distance", this->max_distance);
@@ -358,6 +371,7 @@ void LightEntity::update(float elapsed_time)
 SoundEntity::SoundEntity()
 {
 	this->name = "";
+	this->visible = true;
 	this->model = Matrix44();
 	this->entity_type = EntityType::SOUND;
 	this->filename = "";
@@ -365,8 +379,9 @@ SoundEntity::SoundEntity()
 
 void SoundEntity::load(cJSON* sound_json)
 {
-	//General
+	//General features
 	name = readJSONString(sound_json, "name", "");
+	visible = readJSONBoolean(sound_json, "visible", visible);
 	filename = readJSONString(sound_json, "filename", "");
 
 	//Model
@@ -377,8 +392,9 @@ void SoundEntity::load(cJSON* sound_json)
 
 void SoundEntity::save(cJSON* sound_json)
 {
-	//General
+	//General features
 	writeJSONString(sound_json, "name", this->name);
+	writeJSONBoolean(sound_json, "visible", visible);
 	writeJSONString(sound_json, "filename", this->filename);
 
 	//Model

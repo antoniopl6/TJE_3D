@@ -13,11 +13,19 @@ Scene::Scene()
 	filename = "";
 	ambient_light = Vector3(1.f,1.f,1.f);
 	main_camera = Game::instance->camera;
-	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
 	//Shadow Atlas
 	fbo = NULL;
 	shadow_atlas = NULL;
+
+	//Counters
+	num_objects = 0;
+	num_lights = 0;
+	num_shadows = 0;
+
+	//Scene properties
+	show_atlas = false;
+	atlas_scope = 0;
 
 	//Scene triggers: We set them true just for the first iteration
 	camera_trigger = true;

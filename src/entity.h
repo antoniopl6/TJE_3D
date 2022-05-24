@@ -40,6 +40,7 @@ public:
 
 	//Entity features
 	string name;
+	bool visible;
 	Matrix44 model;
 	EntityType entity_type;
 
@@ -135,6 +136,7 @@ public:
 	float area_size;
 
 	//Shadows
+	int shadow_index;
 	bool cast_shadows;
 	float shadow_bias;
 	Camera* shadow_camera;

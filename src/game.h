@@ -5,10 +5,12 @@
 #ifndef GAME_H
 #define GAME_H
 
+#pragma once
 #include "includes.h"
 #include "camera.h"
 #include "utils.h"
 #include "scene.h"
+#include "renderer.h"
 
 class Game
 {
@@ -30,7 +32,7 @@ public:
 	//some vars
 	Camera* camera; //our global camera
 	Scene* scene; //game scene
-	//Renderer* renderer; //game render class
+	Renderer* renderer; //game render class
 	bool mouse_locked; //tells if the mouse is locked (not seen)
 
 	Game( int window_width, int window_height, SDL_Window* window );

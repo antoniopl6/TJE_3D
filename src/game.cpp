@@ -58,7 +58,10 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 		exit(1);
 
 	//This class will be the one in charge of rendering all 
-	//renderer = new Renderer();
+	renderer = new Renderer();
+
+	//Create Shadow Atlas: We create a dynamic atlas to be resizable
+	renderer->createShadowAtlas();
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -133,29 +136,8 @@ void Game::RayPickCheck(Camera* cam) {
 //what to do when the image has to be draw
 void Game::render(void)
 {
-	//be sure no errors present in opengl before start
-	checkGLErrors();
-	
-	//set the clear color (the background color)
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	// Clear the window and the depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//set the camera as default
-	camera->enable();
-
-	//set flags
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-  
-
-	if(scene->shader)
-	{
-		//Render the scene
-		//renderer->renderScene(scene);
-	}
+	//Render the scene
+	renderer->renderScene(scene);
 
 	//Draw the floor grid
 	drawGrid();

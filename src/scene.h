@@ -26,7 +26,6 @@ public:
 	string filename;
 	Vector3 ambient_light;
 	Camera* main_camera;
-	Shader* shader;
 
 	//Scene shadows
 	FBO* fbo; //Frame Buffer Object
@@ -42,6 +41,11 @@ public:
 	//Counters
 	int num_objects;
 	int num_lights;
+	int num_shadows;
+
+	//Scene properties
+	bool show_atlas;
+	int atlas_scope;
 
 	//Scene triggers
 	bool camera_trigger; //Triggers if the camera has moved in the space.
