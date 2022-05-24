@@ -134,6 +134,7 @@ void Game::update(double seconds_elapsed)
 		ObjectEntity* object = scene->objects[i];
 		if (object->bounding_box_trigger) {
 			object->updateBoundingBox();
+			object->bounding_box_trigger = false;
 		}
 	}
 

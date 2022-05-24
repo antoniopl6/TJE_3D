@@ -38,28 +38,23 @@ void Renderer::createRenderCalls()
 	//Clear the render calls vector
 	render_calls.clear();
 
-	//Reserve memory for the render calls vector
-	render_calls.reserve(2 + scene->objects.size());
-
 	//Main character render call
 	MainCharacterEntity* mc = scene->main_character; 
-	if (mc->visible && mc->mesh && mc->material) 
-		render_calls[0] = new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera);
+	if (mc->visible && mc->mesh && mc->material)
+		render_calls.push_back(new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera));
 
 	//Monster render call
 	MonsterEntity* monster = scene->monster;
-	if (monster->visible && monster->mesh && monster->material) 
-		render_calls[1] = new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera);;
+	if (monster->visible && monster->mesh && monster->material)
+		render_calls.push_back(new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera));
 
 	//Objects render calls	
-	int object_index = 2;
 	for (int i = 0; i < scene->objects.size(); ++i)
 	{
 		ObjectEntity* object = scene->objects[i];
 		if (object->visible && object->mesh && object->material)
 		{
-			render_calls[object_index] = new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box,camera);
-			object_index++;
+			render_calls.push_back(new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box,camera));
 		}
 	}
 
@@ -123,10 +118,7 @@ void Renderer::renderScene()
 	for (int i = 0; i < render_calls.size(); i++)
 	{
 		RenderCall* rc = render_calls[i];
-		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
-		{
-			renderDrawCall(shader, render_calls[i], camera);
-		}
+		renderDrawCall(shader, rc, camera);
 	}
 
 	//Disable the shader
@@ -190,6 +182,10 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	if (omr_texture) shader->setTexture("u_omr_texture", omr_texture, 2);
 	if (normal_texture) shader->setTexture("u_normal_texture", normal_texture, 3);
 	//if(occlusion_texture) shader->setTexture("u_occlussion_texture", occlusion_texture, 4);
+
+	//Normal mapping
+	if (normal_texture) shader->setUniform("u_normal_mapping", 1);
+	else shader->setUniform("u_normal_mapping", 0);
 
 	//Upload entity uniforms
 	shader->setUniform("u_model", rc->model);

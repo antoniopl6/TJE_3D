@@ -4,7 +4,7 @@
 	"camera_target":	[-0.48599794507026672, 630, 380.41818237304688],
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
-	"camera_far":	5000,
+	"camera_far":	1000,
 	"main_character":	{
 		"name":	"Adventurer",
 		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
