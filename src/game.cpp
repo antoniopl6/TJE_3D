@@ -71,33 +71,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
 }
 
-/*
-void Game::RayPickCheck(Camera* cam) {
-	Vector2 mouse = Input::mouse_position;
-	Game* g = Game::instance;
-	Vector3 dir = cam->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
-	Vector3 rayOrgin = cam->eye;
-
-	Scene scene = Scene::getInstance();
-	std::vector<Entity*> entities = scene.entities;
-
-	for (size_t i = 0; i < entities.size(); i++)
-	{
-		//downCast, se devería de hacer de una clase que fuera pickeable, cambiar a una clase diferente
-		EntityMesh* entity = (EntityMesh*)entities[i];
-		//si se puede hacer
-		if (entity) {
-			Vector3 pos;
-			Vector3 normal;
-			if (entity->mesh->testRayCollision(entity->model, rayOrgin, dir, pos, normal)) {
-				//Se cogería el objeto
-				scene.removeEntity(entity);
-			}
-		}
-	}
-}
-*/
-
 //what to do when the image has to be draw
 void Game::render(void)
 {	

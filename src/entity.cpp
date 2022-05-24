@@ -7,7 +7,6 @@ Vector3 Entity::getPosition()
 	return model.getTranslation();
 }
 
-
 //Main character
 MainCharacterEntity::MainCharacterEntity() {
 	this->name = "";
@@ -49,16 +48,11 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
 	}
 
-	//Move the camera along with the main character
-	/*if (Input::isKeyPressed(SDL_SCANCODE_W)) camera->lookAt(camera->eye + camera_front * speed, camera->center + camera_front * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_A)) camera->lookAt(camera->eye - camera_side * speed, camera->center - camera_side * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_S)) camera->lookAt(camera->eye - camera_front * speed, camera->center - camera_front * speed, camera->up);
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) camera->lookAt(camera->eye + camera_side * speed, camera->center + camera_side * speed, camera->up);*/
-	Vector3 nextPos;
-	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = camera_front * speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = camera_side * -speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = camera_front * -speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = camera_side * speed;
+	Vector3 nextPos = Vector3();
+	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
 	//To navigate with the mouse fixed in the middle
@@ -200,9 +194,11 @@ void MonsterEntity::update(float elapsed_time)
 {
 
 }
+
 float sign(float num) {
 	return num >= 0.0f ? 1.0f : -1.0f;
 }
+
 void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
@@ -232,6 +228,7 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 		this->isFollowing = false;
 	}*/
 }
+
 //Objects
 ObjectEntity::ObjectEntity() {
 	this->name = "";
