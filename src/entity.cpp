@@ -14,7 +14,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->model = Matrix44();
 	this->entity_type = EntityType::MAIN;
 	this->camera = new Camera();
-	this->mesh = NULL;
+	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
@@ -125,7 +125,7 @@ MonsterEntity::MonsterEntity()
 {
 	this->name = "";
 	this->visible = true;
-	this->mesh = NULL;
+	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
@@ -199,7 +199,7 @@ ObjectEntity::ObjectEntity() {
 	this->visible = true;
 	this->model = Matrix44();
 	this->entity_type = EntityType::OBJECT;
-	this->mesh = NULL;
+	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 }
