@@ -6,19 +6,9 @@ constexpr int SHADOW_MAP_RESOLUTION = 2048;
 
 using namespace std;
 
-bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
+//Constructor
+Renderer::Renderer(Scene* scene)
 {
-	AlphaMode rc1_alpha = rc1->material->alpha_mode;
-	AlphaMode rc2_alpha = rc2->material->alpha_mode;
-	if (rc1_alpha == AlphaMode::BLEND && rc2_alpha != AlphaMode::BLEND) return false;
-	else if (rc1_alpha != AlphaMode::BLEND && rc2_alpha == AlphaMode::BLEND) return true;
-	else if (rc1_alpha == AlphaMode::BLEND && rc2_alpha == AlphaMode::BLEND) return rc1->distance_to_camera > rc2->distance_to_camera;
-	else if (rc1_alpha != AlphaMode::BLEND && rc2_alpha != AlphaMode::BLEND) return rc1->distance_to_camera < rc2->distance_to_camera;
-	else return true;
-}
-
-Renderer(Scene* scene) {
-	
 	//Set scene and camera
 	this->scene = scene;
 	this->camera = scene->main_camera;
@@ -30,48 +20,16 @@ Renderer(Scene* scene) {
 	createShadowAtlas();
 }
 
-void Renderer::renderScene()
-{	
-	//If there aren't lights in the scene don't render nothing
-	if (scene->lights.empty()) 
-		return;
-
-	//Set the clear color (the background color)
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	// Clear the window and the depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Check gl errors before starting
-	checkGLErrors();
-
-	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
-	computeShadowMap();
-
-	//Enable view camera after computing shadow maps
-	camera->enable();
-
-	//Render shader
-	Shader* shader = setRender();
-	if (!shader)
-		return;
-
-	//Entity render
-	for (int i = 0; i < render_calls.size(); i++)
-	{
-		RenderCall* rc = render_calls[i];
-		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
-		{
-			renderDrawCall(shader, render_calls[i], camera);
-		}
-	}
-	shader->disable();
-
-	//Debug shadow maps
-	if (scene->show_atlas) showShadowAtlas();
-
-	//Reset scene triggers
-
+//Sort render calls by transparency and distance to camera
+bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
+{
+	AlphaMode rc1_alpha = rc1->material->alpha_mode;
+	AlphaMode rc2_alpha = rc2->material->alpha_mode;
+	if (rc1_alpha == AlphaMode::BLEND && rc2_alpha != AlphaMode::BLEND) return false;
+	else if (rc1_alpha != AlphaMode::BLEND && rc2_alpha == AlphaMode::BLEND) return true;
+	else if (rc1_alpha == AlphaMode::BLEND && rc2_alpha == AlphaMode::BLEND) return rc1->distance_to_camera > rc2->distance_to_camera;
+	else if (rc1_alpha != AlphaMode::BLEND && rc2_alpha != AlphaMode::BLEND) return rc1->distance_to_camera < rc2->distance_to_camera;
+	else return true;
 }
 
 //Intialize render calls vector
@@ -110,25 +68,74 @@ void Renderer::createRenderCalls()
 }
 
 //Set the render shader and scene uniforms
-Shader* Renderer::setRender()
+void Renderer::setSceneUniforms(Shader* shader)
 {
-	//Render shader
-	Shader* shader = NULL;
-
-	//Select shader to render the render calls
-	shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs");
-	assert(glGetError() == GL_NO_ERROR);
-
-	//no shader? then nothing to render
-	if (!shader)
-		return NULL;
-	shader->enable();
-
 	//Upload scene uniforms
 	shader->setUniform("u_ambient_light", scene->ambient_light);
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_camera_position", camera->eye);
 	shader->setUniform("u_time", getTime());
+	shader->setUniform("u_num_shadows", (float)scene->num_shadows);
+
+	//Shadow Atlas
+	if (scene->shadow_atlas)
+	{
+		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
+		shader->setUniform("u_shadows", 1);
+	}
+	else
+	{
+		shader->setUniform("u_shadows", 0);
+	}
+
+}
+
+void Renderer::renderScene()
+{	
+	//no shader? then nothing to render
+	if (!scene->shader)
+		return;
+
+	//If there aren't lights in the scene don't render nothing
+	if (scene->lights.empty()) 
+		return;
+
+	//Set the clear color (the background color)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	// Clear the window and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Check gl errors before starting
+	checkGLErrors();
+
+	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
+	computeShadowMap();
+
+	//Enable the shader with which scene entities are rendered
+	Shader* shader = scene->shader;
+	shader->enable();
+
+	//Set scene uniforms
+	setSceneUniforms(shader);
+	
+	//Entity render
+	for (int i = 0; i < render_calls.size(); i++)
+	{
+		RenderCall* rc = render_calls[i];
+		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
+		{
+			renderDrawCall(shader, render_calls[i], camera);
+		}
+	}
+
+	//Disable the shader
+	shader->disable();
+
+	//Debug shadow maps
+	if (scene->show_atlas) showShadowAtlas();
+
+	//Reset scene triggers
 
 }
 
@@ -190,47 +197,6 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 
 	//Single pass lighting
 	SinglePassLoop(shader, rc->mesh);
-}
-
-//Render basic draw call
-void Renderer::renderDepthMap(RenderCall* rc, Camera* light_camera)
-{
-	//In case there is nothing to do
-	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
-		return;
-	assert(glGetError() == GL_NO_ERROR);
-
-	//Define locals to simplify coding
-	Shader* shader = NULL;
-
-	//Select whether to render both sides of the triangles
-	if (rc->material->two_sided) glDisable(GL_CULL_FACE);
-	else glEnable(GL_CULL_FACE);
-	assert(glGetError() == GL_NO_ERROR);
-
-	//chose a shader
-	shader = Shader::Get("data/shaders/depth.vs", "data/shaders/color.fs");
-	assert(glGetError() == GL_NO_ERROR);
-
-	//no shader? then nothing to render
-	if (!shader)
-		return;
-	shader->enable();
-
-	//Upload scene uniforms
-	shader->setUniform("u_model", rc->model);
-	shader->setUniform("u_viewprojection", light_camera->viewprojection_matrix);
-	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
-
-	//Disable blending
-	glDepthFunc(GL_LESS);
-	glDisable(GL_BLEND);
-
-	//do the draw call that renders the mesh into the screen
-	rc->mesh->render(GL_TRIANGLES);
-
-	//disable shader
-	shader->disable();
 }
 
 //Singlepass lighting
@@ -356,18 +322,6 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 		shader->setUniform1Array("u_shadows_index", &shadows_index[0], num_lights);
 		shader->setUniform1Array("u_shadows_bias", &shadows_bias[0], num_lights);
 		shader->setMatrix44Array("u_shadows_vp", &shadows_vp[0], num_lights);
-		shader->setUniform("u_num_shadows", (float)scene->num_shadows);
-
-		//Shadow Atlas
-		if (scene->shadow_atlas) 
-		{
-			shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
-			shader->setUniform("u_shadows", 1);
-		}
-		else
-		{
-			shader->setUniform("u_shadows", 0);
-		}
 
 		//do the draw call that renders the mesh into the screen
 		mesh->render(GL_TRIANGLES);
@@ -381,6 +335,47 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 	//set the render state as it was before to avoid problems with future renders
 	glDisable(GL_BLEND);
 	glDepthFunc(GL_LESS);
+}
+
+//Render basic draw call
+void Renderer::renderDepthMap(RenderCall* rc, Camera* light_camera)
+{
+	//In case there is nothing to do
+	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
+		return;
+	assert(glGetError() == GL_NO_ERROR);
+
+	//Define locals to simplify coding
+	Shader* shader = NULL;
+
+	//Select whether to render both sides of the triangles
+	if (rc->material->two_sided) glDisable(GL_CULL_FACE);
+	else glEnable(GL_CULL_FACE);
+	assert(glGetError() == GL_NO_ERROR);
+
+	//chose a shader
+	shader = Shader::Get("data/shaders/depth.vs", "data/shaders/color.fs");
+	assert(glGetError() == GL_NO_ERROR);
+
+	//no shader? then nothing to render
+	if (!shader)
+		return;
+	shader->enable();
+
+	//Upload scene uniforms
+	shader->setUniform("u_model", rc->model);
+	shader->setUniform("u_viewprojection", light_camera->viewprojection_matrix);
+	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
+
+	//Disable blending
+	glDepthFunc(GL_LESS);
+	glDisable(GL_BLEND);
+
+	//do the draw call that renders the mesh into the screen
+	rc->mesh->render(GL_TRIANGLES);
+
+	//disable shader
+	shader->disable();
 }
 
 //Create a shadow atlas
@@ -530,7 +525,7 @@ void Renderer::showShadowAtlas()
 				glViewport((light->shadow_index - starting_shadow) * SHOW_ATLAS_RESOLUTION + shadow_offset, 0, SHOW_ATLAS_RESOLUTION, SHOW_ATLAS_RESOLUTION);
 
 				//Render the shadow map with the linearized shader
-				Shader* shader = Shader::getDefaultShader("linearize");
+				Shader* shader = Shader::Get("quad.vs","linearize.fs");
 				shader->enable();
 				shader->setUniform("u_camera_nearfar", Vector2(light->shadow_camera->near_plane, light->shadow_camera->far_plane));
 				shader->setUniform("u_shadow_index", (float)light->shadow_index);

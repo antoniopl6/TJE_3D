@@ -94,6 +94,9 @@ void Game::RayPickCheck(Camera* cam) {
 //what to do when the image has to be draw
 void Game::render(void)
 {
+	//Enable view camera
+	camera->enable();
+
 	//Render the scene
 	renderer->renderScene();
 

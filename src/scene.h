@@ -26,6 +26,7 @@ public:
 	string filename;
 	Vector3 ambient_light;
 	Camera* main_camera;
+	Shader* shader;
 
 	//Scene shadows
 	FBO* fbo; //Frame Buffer Object

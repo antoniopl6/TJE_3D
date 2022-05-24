@@ -49,8 +49,8 @@ public:
 	//Intialize the render calls vector
 	void createRenderCalls();
 
-	//Set the render shader and scene uniforms
-	Shader* Renderer::setRender();
+	//Set scene uniforms
+	void setSceneUniforms(Shader* shader);
 
 	//Render a draw call
 	void renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera);
