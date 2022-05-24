@@ -9,7 +9,6 @@
 #include "entity.h"
 #include "camera.h"
 #include "shader.h"
-#include "mainentity.h"
 
 //Forward declaration
 class FBO;
@@ -24,7 +23,7 @@ public:
 	static Scene* instance;
 
 	//General features
-	string scene_path;
+	string filename;
 	Vector3 ambient_light;
 	Camera* main_camera;
 	Shader* shader;
@@ -43,6 +42,11 @@ public:
 	//Counters
 	int num_objects;
 	int num_lights;
+	int num_shadows;
+
+	//Scene properties
+	bool show_atlas;
+	int atlas_scope;
 
 	//Scene triggers
 	bool camera_trigger; //Triggers if the camera has moved in the space.
@@ -56,6 +60,7 @@ public:
 	void removeEntity(Entity* entity);
 	void renderEntities();
 	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
+
 	//JSON methods
 	bool load(const char* scene_filepath);
 	bool save();

@@ -10,6 +10,7 @@
 #include "mesh.h"
 #include "texture.h"
 #include "framework.h"
+#include "material.h"
 #include "audio.h"
 
 
@@ -42,6 +43,7 @@ public:
 
 	//Entity features
 	string name;
+	bool visible;
 	Matrix44 model;
 	EntityType entity_type;
 
@@ -61,7 +63,7 @@ public:
 	//Main features
 	Camera* camera;
 	Mesh* mesh;
-	Texture* texture;
+	Material* material;
 	BoundingBox world_bounding_box;
 
 	//Triggers
@@ -84,9 +86,14 @@ public:
 
 	//Monster features
 	Mesh* mesh;
-	Texture* texture;
+	Material* material;
 	BoundingBox world_bounding_box;
 	float speed = 30.f;
+
+	//Triggers
+	bool bounding_box_trigger;
+
+	//Bools
 	bool isRunning;
 	bool isFollowing;
 	//Methods
@@ -109,7 +116,7 @@ class ObjectEntity : public Entity {
 public:
 	
 	Mesh* mesh;
-	Texture* texture;
+	Material* material;
 	BoundingBox world_bounding_box;
 
 	//Triggers
@@ -142,12 +149,13 @@ public:
 	float area_size;
 
 	//Shadows
+	int shadow_index;
 	bool cast_shadows;
 	float shadow_bias;
 	Camera* shadow_camera;
 
 	//Constructor
-	LightEntity(); 
+	LightEntity();
 
 	//Inherited methods
 	virtual void load(cJSON* light_json) override;

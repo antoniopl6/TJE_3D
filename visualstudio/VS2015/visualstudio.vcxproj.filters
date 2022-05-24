@@ -84,8 +84,9 @@
       <Filter>gfx</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\pathfinders.cpp" />
-    <ClCompile Include="..\..\src\mainentity.cpp">
-      <Filter>elements</Filter>
+    <ClCompile Include="..\..\src\renderer.cpp" />
+    <ClCompile Include="..\..\src\material.cpp">
+      <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -171,8 +172,9 @@
     <ClInclude Include="..\..\src\extra\bass.h">
       <Filter>extra</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\mainentity.h">
-      <Filter>elements</Filter>
+    <ClInclude Include="..\..\src\renderer.h" />
+    <ClInclude Include="..\..\src\material.h">
+      <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

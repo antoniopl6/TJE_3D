@@ -10,14 +10,23 @@ Scene::Scene()
 	instance = this;
 
 	//General features
-	scene_path = "";
-	ambient_light = Vector3(1.f,1.f,1.f);
+	filename = "";
+	ambient_light = Vector3(1.f, 1.f, 1.f);
 	main_camera = Game::instance->camera;
 	shader = Shader::Get("data/shaders/basic.vs", "data/shaders/texture.fs");
 
 	//Shadow Atlas
 	fbo = NULL;
 	shadow_atlas = NULL;
+
+	//Counters
+	num_objects = 0;
+	num_lights = 0;
+	num_shadows = 0;
+
+	//Scene properties
+	show_atlas = false;
+	atlas_scope = 0;
 
 	//Scene triggers: We set them true just for the first iteration
 	camera_trigger = true;
@@ -84,19 +93,19 @@ void Scene::addEntity(Entity* entity)
 }
 void Scene::renderEntities()
 {
-	//get the last camera that was activated
-	Camera* camera = Camera::current;
-	Matrix44 model = monster->model;
-	//enable shader and pass uniforms
-	shader->enable();
-	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	shader->setUniform("u_model", model);
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setTexture("u_texture", monster->texture, 0);
-	//render the mesh using the shader
-	monster->mesh->render(GL_TRIANGLES);
-	//disable the shader after finishing rendering
-	shader->disable();
+	////get the last camera that was activated
+	//Camera* camera = Camera::current;
+	//Matrix44 model = monster->model;
+	////enable shader and pass uniforms
+	//shader->enable();
+	//shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	//shader->setUniform("u_model", model);
+	//shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	//shader->setTexture("u_texture", monster->texture, 0);
+	////render the mesh using the shader
+	//monster->mesh->render(GL_TRIANGLES);
+	////disable the shader after finishing rendering
+	//shader->disable();
 	//...
 	
 }
@@ -143,6 +152,8 @@ bool Scene::load(const char* scene_filepath)
 		cout << "ERROR: The Scene JSON has not been found at: " << scene_filepath << endl;
 		return false;
 	}
+
+	filename = scene_filepath;
 
 	//Parse JSON content
 	cJSON* scene_json = cJSON_Parse(content.c_str());
@@ -254,9 +265,9 @@ bool Scene::save()
 {
 	std::string content;
 
-	if (!readFile(scene_path, content))
+	if (!readFile(filename, content))
 	{
-		cout << "ERROR: The Scene JSON has not been found at: " << scene_path << endl;
+		cout << "ERROR: The Scene JSON has not been found at: " << filename << endl;
 		return false;
 	}
 
@@ -265,7 +276,7 @@ bool Scene::save()
 
 	//Add scene properties
 	writeJSONVector3(scene_json, "ambient_light", ambient_light);
-	
+
 	//Add main camera properties
 	writeJSONVector3(scene_json, "camera_position", main_camera->eye);
 	writeJSONVector3(scene_json, "camera_target", main_camera->center);
@@ -276,20 +287,17 @@ bool Scene::save()
 	//Main Character JSON
 	cJSON* main_json = cJSON_AddObjectToObject(scene_json, "main_character");
 	main_character->save(main_json);
-	main_character->updateBoundingBox();
 
 	//Monster JSON
 	cJSON* monster_json = cJSON_AddObjectToObject(scene_json, "monster");
 	monster->save(monster_json);
-	monster->updateBoundingBox();
-	
+
 	//Objects JSON
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
 	for (int i = 0; i < objects.size(); i++)
 	{
 		cJSON* object_json = cJSON_CreateObject();
 		objects[i]->save(object_json);
-		objects[i]->updateBoundingBox();
 		cJSON_AddItemToArray(objects_json, object_json);
 	}
 
@@ -298,7 +306,7 @@ bool Scene::save()
 	for (int i = 0; i < lights.size(); i++)
 	{
 		cJSON* light_json = cJSON_CreateObject();
-		lights[i]->save(objects_json);
+		lights[i]->save(light_json);
 		cJSON_AddItemToArray(lights_json, light_json);
 	}
 
@@ -330,4 +338,3 @@ bool Scene::save()
 
 	return true;
 }
-

@@ -26,6 +26,7 @@ FBO* fbo = NULL;
 using namespace std;
 
 Game* Game::instance = NULL;
+bool scene_saved = false;
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
@@ -56,10 +57,19 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	if (!scene->load("data/scene.json"))
 		exit(1);
 
+	//This class will be the one in charge of rendering all 
+	renderer = new Renderer();
+
+	//Create Shadow Atlas: We create a dynamic atlas to be resizable
+	renderer->createShadowAtlas(scene);
+
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+
+	//IA pathfinding initialization
 	PruebaIAClase();
 }
+
 int W = 100;
 int H = 100;
 float tileSizeX = 10.0f;
@@ -69,6 +79,7 @@ int starty;
 int targetx;
 int targety;
 uint8* grid;
+
 void Game::PruebaIAClase() {
 	// the map info should be an array W*H of bytes where 0 means block, 1 means walkable
 	grid = new uint8[W*H];
@@ -79,6 +90,7 @@ void Game::PruebaIAClase() {
 
 
 };
+
 /*
 void Game::RenderTerrainExample() {
 	Matrix44 m;
@@ -148,31 +160,34 @@ void Game::RayPickCheck(Camera* cam) {
 //what to do when the image has to be draw
 void Game::render(void)
 {
-	//set the clear color (the background color)
-	glClearColor(0.0, 0.0, 0.0, 1.0);
+	////set the clear color (the background color)
+	//glClearColor(0.0, 0.0, 0.0, 1.0);
 
-	// Clear the window and the depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+	//// Clear the window and the depth buffer
+	//glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
-	//set the camera as default
-	camera->enable();
+	////set the camera as default
+	//camera->enable();
 
-	//set flags
-	glDisable(GL_BLEND);
-	glEnable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-  
+	////set flags
+	//glDisable(GL_BLEND);
+	//glEnable(GL_DEPTH_TEST);
+	//glDisable(GL_CULL_FACE);
+ // 
 
-	//if(shader)
-	//{
-		//Prueba para colocar la camara en tercera persona para el personaje
-		//emeshPrueba->render();
-		//RenderTerrainExample();
-	//Vector3 eye = scene->main_character->model * Vector3(0.0f, 300.0f, -50.0f);
-	//	Vector3 center = scene->main_character->model * Vector3(0.0f, 0.0f, 400.0f);
-	//	Vector3 up = scene->main_character->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
-	//	camera->lookAt(eye, center, up);
-	scene->renderEntities();
+	////if(shader)
+	////{
+	//	//Prueba para colocar la camara en tercera persona para el personaje
+	//	//emeshPrueba->render();
+	//	//RenderTerrainExample();
+	////Vector3 eye = scene->main_character->model * Vector3(0.0f, 300.0f, -50.0f);
+	////	Vector3 center = scene->main_character->model * Vector3(0.0f, 0.0f, 400.0f);
+	////	Vector3 up = scene->main_character->model.rotateVector(Vector3(0.0f, 1.0f, 0.0f));
+	////	camera->lookAt(eye, center, up);
+
+	renderer->renderScene(scene);
+
+	//scene->renderEntities();
 	//}
 
 	//Draw the floor grid
@@ -186,8 +201,45 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
+	//Update Main Character
+	MainCharacterEntity* character = scene->main_character;
+	if (character->bounding_box_trigger)
+	{
+		character->updateBoundingBox();
+		character->bounding_box_trigger = false;
+	}
+
+	//Update Monster
+	MonsterEntity* monster = scene->monster;
+	if (monster->bounding_box_trigger)
+	{
+		monster->updateBoundingBox();
+		monster->bounding_box_trigger = false;
+	}
+
+	//Update Objects
+	for (int i = 0; i < scene->objects.size(); ++i)
+	{
+		ObjectEntity* object = scene->objects[i];
+		if (object->bounding_box_trigger) {
+			object->updateBoundingBox();
+		}
+	}
+
+	//Update Lights
+
 	//Update main character camera
 	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+
+	//Save scene
+	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
+	{
+		if (!scene_saved)
+		{
+			scene->save();
+			scene_saved = true;
+		}
+	}
 
 }
 
