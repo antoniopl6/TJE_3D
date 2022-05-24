@@ -96,6 +96,7 @@ public:
 
 	double length();
 	double length() const;
+	void print();
 
 	void set(float x, float y, float z) { this->x = x; this->y = y; this->z = z; }
 
@@ -214,7 +215,7 @@ class Matrix44
 		void setIdentity();
 		void transpose();
 		void normalizeAxis();
-		void printMatrix();
+		void print();
 
 		//get base vectors
 		Vector3 rightVector() { return Vector3(m[0],m[1],m[2]); }

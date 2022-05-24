@@ -57,6 +57,13 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	if (!scene->load("data/scene.json"))
 		exit(1);
 
+	for (int i = 0; i < scene->objects.size(); ++i)
+	{
+		if (scene->objects[i]->name == "Grass");
+			
+	}
+	
+
 	//This class will be the one in charge of rendering the scene
 	renderer = new Renderer(scene);
 

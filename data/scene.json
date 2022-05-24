@@ -1,12 +1,13 @@
 {
-	"ambient_light":	[1.0, 1.0, 1.0],
-	"camera_position":	[100, 80, 100],
-	"camera_target":	[0, 80, 0],
+	"ambient_light":	[0.20000000298023224, 0.20000000298023224, 0.20000000298023224],
+	"camera_position":	[0, 230, 202.80000305175781],
+	"camera_target":	[0, 230, 2.7999999523162842],
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
 	"camera_far":	3000,
 	"main_character":	{
 		"name":	"Adventurer",
+		"visible":	true,
 		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 		"mesh":	"",
 		"material":	{
@@ -21,6 +22,7 @@
 	},
 	"monster":	{
 		"name":	"Demogorgon",
+		"visible":	true,
 		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
 		"mesh":	"data/assets/monster/GrimmFoxy.obj",
 		"material":	{
@@ -36,6 +38,7 @@
 	},
 	"objects":	[{
 			"name":	"Box",
+			"visible":	true,
 			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -300, 0, 300, 1],
 			"mesh":	"data/assets/box/box.ASE",
 			"material":	{
@@ -50,6 +53,7 @@
 			}
 		}, {
 			"name":	"Sphere",
+			"visible":	true,
 			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 300, 0, 300, 1],
 			"mesh":	"data/assets/sphere/sphere.obj",
 			"material":	{
@@ -62,17 +66,79 @@
 				"emissive_factor":	[1, 1, 1],
 				"color_texture":	"data/assets/rainbow.tga"
 			}
+		}, {
+			"name":	"Grass",
+			"visible":	true,
+			"model":	[-1, -4.37113882867379e-08, 0, 0, 0, 0, 0.99999994039535522, 0, -4.37113882867379e-08, 1, 0, 0, -600, 0, -600, 1],
+			"mesh":	"data/assets/floor/grass.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	0,
+				"occlusion_factor":	1,
+				"roughness_factor":	1,
+				"metallic_factor":	0,
+				"emissive_factor":	[1, 1, 1],
+				"color_texture":	"data/assets/floor/grass.tga"
+			}
+		}, {
+			"name":	"Grass",
+			"visible":	true,
+			"model":	[-1, -4.37113882867379e-08, 0, -1.74845553146952e-07, 0, 0, 0.99999994039535522, 0, -4.37113882867379e-08, 1, 0, 4, -300, 0, -300, 1],
+			"mesh":	"data/assets/floor/grass.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	0,
+				"occlusion_factor":	1,
+				"roughness_factor":	1,
+				"metallic_factor":	0,
+				"emissive_factor":	[1, 1, 1],
+				"color_texture":	"data/assets/floor/grass.tga"
+			}
+		}, {
+			"name":	"Grass",
+			"visible":	true,
+			"model":	[-1, -4.37113882867379e-08, 0, 0, 0, 0, 0.99999994039535522, 3.9999997615814209, -4.37113882867379e-08, 1, 0, 0, 0, 0, 0, 1],
+			"mesh":	"data/assets/floor/grass.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	0,
+				"occlusion_factor":	1,
+				"roughness_factor":	1,
+				"metallic_factor":	0,
+				"emissive_factor":	[1, 1, 1],
+				"color_texture":	"data/assets/floor/grass.tga"
+			}
+		}, {
+			"name":	"Grass",
+			"visible":	true,
+			"model":	[-1, -4.37113882867379e-08, 0, -4, 0, 0, 0.99999994039535522, 0, -4.37113882867379e-08, 1, 0, -1.74845553146952e-07, 300, 0, 300, 1],
+			"mesh":	"data/assets/floor/grass.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	0,
+				"occlusion_factor":	1,
+				"roughness_factor":	1,
+				"metallic_factor":	0,
+				"emissive_factor":	[1, 1, 1],
+				"color_texture":	"data/assets/floor/grass.tga"
+			}
 		}],
 	"lights":	[{
 			"name":	"lamp light",
-			"color":	[0.67000001668930054, 0.67000001668930054, 0.449999988079071],
-			"intensity":	100,
-			"max_distance":	5000,
+			"visible":	true,
+			"color":	[0.10000000149011612, 0.10000000149011612, 0.10000000149011612],
+			"intensity":	10,
+			"max_distance":	1000,
 			"light_type":	"POINT_LIGHT",
 			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 50.99102783203125, 54.991001129150391, 62.783000946044922, 1]
 		}, {
 			"name":	"flashlight",
-			"color":	[1, 0.89999997615814209, 0.800000011920929],
+			"visible":	true,
+			"color":	[0.10000000149011612, 1, 0.10000000149011612],
 			"intensity":	5,
 			"max_distance":	1000,
 			"cone_angle":	20,
@@ -84,10 +150,12 @@
 		}],
 	"sounds":	[{
 			"name":	"shotgun_song",
+			"visible":	true,
 			"filename":	"data/sounds/shotgun.mp3",
 			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
 		}, {
 			"name":	"dreamer_song",
+			"visible":	true,
 			"filename":	"data/sounds/dreamer.mp3",
 			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]
 		}]

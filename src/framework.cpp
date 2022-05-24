@@ -81,6 +81,15 @@ double Vector3::length() const
 	return sqrt(x*x + y*y + z*z);
 }
 
+void Vector3::print()
+{
+	cout << endl << "Printing vector..." << endl << endl;
+	cout << "Component x: " << this->x << endl;
+	cout << "Component y: " << this->y << endl;
+	cout << "Component z: " << this->z << endl;
+
+}
+
 Vector3& Vector3::normalize()
 {
 	double len = length();
@@ -223,7 +232,7 @@ void Matrix44::transpose()
    std::swap(m[6],m[9]); std::swap(m[7],m[13]); std::swap(m[11],m[14]);
 }
 
-void Matrix44::printMatrix()
+void Matrix44::print()
 {
 	cout << endl << "Printing Matrix..." << endl << endl;
 	cout << M[0][0] << "\t\t" << M[0][1] << "\t\t" << M[0][2] << "\t\t" << M[0][3] << endl;

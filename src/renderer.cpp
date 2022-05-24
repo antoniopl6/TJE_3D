@@ -173,7 +173,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
 	//Single pass lighting
-	MultiPassLoop(shader, rc->mesh);
+	SinglePassLoop(shader, rc->mesh);
 }
 
 //Singlepass lighting
@@ -247,7 +247,7 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			lights_position[j] = light->model.getTranslation();
 			lights_color[j] = light->color;
 			lights_intensity[j] = light->intensity;
-			lights_max_distance[j] = light->max_distance;
+			lights_max_distance[j] = light->max_distance;			
 
 			//Specific light properties
 			switch (light->light_type)
