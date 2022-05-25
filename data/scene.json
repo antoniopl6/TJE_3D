@@ -21,10 +21,10 @@
 		}
 	},
 	"monster":	{
-		"name":	"Demogorgon",
+		"name":	"Wendigo",
 		"visible":	true,
-		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-		"mesh":	"data/assets/monster/GrimmFoxy.obj",
+		"model":	[5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 5, 0, 0, 0, 0, 1],
+		"mesh":	"data/assets/monster/wendigo.obj",
 		"material":	{
 			"transparency":	"NO_ALPHA",
 			"alpha_cutoff":	0.5,
@@ -33,7 +33,9 @@
 			"roughness_factor":	1,
 			"metallic_factor":	0,
 			"emissive_factor":	[1, 1, 1],
-			"color_texture":	"data/assets/monster/GrimmFoxy_Shell.tga"
+			"color_texture":	"data/assets/monster/_MaleHeroStanding_v1_albedo.png",
+			"normal_texture":	"data/assets/monster/_MaleHeroStanding_v1_normal.png",
+			"metallic_roughness_texture": "data/assets/monster/_MaleHeroStanding_v1_specular.png"
 		}
 	},
 	"objects":	[{
@@ -6040,15 +6042,15 @@
 	"lights":	[{
 			"name":	"lamp light",
 			"visible":	true,
-			"color":	[0.10000000149011612, 0.10000000149011612, 0.10000000149011612],
+			"color":	[0.80000000149011612, 0.10000000149011612, 0.20000000149011612],
 			"intensity":	10,
 			"max_distance":	1000,
 			"light_type":	"POINT_LIGHT",
-			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 50.99102783203125, 54.991001129150391, 62.783000946044922, 1]
+			"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 50.99102783203125, 300, 62.783000946044922, 1]
 		}, {
 			"name":	"flashlight",
 			"visible":	true,
-			"color":	[0.10000000149011612, 1, 0.10000000149011612],
+			"color":	[0.10000000149011612, 1, 0.80000000149011612],
 			"intensity":	5,
 			"max_distance":	1000,
 			"cone_angle":	20,
@@ -6056,7 +6058,7 @@
 			"cast_shadows":	true,
 			"shadow_bias":	0.00100000004749745,
 			"light_type":	"SPOT_LIGHT",
-			"model":	[-0.731353759765625, 0, 0.68199831247329712, 0, 0, 1, 0, 0, -0.68199831247329712, 0, -0.731353759765625, 0, 0, 0, 0, 1]
+			"model":	[-0.731353759765625, 0, 0.68199831247329712, 0, 0, 1, 0, 0, 0, 0, 1, 0, 500, 300, 500, 1]
 		}],
 	"sounds":	[{
 			"name":	"shotgun_song",

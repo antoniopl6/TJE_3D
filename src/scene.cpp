@@ -125,7 +125,6 @@ void Scene::removeEntity(Entity* entity)
 
 	delete entity;
 }
-
 Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
 {
 	Vector3 coll;
@@ -150,7 +149,6 @@ Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_ti
 	return nextPos;
 
 }
-
 bool Scene::load(const char* scene_filepath)
 {
 	//JSON content var
