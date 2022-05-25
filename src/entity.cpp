@@ -129,7 +129,6 @@ MonsterEntity::MonsterEntity()
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-	this->isFollowing = true;
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -199,6 +198,23 @@ float sign(float num) {
 	return num >= 0.0f ? 1.0f : -1.0f;
 }
 
+bool MonsterEntity::isInFollowRange(Camera * camera)
+{
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	Vector3 toTarget = model.getTranslation() - camera->eye;
+
+	float dist = toTarget.length();
+	toTarget.normalize();
+
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+
+	//If the player is in vision range of the monster then should start following
+	return (1900.0f > dist && forwardDot > 0.30f);
+}
+
+
 void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
@@ -215,22 +231,14 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 	if (dist > 400.0f) {
 		std::cout << dist << std::endl;
 		Vector3 translate = forward * speed * elapsed_time;
-		model.translate(-translate.x, 0, -translate.z);
+		model.translate(-translate.x, -translate.y, -translate.z);
 		//model.translate(-toTarget.x * speed * elapsed_time, 0, -toTarget.z * speed * elapsed_time);
 		this->updateBoundingBox();
-	}
-	if (forwardDot < 0.98f && forwardDot > 0.30f) {
 
+	}
+	if (forwardDot < 0.98f) {
 		model.rotate(speed * elapsed_time * DEG2RAD * sign(sideDot), Vector3(0, 1, 0));
 	}
-	
-	//move monster
-	//if (dist > 4.0f) {
-		//model.setTranslation(model.getTranslation().x - toTarget.x * speed * elapsed_time, model.getTranslation().y, model.getTranslation().z - toTarget.z * speed * elapsed_time);
-	//}
-	/*else if (dist > 30.0f) {
-		this->isFollowing = false;
-	}*/
 }
 
 //Objects
