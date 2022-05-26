@@ -227,18 +227,20 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 	float sideDot = side.dot(toTarget);
 	float forwardDot = forward.dot(toTarget);
 	float speed = 80.0f;
-	//Change the rotation based on main character pos
+	
 	if (dist > 400.0f) {
 		std::cout << dist << std::endl;
-		Vector3 translate = forward * speed * elapsed_time;
-		model.translate(-translate.x, -translate.y, -translate.z);
+		Vector3 translate = forward * -speed * elapsed_time;
+		model.translate(translate.x, translate.y, translate.z);
 		//model.translate(-toTarget.x * speed * elapsed_time, 0, -toTarget.z * speed * elapsed_time);
 		this->updateBoundingBox();
 
 	}
+	//Change the rotation based on main character pos
 	if (forwardDot < 0.98f) {
 		model.rotate(speed * elapsed_time * DEG2RAD * sign(sideDot), Vector3(0, 1, 0));
 	}
+	
 }
 
 //Objects
