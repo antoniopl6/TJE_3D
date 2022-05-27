@@ -36,7 +36,8 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 	//Turn around
 	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
-		camera->center *= -1.f;
+		camera->rotate(180.0f * DEG2RAD, Vector3(0, 1, 0));
+		//camera->center *= -1.f;
 	if (Input::isKeyPressed(SDL_SCANCODE_Q))
 		return;
 
