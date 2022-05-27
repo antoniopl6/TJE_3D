@@ -56,13 +56,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
-	
-	for (int i = 0; i < scene->objects.size(); ++i)
-	{
-		if (scene->objects[i]->name == "Grass")
-			scene->objects[i]->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
-	}
-	
 
 	//This class will be the one in charge of rendering the scene
 	renderer = new Renderer(scene);
