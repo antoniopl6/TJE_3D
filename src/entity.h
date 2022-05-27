@@ -32,7 +32,7 @@ enum LightType {
 
 class Entity {
 public:
-	Entity() {}; //constructor
+	Entity(); //constructor
 	virtual ~Entity() {}; //destructor
 
 	//Entity features
@@ -65,9 +65,6 @@ public:
 	//Constructor
 	MainCharacterEntity();
 
-	//Children methods
-	Matrix44 computeGlobalMatrix();
-
 	//Methods
 	void updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
 
@@ -97,9 +94,6 @@ public:
 
 	//Constructor
 	MonsterEntity();
-
-	//Children methods
-	Matrix44 computeGlobalMatrix();
 
 	//JSON Methods
 	void load(cJSON* mosnter_json);

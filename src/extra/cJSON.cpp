@@ -1914,8 +1914,8 @@ CJSON_PUBLIC(void) cJSON_AddNumberToArray(cJSON* array, float number)
 
 CJSON_PUBLIC(void) cJSON_AddStringToArray(cJSON* array, const char* str)
 {
-    cJSON* number_item = cJSON_CreateString(str);
-    add_item_to_array(array, number_item);
+    cJSON* string_item = cJSON_CreateString(str);
+    add_item_to_array(array, string_item);
 }
 
 CJSON_PUBLIC(void) cJSON_AddIntVectorToArray(cJSON* array, const int* vtr, int vtr_size)

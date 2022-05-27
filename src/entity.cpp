@@ -15,7 +15,6 @@ Vector3 Entity::getPosition()
 
 //Main character
 MainCharacterEntity::MainCharacterEntity() {
-	this->id = -1;
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();
@@ -24,14 +23,6 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-}
-
-Matrix44 MainCharacterEntity::computeGlobalMatrix()
-{
-	if (parent)
-		return parent->computeGlobalMatrix() * this->model;
-	else
-		return this->model;
 }
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
@@ -136,21 +127,12 @@ void MainCharacterEntity::update(float elapsed_time)
 //Monster
 MonsterEntity::MonsterEntity()
 {
-	this->id = -1;
 	this->name = "";
 	this->visible = true;
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 	this->isFollowing = true;
-}
-
-Matrix44 MonsterEntity::computeGlobalMatrix()
-{
-	if (parent)
-		return parent->computeGlobalMatrix() * this->model;
-	else
-		return this->model;
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -279,12 +261,12 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 	object_id = readJSONNumber(object_json, "Object ID", object_id);
 	
 	//Name
-	cJSON* name_json = readJSONArrayItem(object_json, "name", object_index);
-	name = name_json->valuestring;
+	cJSON* name_json = readJSONArrayItem(object_json, "names", object_index);
+	if(name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
-	visible = visibility_json->valueint;
+	if(visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(object_json, "models", object_index);
@@ -313,11 +295,11 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 
 	//Node ID
 	cJSON* node_ID_json = readJSONArrayItem(object_json, "node_ID", object_index);
-	object_id = node_ID_json->valueint;
+	if(node_ID_json) object_id = node_ID_json->valueint;
 
 	//Children IDs
 	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
-	populateJSONIntArray(children_IDs_json, children_ids);
+	if(children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
 }
 
 void ObjectEntity::save(vector<cJSON*> json)
@@ -437,15 +419,15 @@ void LightEntity::load(cJSON* light_json, int light_index)
 
 	//Name
 	cJSON* names_json = readJSONArrayItem(light_json, "names", light_index);
-	name = names_json->valuestring;
+	if(names_json) name = names_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(light_json, "visibilities", light_index);
-	visible = visibility_json->valueint;
+	if(visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(light_json, "models", light_index);
-	populateJSONFloatArray(model_json, model.m, 16);
+	if(model_json) populateJSONFloatArray(model_json, model.m, 16);
 	
 	//General features
 	color = readJSONVector3(light_json, "color", color);
@@ -573,15 +555,15 @@ void SoundEntity::load(cJSON* sound_json, int sound_index)
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(sound_json, "names", sound_index);
-	name = name_json->valuestring;
+	if(name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(sound_json, "visibilities", sound_index);
-	visible = visibility_json->valueint;
+	if(visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(sound_json, "models", sound_index);
-	populateJSONFloatArray(model_json, model.m, 16);
+	if(model_json) populateJSONFloatArray(model_json, model.m, 16);
 	
 	//Filename
 	filename = readJSONString(sound_json, "filename", "");

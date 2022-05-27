@@ -361,7 +361,7 @@ bool Scene::save()
 		{
 			//Create JSONs
 			cJSON* object_json = cJSON_CreateObject();
-			cJSON* names_array = cJSON_CreateObject();
+			cJSON* names_array = cJSON_CreateArray();
 			cJSON* visibilities_array = cJSON_CreateArray();
 			cJSON* models_array = cJSON_CreateArray();
 			cJSON* node_IDs_array = cJSON_CreateArray();
@@ -401,7 +401,7 @@ bool Scene::save()
 		{
 			//Create JSONs
 			cJSON* light_json = cJSON_CreateObject();
-			cJSON* names_array = cJSON_CreateObject();
+			cJSON* names_array = cJSON_CreateArray();
 			cJSON* visibilities_array = cJSON_CreateArray();
 			cJSON* models_array = cJSON_CreateArray();
 
@@ -438,7 +438,7 @@ bool Scene::save()
 		{
 			//Create JSONs
 			cJSON* sound_json = cJSON_CreateObject();
-			cJSON* names_array = cJSON_CreateObject();
+			cJSON* names_array = cJSON_CreateArray();
 			cJSON* visibilities_array = cJSON_CreateArray();
 			cJSON* models_array = cJSON_CreateArray();
 
