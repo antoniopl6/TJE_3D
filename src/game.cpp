@@ -109,7 +109,7 @@ void Game::update(double seconds_elapsed)
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
-	if (monster->isFollowing) {
+	if (monster->isInFollowRange(camera)) {
 		monster->updateFollow(elapsed_time, camera);
 	}
 

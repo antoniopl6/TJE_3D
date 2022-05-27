@@ -90,10 +90,13 @@ public:
 
 	//Bools
 	bool isRunning;
-	bool isFollowing;
 
 	//Constructor
 	MonsterEntity();
+
+	//Methods
+	bool isInFollowRange(Camera* camera);
+	void updateFollow(float elapsed_time, Camera* camera);
 
 	//JSON Methods
 	void load(cJSON* mosnter_json);
@@ -102,7 +105,6 @@ public:
 	//Inherited methods
 	virtual void updateBoundingBox() override;
 	virtual void update(float elapsed_time) override;
-	void updateFollow(float elapsed_time, Camera* camera);
 };
 
 class ObjectEntity : public Entity {
