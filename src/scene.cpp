@@ -125,6 +125,7 @@ void Scene::removeEntity(Entity* entity)
 
 	delete entity;
 }
+
 Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
 {
 	Vector3 coll;
@@ -149,6 +150,8 @@ Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_ti
 	return nextPos;
 
 }
+
+//JSON Methods
 bool Scene::load(const char* scene_filepath)
 {
 	//JSON content var
@@ -226,9 +229,16 @@ bool Scene::load(const char* scene_filepath)
 	cJSON* object_json;
 	cJSON_ArrayForEach(object_json, objects_json)
 	{
-		ObjectEntity* object = new ObjectEntity();
-		object->load(object_json);
-		objects.push_back(object);
+		int units = readJSONNumber(object_json, "units", 0);
+		if (units)
+		{
+			for (int i = 0; i < units; ++i)
+			{
+				ObjectEntity* object = new ObjectEntity();
+				object->load(object_json, i);
+				objects.push_back(object);
+			}
+		}
 	}
 
 	//Lights JSON
@@ -242,9 +252,16 @@ bool Scene::load(const char* scene_filepath)
 	cJSON* light_json;
 	cJSON_ArrayForEach(light_json, lights_json)
 	{
-		LightEntity* light = new LightEntity();
-		light->load(light_json);
-		lights.push_back(light);
+		int units = readJSONNumber(light_json, "units", 0);
+		if (units)
+		{
+			for (int i = 0; i < units; ++i)
+			{
+				LightEntity* light = new LightEntity();
+				light->load(light_json, i);
+				lights.push_back(light);
+			}
+		}
 	}
 
 	//Sounds JSON
@@ -258,9 +275,38 @@ bool Scene::load(const char* scene_filepath)
 	cJSON* sound_json;
 	cJSON_ArrayForEach(sound_json, sounds_json)
 	{
-		SoundEntity* sound = new SoundEntity();
-		sound->load(sound_json);
-		sounds.push_back(sound);
+		int units = readJSONNumber(sound_json, "units", 0);
+		if (units)
+		{
+			for (int i = 0; i < units; i++)
+			{
+				SoundEntity* sound = new SoundEntity();
+				sound->load(sound_json, i);
+				sounds.push_back(sound);
+			}
+		}
+	}
+
+	//Object tree
+	for (auto i = objects.begin(); i != objects.end(); ++i)
+	{
+		//Current object and children list
+		ObjectEntity* object = *i;
+		vector<int> children_ids = object->children_ids;
+		
+		if(!object->children_ids.empty())
+			for (auto j = children_ids.begin(); j != children_ids.end(); ++j)
+			{
+				for (auto k = objects.begin(); k != objects.end(); ++k)
+				{
+					//Children Object
+					ObjectEntity* children_object = *k;
+
+					//Push children to parent object list
+					if(children_object->node_id == *j)
+						object->children.push_back(*k);
+				}
+			}
 	}
 
 	//free memory
@@ -301,30 +347,117 @@ bool Scene::save()
 	monster->save(monster_json);
 	
 	//Objects JSON
+	map<int, vector<cJSON*>> scene_objects;
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
 	for (int i = 0; i < objects.size(); i++)
 	{
-		cJSON* object_json = cJSON_CreateObject();
-		objects[i]->save(object_json);
-		cJSON_AddItemToArray(objects_json, object_json);
+		//Current Object
+		ObjectEntity* object = objects[i];
+
+		//Check whether the object is registered or not
+		auto it = scene_objects.find(object->object_id);
+		
+		if (it == scene_objects.end()) //Object hasn't been registered yet
+		{
+			//Create JSONs
+			cJSON* object_json = cJSON_CreateObject();
+			cJSON* names_array = cJSON_CreateObject();
+			cJSON* visibilities_array = cJSON_CreateArray();
+			cJSON* models_array = cJSON_CreateArray();
+			cJSON* node_IDs_array = cJSON_CreateArray();
+			cJSON* children_IDs_array = cJSON_CreateArray();
+
+			//JSON vectors
+			vector<cJSON*> jsons_vector = { object_json,names_array,visibilities_array,models_array, node_IDs_array, children_IDs_array };
+
+			//Save the JSON
+			object->save(jsons_vector);
+
+			//Add the JSON
+			cJSON_AddItemToArray(objects_json, object_json);
+
+			//Register the object
+			scene_objects.emplace(object->object_id, jsons_vector); //Register the new object
+		}
+		else
+		{
+			object->updateJSON(it->second); //Modify the object_json to add the visibility and model
+		}
+
 	}
 
 	//Lights JSON
+	map<int, vector<cJSON*>> scene_lights;
 	cJSON* lights_json = cJSON_AddArrayToObject(scene_json, "lights");
 	for (int i = 0; i < lights.size(); i++)
 	{
-		cJSON* light_json = cJSON_CreateObject();
-		lights[i]->save(light_json);
-		cJSON_AddItemToArray(lights_json, light_json);
+		//Current light
+		LightEntity* light = lights[i];
+
+		//Check whether the object is registered or not
+		auto it = scene_lights.find(light->light_id);
+
+		if (it == scene_lights.end()) //Object hasn't been registered yet
+		{
+			//Create JSONs
+			cJSON* light_json = cJSON_CreateObject();
+			cJSON* names_array = cJSON_CreateObject();
+			cJSON* visibilities_array = cJSON_CreateArray();
+			cJSON* models_array = cJSON_CreateArray();
+
+			//JSON vectors
+			vector<cJSON*> jsons_vector = { light_json,names_array,visibilities_array,models_array };
+
+			//Save the JSON
+			light->save(jsons_vector);
+
+			//Add the JSON
+			cJSON_AddItemToArray(lights_json, light_json);
+
+			//Register the object
+			scene_objects.emplace(light->light_id, jsons_vector); //Register the new object
+		}
+		else
+		{
+			light->updateJSON(it->second); //Modify the object_json to add the visibility and model
+		}
 	}
 
 	//Sounds JSON
+	map<int, vector<cJSON*>> scene_sounds;
 	cJSON* sounds_json = cJSON_AddArrayToObject(scene_json, "sounds");
 	for (int i = 0; i < sounds.size(); i++)
 	{
-		cJSON* sound_json = cJSON_CreateObject();
-		sounds[i]->save(sound_json);
-		cJSON_AddItemToArray(sounds_json, sound_json);
+		//Current light
+		SoundEntity* sound = sounds[i];
+
+		//Check whether the object is registered or not
+		auto it = scene_sounds.find(sound->sound_id);
+
+		if (it == scene_sounds.end()) //Object hasn't been registered yet
+		{
+			//Create JSONs
+			cJSON* sound_json = cJSON_CreateObject();
+			cJSON* names_array = cJSON_CreateObject();
+			cJSON* visibilities_array = cJSON_CreateArray();
+			cJSON* models_array = cJSON_CreateArray();
+
+			//JSON vectors
+			vector<cJSON*> jsons_vector = { sound_json,names_array,visibilities_array,models_array };
+
+			//Save the JSON
+			sound->save(jsons_vector);
+
+			//Add the JSON
+			cJSON_AddItemToArray(sounds_json, sound_json);
+
+			//Register the object
+			scene_objects.emplace(sound->sound_id, jsons_vector); //Register the new object
+		}
+		else
+		{
+			sound->updateJSON(it->second); //Modify the object_json to add the visibility and model
+		}
 	}
 
 	//JSON file

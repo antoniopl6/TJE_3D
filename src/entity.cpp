@@ -2,6 +2,12 @@
 #include "scene.h"
 
 //Entity
+Entity::Entity() {
+	name = "";
+	visible = true;
+	model = Matrix44();
+}
+
 Vector3 Entity::getPosition()
 {
 	return model.getTranslation();
@@ -9,6 +15,7 @@ Vector3 Entity::getPosition()
 
 //Main character
 MainCharacterEntity::MainCharacterEntity() {
+	this->id = -1;
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();
@@ -17,6 +24,14 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+}
+
+Matrix44 MainCharacterEntity::computeGlobalMatrix()
+{
+	if (parent)
+		return parent->computeGlobalMatrix() * this->model;
+	else
+		return this->model;
 }
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
@@ -51,7 +66,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	Vector3 nextPos = Vector3();
 	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
 	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
@@ -73,7 +88,7 @@ void MainCharacterEntity::load(cJSON* main_json)
 
 	//Model
 	vector<float> main_model;
-	readJSONVector(main_json, "model", main_model);
+	readJSONFloatVector(main_json, "model", main_model);
 	for (int i = 0; i < main_model.size(); ++i) model.m[i] = main_model[i];
 
 	//Mesh
@@ -103,10 +118,7 @@ void MainCharacterEntity::save(cJSON* main_json)
 	//General features
 	writeJSONString(main_json, "name", name.c_str());
 	writeJSONBoolean(main_json, "visible", visible);
-
-	//Model
-	cJSON* main_model = cJSON_CreateFloatArray(this->model.m, 16);
-	cJSON_AddItemToObject(main_json, "model", main_model);
+	writeJSONFloatVector(main_json, "model", model.m, 16);
 
 	//Mesh
 	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
@@ -124,12 +136,21 @@ void MainCharacterEntity::update(float elapsed_time)
 //Monster
 MonsterEntity::MonsterEntity()
 {
+	this->id = -1;
 	this->name = "";
 	this->visible = true;
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 	this->isFollowing = true;
+}
+
+Matrix44 MonsterEntity::computeGlobalMatrix()
+{
+	if (parent)
+		return parent->computeGlobalMatrix() * this->model;
+	else
+		return this->model;
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -145,7 +166,7 @@ void MonsterEntity::load(cJSON* monster_json)
 
 	//Model
 	vector<float> monster_model;
-	readJSONVector(monster_json, "model", monster_model);
+	readJSONFloatVector(monster_json, "model", monster_model);
 	for (int i = 0; i < monster_model.size(); ++i) model.m[i] = monster_model[i];
 
 	//Mesh
@@ -177,10 +198,7 @@ void MonsterEntity::save(cJSON* monster_json)
 	//General features
 	writeJSONString(monster_json, "name", name.c_str());
 	writeJSONBoolean(monster_json, "visible", visible);
-
-	//Model
-	cJSON* monster_model = cJSON_CreateFloatArray(this->model.m, 16);
-	cJSON_AddItemToObject(monster_json, "model", monster_model);
+	writeJSONFloatVector(monster_json, "model", model.m, 16);
 
 	//Mesh
 	if (mesh) writeJSONString(monster_json, "mesh", mesh->filename);
@@ -231,6 +249,7 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 
 //Objects
 ObjectEntity::ObjectEntity() {
+	this->object_id = -1;
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();
@@ -238,6 +257,15 @@ ObjectEntity::ObjectEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+	this->node_id = -1;
+}
+
+Matrix44 ObjectEntity::computeGlobalMatrix()
+{
+	if (parent)
+		return parent->computeGlobalMatrix() * this->model;
+	else
+		return this->model;
 }
 
 void ObjectEntity::updateBoundingBox()
@@ -245,16 +273,22 @@ void ObjectEntity::updateBoundingBox()
 	if(mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
-void ObjectEntity::load(cJSON* object_json)
+void ObjectEntity::load(cJSON* object_json, int object_index)
 {
-	//General features
-	name = readJSONString(object_json, "name", name.c_str());
-	visible = readJSONBoolean(object_json, "visible", visible);
+	//Object ID
+	object_id = readJSONNumber(object_json, "Object ID", object_id);
+	
+	//Name
+	cJSON* name_json = readJSONArrayItem(object_json, "name", object_index);
+	name = name_json->valuestring;
+
+	//Visibility
+	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
+	visible = visibility_json->valueint;
 
 	//Model
-	vector<float> object_model;
-	readJSONVector(object_json, "model", object_model);
-	for (int i = 0; i < object_model.size(); ++i) model.m[i] = object_model[i];
+	cJSON* model_json = readJSONArrayItem(object_json, "models", object_index);
+	populateJSONFloatArray(model_json, model.m, 16);
 
 	//Mesh
 	string mesh_path = readJSONString(object_json, "mesh", "");
@@ -262,6 +296,7 @@ void ObjectEntity::load(cJSON* object_json)
 		mesh = Mesh::Get(mesh_path.c_str());
 	else
 		cout << "ERROR: " << name << " mesh hasn't been found at: " << mesh_path << endl;
+
 	//Material
 	if (!mesh_path.empty())
 	{
@@ -274,25 +309,93 @@ void ObjectEntity::load(cJSON* object_json)
 			this->material->load(material_json);
 			this->material->registerMaterial(mesh_path.c_str());
 		}
-	}	
+	}
+
+	//Node ID
+	cJSON* node_ID_json = readJSONArrayItem(object_json, "node_ID", object_index);
+	object_id = node_ID_json->valueint;
+
+	//Children IDs
+	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
+	populateJSONIntArray(children_IDs_json, children_ids);
 }
 
-void ObjectEntity::save(cJSON* object_json)
+void ObjectEntity::save(vector<cJSON*> json)
 {
-	//General features
-	writeJSONString(object_json, "name", name.c_str());
-	writeJSONBoolean(object_json, "visible", visible);
-	
+	//JSONs
+	cJSON* object_json = json[0];
+	cJSON* names_array = json[1];
+	cJSON* visibilities_array = json[2];
+	cJSON* models_array = json[3];
+	cJSON* node_IDs_array = json[4];
+	cJSON* children_IDs_array = json[5];
+
+	//Object ID
+	writeJSONNumber(object_json, "Object_ID", object_id);
+
+	//Units
+	writeJSONNumber(object_json, "units", 1);
+
+	//Name
+	cJSON_AddItemToObject(object_json, "names", names_array);
+	cJSON_AddStringToArray(names_array, name.c_str());
+
+	//Visibility
+	cJSON_AddItemToObject(object_json, "visibilities", visibilities_array);
+	cJSON_AddBoolToArray(visibilities_array, visible);
+
 	//Model
-	cJSON* object_model = cJSON_CreateFloatArray(this->model.m, 16);
-	cJSON_AddItemToObject(object_json, "model", object_model);
-	
+	cJSON_AddItemToObject(object_json, "models", models_array);
+	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
+
 	//Mesh
-	if(mesh) writeJSONString(object_json, "mesh", mesh->filename);
+	if (mesh) writeJSONString(object_json, "mesh", mesh->filename);
 	else writeJSONString(object_json, "mesh", "");
-	
+
 	//Material
 	if (material)material->save(object_json);
+
+	//Node ID
+	cJSON_AddItemToObject(object_json, "node_ID", node_IDs_array);
+	cJSON_AddNumberToArray(node_IDs_array, node_id);
+
+	//Children IDs
+	cJSON_AddItemToObject(object_json, "children_ID", children_IDs_array);
+	cJSON_AddIntVectorToArray(object_json, &children_ids[0], children_ids.size());
+}
+
+void ObjectEntity::updateJSON(vector<cJSON*> json)
+{
+	//JSONs
+	cJSON* object_json = json[0];
+	cJSON* names_array = json[1];
+	cJSON* visibilities_array = json[2];
+	cJSON* models_array = json[3];
+	cJSON* node_IDs_array = json[4];
+	cJSON* children_IDs_array = json[5];
+
+	//Increase the number of units
+	int units = readJSONNumber(object_json, "units", 0);
+	if (units)
+	{
+		units++;
+		replaceJSONNumber(object_json, "units", units);
+	}	
+
+	//Add name
+	cJSON_AddStringToArray(names_array, name.c_str());
+
+	//Add visibility
+	cJSON_AddBoolToArray(visibilities_array, visible);
+
+	//Add model
+	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
+
+	//Add node ID
+	cJSON_AddNumberToArray(node_IDs_array, node_id);
+
+	//Add children IDs
+	cJSON_AddIntVectorToArray(children_IDs_array, &children_ids[0], children_ids.size());
 
 }
 
@@ -305,6 +408,7 @@ void ObjectEntity::update(float elapsed_time)
 LightEntity::LightEntity() 
 {
 	//General features
+	this->light_id = -1;
 	this->name = "";
 	this->visible = true;
 	this->entity_type = LIGHT;
@@ -326,11 +430,24 @@ LightEntity::LightEntity()
 	this->shadow_camera = NULL;
 }
 
-void LightEntity::load(cJSON* light_json)
+void LightEntity::load(cJSON* light_json, int light_index)
 {
+	//Light ID
+	light_id = readJSONNumber(light_json, "Light ID", light_id);
+
+	//Name
+	cJSON* names_json = readJSONArrayItem(light_json, "names", light_index);
+	name = names_json->valuestring;
+
+	//Visibility
+	cJSON* visibility_json = readJSONArrayItem(light_json, "visibilities", light_index);
+	visible = visibility_json->valueint;
+
+	//Model
+	cJSON* model_json = readJSONArrayItem(light_json, "models", light_index);
+	populateJSONFloatArray(model_json, model.m, 16);
+	
 	//General features
-	name = readJSONString(light_json, "name", name.c_str());
-	visible = readJSONBoolean(light_json, "visible", visible);
 	color = readJSONVector3(light_json, "color", color);
 	intensity = readJSONNumber(light_json, "intensity", intensity);
 	max_distance = readJSONNumber(light_json, "max_distance", max_distance);
@@ -357,18 +474,35 @@ void LightEntity::load(cJSON* light_json)
 	//Shadow features
 	cast_shadows = readJSONBoolean(light_json, "cast_shadows", cast_shadows);
 	shadow_bias = readJSONNumber(light_json, "shadow_bias", shadow_bias);
-
-	//Model
-	vector<float> light_model;
-	readJSONVector(light_json, "model", light_model);
-	for (int i = 0; i < light_model.size(); ++i) model.m[i] = light_model[i];
 }
 
-void LightEntity::save(cJSON* light_json)
+void LightEntity::save(vector<cJSON*> json)
 {
+	//JSONs
+	cJSON* light_json = json[0];
+	cJSON* names_array = json[1];
+	cJSON* visibilities_array = json[2];
+	cJSON* models_array = json[3];
+
+	//Light ID
+	writeJSONNumber(light_json, "Light ID", light_id);
+
+	//Units
+	writeJSONNumber(light_json, "units", 1);
+
+	//Name
+	cJSON_AddItemToObject(light_json, "names", names_array);
+	cJSON_AddStringToArray(names_array, name.c_str());
+
+	//Visibility
+	cJSON_AddItemToObject(light_json, "visibilities", visibilities_array);
+	cJSON_AddBoolToArray(visibilities_array, visible);
+
+	//Model
+	cJSON_AddItemToObject(light_json, "models", models_array);
+	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
+
 	//General features
-	writeJSONString(light_json, "name", this->name.c_str());
-	writeJSONBoolean(light_json, "visible", visible);
 	writeJSONVector3(light_json, "color", this->color);
 	writeJSONNumber(light_json, "intensity", this->intensity);
 	writeJSONNumber(light_json, "max_distance", this->max_distance);
@@ -392,10 +526,28 @@ void LightEntity::save(cJSON* light_json)
 		writeJSONString(light_json, "light_type", "DIRECTIONAL_LIGHT");
 		break;
 	}
+}
 
-	//Model
-	cJSON* light_model = cJSON_CreateFloatArray(this->model.m, 16);
-	cJSON_AddItemToObject(light_json, "model", light_model);
+void LightEntity::updateJSON(vector<cJSON*> json)
+{
+	//JSONs
+	cJSON* light_json = json[0];
+	cJSON* visibilities_array = json[1];
+	cJSON* models_array = json[2];
+
+	//Increase the number of units
+	int units = readJSONNumber(light_json, "units", 0);
+	if (units)
+	{
+		units++;
+		replaceJSONNumber(light_json, "units", units);
+	}
+
+	//Add visibility
+	cJSON_AddBoolToArray(visibilities_array, visible);
+
+	//Add model
+	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
 }
 
 void LightEntity::update(float elapsed_time)
@@ -406,6 +558,7 @@ void LightEntity::update(float elapsed_time)
 //Sounds
 SoundEntity::SoundEntity()
 {
+	this->sound_id = -1;
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();
@@ -413,27 +566,78 @@ SoundEntity::SoundEntity()
 	this->filename = "";
 }
 
-void SoundEntity::load(cJSON* sound_json)
+void SoundEntity::load(cJSON* sound_json, int sound_index)
 {
-	//General features
-	name = readJSONString(sound_json, "name", "");
-	visible = readJSONBoolean(sound_json, "visible", visible);
+	//Light ID
+	sound_id = readJSONNumber(sound_json, "Sound ID", sound_id);
+
+	//Name
+	cJSON* name_json = readJSONArrayItem(sound_json, "names", sound_index);
+	name = name_json->valuestring;
+
+	//Visibility
+	cJSON* visibility_json = readJSONArrayItem(sound_json, "visibilities", sound_index);
+	visible = visibility_json->valueint;
+
+	//Model
+	cJSON* model_json = readJSONArrayItem(sound_json, "models", sound_index);
+	populateJSONFloatArray(model_json, model.m, 16);
+	
+	//Filename
 	filename = readJSONString(sound_json, "filename", "");
 
-	//Model
-	vector<float> sound_model;
-	readJSONVector(sound_json, "model", sound_model);
-	for (int i = 0; i < sound_model.size(); ++i) model.m[i] = sound_model[i];
 }
 
-void SoundEntity::save(cJSON* sound_json)
+void SoundEntity::save(vector<cJSON*> json)
 {
-	//General features
-	writeJSONString(sound_json, "name", this->name);
-	writeJSONBoolean(sound_json, "visible", visible);
-	writeJSONString(sound_json, "filename", this->filename);
+	//JSONs
+	cJSON* sound_json = json[0];
+	cJSON* names_array = json[1];
+	cJSON* visibilities_array = json[2];
+	cJSON* models_array = json[3];
+
+	//Sound ID
+	writeJSONNumber(sound_json, "Sound ID", sound_id);
+
+	//Units
+	writeJSONNumber(sound_json, "units", 1);
+
+	//Name
+	cJSON_AddItemToObject(sound_json, "names", names_array);
+	cJSON_AddStringToArray(names_array, name.c_str());
+
+	//Visibility
+	cJSON_AddItemToObject(sound_json, "visibilities", visibilities_array);
+	cJSON_AddBoolToArray(visibilities_array, visible);
 
 	//Model
-	cJSON* sound_model = cJSON_CreateFloatArray(this->model.m, 16);
-	cJSON_AddItemToObject(sound_json, "model", sound_model);
+	cJSON_AddItemToObject(sound_json, "models", models_array);
+	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
+
+	//Filename
+	writeJSONString(sound_json, "filename", this->filename);
 }
+
+void SoundEntity::updateJSON(vector<cJSON*> json)
+{
+	//JSONs
+	cJSON* sound_json = json[0];
+	cJSON* visibilities_array = json[1];
+	cJSON* models_array = json[2];
+
+	//Increase the number of units
+	int units = readJSONNumber(sound_json, "units", 0);
+	if (units)
+	{
+		units++;
+		replaceJSONNumber(sound_json, "units", units);
+	}
+
+	//Add visibility
+	cJSON_AddBoolToArray(visibilities_array, visible);
+
+	//Add model
+	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
+}
+
+

@@ -1,7 +1,4 @@
 
-#ifndef ENTITY_H
-#define ENTITY_H
-
 #pragma once
 #include "includes.h"
 #include "utils.h"
@@ -39,6 +36,7 @@ public:
 	virtual ~Entity() {}; //destructor
 
 	//Entity features
+	int ID;
 	string name;
 	bool visible;
 	Matrix44 model;
@@ -46,8 +44,6 @@ public:
 
 	//Methods overwritten by derived classes 
 	virtual void update(float elapsed_time) {};
-	virtual void load(cJSON* entity_json) {};
-	virtual void save(cJSON* entity_json) {};
 	virtual void updateBoundingBox() {};
 
 	//Some useful methods...
@@ -66,15 +62,21 @@ public:
 	//Triggers
 	bool bounding_box_trigger;
 
-	MainCharacterEntity(); //constructor
+	//Constructor
+	MainCharacterEntity();
+
+	//Children methods
+	Matrix44 computeGlobalMatrix();
 
 	//Methods
 	void updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
 
+	//JSON methods
+	void load(cJSON* main_json);
+	void save(cJSON* main_json);
+
 	//Inherited methods
 	virtual void updateBoundingBox() override;
-	virtual void load(cJSON* main_json) override;
-	virtual void save(cJSON* main_json) override;
 	virtual void update(float elapsed_time) override;
 };
 
@@ -88,16 +90,23 @@ public:
 
 	//Triggers
 	bool bounding_box_trigger;
+
 	//Bools
 	bool isRunning;
 	bool isFollowing;
-	//Methods
+
+	//Constructor
 	MonsterEntity();
+
+	//Children methods
+	Matrix44 computeGlobalMatrix();
+
+	//JSON Methods
+	void load(cJSON* mosnter_json);
+	void save(cJSON* monster_json);
 
 	//Inherited methods
 	virtual void updateBoundingBox() override;
-	virtual void load(cJSON* monster_json) override;
-	virtual void save(cJSON* monster_json) override;
 	virtual void update(float elapsed_time) override;
 	void updateFollow(float elapsed_time, Camera* camera);
 };
@@ -105,19 +114,34 @@ public:
 class ObjectEntity : public Entity {
 public:
 	
+	//Object features
+	int object_id;
 	Mesh* mesh;
 	Material* material;
 	BoundingBox world_bounding_box;
 
+	//Object tree
+	int node_id; 
+	ObjectEntity* parent;
+	vector<ObjectEntity*> children;
+	vector<int> children_ids; //Just for JSON support
+
 	//Triggers
 	bool bounding_box_trigger;
 
-	ObjectEntity(); //constructor
+	//Constructor
+	ObjectEntity();
+
+	//Children methods
+	Matrix44 computeGlobalMatrix();
+
+	//JSON methods
+	void load(cJSON* object_json, int object_index);
+	void save(vector<cJSON*> json);
+	void updateJSON(vector<cJSON*> json);
 
 	//Inherited methods
 	virtual void updateBoundingBox() override;
-	virtual void load(cJSON* object_json) override;
-	virtual void save(cJSON* object_json) override;
 	virtual void update(float elapsed_time) override;
 
 };
@@ -126,6 +150,7 @@ class LightEntity : public Entity {
 public:
 
 	//Light features
+	int light_id;
 	Vector3 color;
 	float intensity;
 	float max_distance;
@@ -147,22 +172,27 @@ public:
 	//Constructor
 	LightEntity(); 
 
+	//JSON methods
+	void load(cJSON* light_json, int light_index);
+	void save(vector<cJSON*> json);
+	void updateJSON(vector<cJSON*> json);
+
 	//Inherited methods
-	virtual void load(cJSON* light_json) override;
-	virtual void save(cJSON* light_json) override;
 	virtual void update(float elapsed_time) override;
 };
 
 class SoundEntity : public Entity{
 public:	
+
+	//Sound features
+	int sound_id;
 	string filename;
 
 	//Methods
 	SoundEntity();
 
 	//JSON methods
-	virtual void load(cJSON* sound_json) override;
-	virtual void save(cJSON* sound_json) override;
+	void load(cJSON* sound_json, int sound_index);
+	void save(vector<cJSON*> json);
+	void updateJSON(vector<cJSON*> json);
 };
-
-#endif
