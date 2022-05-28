@@ -10,6 +10,7 @@
 #include "camera.h"
 #include "utils.h"
 #include "scene.h"
+#include "editor3D.h"
 #include "renderer.h"
 
 class Game
@@ -28,10 +29,12 @@ public:
 	float elapsed_time;
 	int fps;
 	bool must_exit;
+	bool render_editor;
 
 	//some vars
 	Camera* camera; //our global camera
 	Scene* scene; //game scene
+	Editor3D* entity_editor; 
 	Renderer* renderer; //game render class
 	bool mouse_locked; //tells if the mouse is locked (not seen)
 

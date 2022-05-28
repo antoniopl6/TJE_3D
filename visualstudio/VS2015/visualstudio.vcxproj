@@ -96,6 +96,7 @@
       <IntrinsicFunctions>true</IntrinsicFunctions>
       <PreprocessorDefinitions>WIN32;NDEBUG;_CONSOLE;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <AdditionalIncludeDirectories>../libs/include</AdditionalIncludeDirectories>
+      <LanguageStandard>stdcpp20</LanguageStandard>
     </ClCompile>
     <Link>
       <SubSystem>Console</SubSystem>
@@ -128,6 +129,7 @@
   <ItemGroup>
     <ClCompile Include="..\..\src\animation.cpp" />
     <ClCompile Include="..\..\src\camera.cpp" />
+    <ClCompile Include="..\..\src\editor3D.cpp" />
     <ClCompile Include="..\..\src\entity.cpp" />
     <ClCompile Include="..\..\src\extra\cJSON.cpp" />
     <ClCompile Include="..\..\src\extra\coldet\box.cpp" />
@@ -161,6 +163,7 @@
   <ItemGroup>
     <ClInclude Include="..\..\src\animation.h" />
     <ClInclude Include="..\..\src\camera.h" />
+    <ClInclude Include="..\..\src\editor3D.h" />
     <ClInclude Include="..\..\src\entity.h" />
     <ClInclude Include="..\..\src\extra\cJSON.h" />
     <ClInclude Include="..\..\src\extra\coldet\box.h" />

@@ -35,6 +35,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	this->window = window;
 	instance = this;
 	must_exit = false;
+	render_editor = false;
 
 	fps = 0;
 	frame = 0;
@@ -56,6 +57,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
+
+	//Create an entity editor
+	entity_editor = new Editor3D(scene);
 
 	//This class will be the one in charge of rendering the scene
 	renderer = new Renderer(scene);
@@ -124,9 +128,23 @@ void Game::update(double seconds_elapsed)
 	}
 
 	//Update Lights
+	for (int i = 0; i < scene->lights.size(); i++)
+	{
+		//TODO
+	}
+
+	//Update Sounds
+	for (int i = 0; i < scene->sounds.size(); i++)
+	{
+		//TODO
+	}
 
 	//Update main character camera
 	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+
+	//Render entity editor
+	if (render_editor)
+		entity_editor->render();
 
 	//Save scene
 	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
@@ -138,6 +156,8 @@ void Game::update(double seconds_elapsed)
 		}
 	}
 
+	cout << Input::isMousePressed(SDL_BUTTON(1)) << endl;
+
 }
 
 //Keyboard event handler (sync input)
@@ -145,7 +165,10 @@ void Game::onKeyDown( SDL_KeyboardEvent event )
 {
 	switch(event.keysym.sym)
 	{
-		case SDLK_ESCAPE: must_exit = true; break; //ESC key, kill the app
+		case SDLK_ESCAPE: 
+			if(!render_editor)
+				must_exit = true; //ESC key, kill the app
+			break; 
 		case SDLK_F1: Shader::ReloadAll(); break; 
 		
 		//Turn around
@@ -155,6 +178,14 @@ void Game::onKeyDown( SDL_KeyboardEvent event )
 				camera->center *= -1.f;
 				turn_around = true;
 			}
+			break;
+		
+		//Entity editor
+		case SDLK_h:
+			render_editor = !render_editor;
+			if (render_editor)
+				entity_editor->reset();
+			break;
 	}
 }
 
