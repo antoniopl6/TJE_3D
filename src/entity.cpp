@@ -36,8 +36,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 	//Turn around
 	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
-		camera->rotate(180.0f * DEG2RAD, Vector3(0, 1, 0));
-		//camera->center *= -1.f;
+		camera->center *= -1.f;
 	if (Input::isKeyPressed(SDL_SCANCODE_Q))
 		return;
 
@@ -89,7 +88,7 @@ void MainCharacterEntity::load(cJSON* main_json)
 		mesh = Mesh::Get(mesh_path.c_str());
 	else
 		cout << "ERROR: Main character mesh hasn't been found at: " << mesh_path << endl;
-	
+
 	//Material
 	if (!mesh_path.empty())
 	{
@@ -113,7 +112,7 @@ void MainCharacterEntity::save(cJSON* main_json)
 	writeJSONFloatVector(main_json, "model", model.m, 16);
 
 	//Mesh
-	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
+	if (mesh) writeJSONString(main_json, "mesh", mesh->filename);
 	else writeJSONString(main_json, "mesh", "");
 
 	//Material
@@ -265,21 +264,21 @@ Matrix44 ObjectEntity::computeGlobalMatrix()
 
 void ObjectEntity::updateBoundingBox()
 {
-	if(mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void ObjectEntity::load(cJSON* object_json, int object_index)
 {
 	//Object ID
 	object_id = readJSONNumber(object_json, "Object ID", object_id);
-	
+
 	//Name
 	cJSON* name_json = readJSONArrayItem(object_json, "names", object_index);
-	if(name_json) name = name_json->valuestring;
+	if (name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
-	if(visibility_json) visible = visibility_json->valueint;
+	if (visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(object_json, "models", object_index);
@@ -308,11 +307,11 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 
 	//Node ID
 	cJSON* node_ID_json = readJSONArrayItem(object_json, "node_ID", object_index);
-	if(node_ID_json) object_id = node_ID_json->valueint;
+	if (node_ID_json) object_id = node_ID_json->valueint;
 
 	//Children IDs
 	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
-	if(children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
+	if (children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
 }
 
 void ObjectEntity::save(vector<cJSON*> json)
@@ -375,7 +374,7 @@ void ObjectEntity::updateJSON(vector<cJSON*> json)
 	{
 		units++;
 		replaceJSONNumber(object_json, "units", units);
-	}	
+	}
 
 	//Add name
 	cJSON_AddStringToArray(names_array, name.c_str());
@@ -400,7 +399,7 @@ void ObjectEntity::update(float elapsed_time)
 }
 
 //Lights
-LightEntity::LightEntity() 
+LightEntity::LightEntity()
 {
 	//General features
 	this->light_id = -1;
@@ -432,16 +431,16 @@ void LightEntity::load(cJSON* light_json, int light_index)
 
 	//Name
 	cJSON* names_json = readJSONArrayItem(light_json, "names", light_index);
-	if(names_json) name = names_json->valuestring;
+	if (names_json) name = names_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(light_json, "visibilities", light_index);
-	if(visibility_json) visible = visibility_json->valueint;
+	if (visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(light_json, "models", light_index);
-	if(model_json) populateJSONFloatArray(model_json, model.m, 16);
-	
+	if (model_json) populateJSONFloatArray(model_json, model.m, 16);
+
 	//General features
 	color = readJSONVector3(light_json, "color", color);
 	intensity = readJSONNumber(light_json, "intensity", intensity);
@@ -568,16 +567,16 @@ void SoundEntity::load(cJSON* sound_json, int sound_index)
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(sound_json, "names", sound_index);
-	if(name_json) name = name_json->valuestring;
+	if (name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(sound_json, "visibilities", sound_index);
-	if(visibility_json) visible = visibility_json->valueint;
+	if (visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(sound_json, "models", sound_index);
-	if(model_json) populateJSONFloatArray(model_json, model.m, 16);
-	
+	if (model_json) populateJSONFloatArray(model_json, model.m, 16);
+
 	//Filename
 	filename = readJSONString(sound_json, "filename", "");
 
@@ -634,5 +633,3 @@ void SoundEntity::updateJSON(vector<cJSON*> json)
 	//Add model
 	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
 }
-
-

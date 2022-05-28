@@ -1,9 +1,9 @@
 #include "utils.h"
 
 #ifdef WIN32
-	#include <windows.h>
+#include <windows.h>
 #else
-	#include <sys/time.h>
+#include <sys/time.h>
 #endif
 
 #include "includes.h"
@@ -21,13 +21,13 @@
 
 long getTime()
 {
-	#ifdef WIN32
-		return GetTickCount();
-	#else
-		struct timeval tv;
-		gettimeofday(&tv,NULL);
-		return (int)(tv.tv_sec*1000 + (tv.tv_usec / 1000));
-	#endif
+#ifdef WIN32
+	return GetTickCount();
+#else
+	struct timeval tv;
+	gettimeofday(&tv, NULL);
+	return (int)(tv.tv_sec * 1000 + (tv.tv_usec / 1000));
+#endif
 }
 
 
@@ -43,52 +43,52 @@ void* getGLProcAddress(const char* name)
 #endif
 
 #ifdef WIN32
-	#include <direct.h>
-	#define GetCurrentDir _getcwd
+#include <direct.h>
+#define GetCurrentDir _getcwd
 #else
-	#include <unistd.h>
-	#define GetCurrentDir getcwd
+#include <unistd.h>
+#define GetCurrentDir getcwd
 #endif
 
 std::string getPath()
 {
-    std::string fullpath;
-    // ----------------------------------------------------------------------------
-    // This makes relative paths work in C++ in Xcode by changing directory to the Resources folder inside the .app bundle
+	std::string fullpath;
+	// ----------------------------------------------------------------------------
+	// This makes relative paths work in C++ in Xcode by changing directory to the Resources folder inside the .app bundle
 #ifdef __APPLE__
-    CFBundleRef mainBundle = CFBundleGetMainBundle();
-    CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
-    char path[PATH_MAX];
-    if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
-    {
-        // error!
-    }
-    CFRelease(resourcesURL);
-    chdir(path);
-    fullpath = path;
+	CFBundleRef mainBundle = CFBundleGetMainBundle();
+	CFURLRef resourcesURL = CFBundleCopyResourcesDirectoryURL(mainBundle);
+	char path[PATH_MAX];
+	if (!CFURLGetFileSystemRepresentation(resourcesURL, TRUE, (UInt8 *)path, PATH_MAX))
+	{
+		// error!
+	}
+	CFRelease(resourcesURL);
+	chdir(path);
+	fullpath = path;
 #else
-	 char cCurrentPath[1024];
-	 if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
-		 return "";
+	char cCurrentPath[1024];
+	if (!GetCurrentDir(cCurrentPath, sizeof(cCurrentPath)))
+		return "";
 
 	cCurrentPath[sizeof(cCurrentPath) - 1] = '\0';
 	fullpath = cCurrentPath;
 
 #endif    
-    return fullpath;
+	return fullpath;
 }
 
 template <typename T>
 std::string to_string(T value)
 {
-  //create an output string stream
-  std::ostringstream os ;
+	//create an output string stream
+	std::ostringstream os;
 
-  //throw the value into the string stream
-  os << value ;
+	//throw the value into the string stream
+	os << value;
 
-  //convert the string stream into a string and return
-  return os.str() ;
+	//convert the string stream into a string and return
+	return os.str();
 }
 
 bool readFile(const std::string& filename, std::string& content)
@@ -141,7 +141,7 @@ void stdlog(std::string str)
 
 bool checkGLErrors()
 {
-	#ifdef _DEBUG
+#ifdef _DEBUG
 	GLenum errCode;
 	const GLubyte *errString;
 
@@ -150,24 +150,24 @@ bool checkGLErrors()
 		std::cerr << "OpenGL Error: " << errString << std::endl;
 		return false;
 	}
-	#endif
+#endif
 
 	return true;
 }
 
 std::vector<std::string>& split(const std::string &s, char delim, std::vector<std::string> &elems) {
-    std::stringstream ss(s);
-    std::string item;
-    while (std::getline(ss, item, delim)) {
-        elems.push_back(item);
-    }
-    return elems;
+	std::stringstream ss(s);
+	std::string item;
+	while (std::getline(ss, item, delim)) {
+		elems.push_back(item);
+	}
+	return elems;
 }
 
 std::vector<std::string> split(const std::string &s, char delim) {
-    std::vector<std::string> elems;
-    split(s, delim, elems);
-    return elems;
+	std::vector<std::string> elems;
+	split(s, delim, elems);
+	return elems;
 }
 
 std::string join(std::vector<std::string>& strings, const char* delim)
@@ -178,16 +178,16 @@ std::string join(std::vector<std::string>& strings, const char* delim)
 	return str;
 }
 
-Vector2 getDesktopSize( int display_index )
+Vector2 getDesktopSize(int display_index)
 {
-  SDL_DisplayMode current;
-  // Get current display mode of all displays.
-  int should_be_zero = SDL_GetCurrentDisplayMode(display_index, &current);
-  return Vector2( (float)current.w, (float)current.h );
+	SDL_DisplayMode current;
+	// Get current display mode of all displays.
+	int should_be_zero = SDL_GetCurrentDisplayMode(display_index, &current);
+	return Vector2((float)current.w, (float)current.h);
 }
 
 
-bool drawText(float x, float y, std::string text, Vector3 c, float scale )
+bool drawText(float x, float y, std::string text, Vector3 c, float scale)
 {
 	static char buffer[99999]; // ~500 chars
 	int num_quads;
@@ -299,7 +299,7 @@ std::string getGPUStats()
 		nCurAvailMemoryInKB = 0;
 	}
 
-	std::string str = "FPS: " + to_string(Game::instance->fps) + " DCS: " + to_string(Mesh::num_meshes_rendered) + " Tris: " + to_string(long(Mesh::num_triangles_rendered * 0.001)) + "Ks  VRAM: " + to_string(int((nTotalMemoryInKB-nCurAvailMemoryInKB) * 0.001)) + "MBs / " + to_string(int(nTotalMemoryInKB * 0.001)) + "MBs";
+	std::string str = "FPS: " + to_string(Game::instance->fps) + " DCS: " + to_string(Mesh::num_meshes_rendered) + " Tris: " + to_string(long(Mesh::num_triangles_rendered * 0.001)) + "Ks  VRAM: " + to_string(int((nTotalMemoryInKB - nCurAvailMemoryInKB) * 0.001)) + "MBs / " + to_string(int(nTotalMemoryInKB * 0.001)) + "MBs";
 	Mesh::num_meshes_rendered = 0;
 	Mesh::num_triangles_rendered = 0;
 	return str;
@@ -347,7 +347,7 @@ char* fetchWord(char* data, char* word)
 char* fetchFloat(char* data, float& v)
 {
 	char w[255];
-	data = fetchWord(data,w);
+	data = fetchWord(data, w);
 	v = atof(w);
 	return data;
 }
@@ -371,7 +371,7 @@ char* fetchEndLine(char* data)
 	return data;
 }
 
-char* fetchBufferFloat(char* data, std::vector<float>& vector, int num )
+char* fetchBufferFloat(char* data, std::vector<float>& vector, int num)
 {
 	int pos = 0;
 	char word[255];
@@ -568,9 +568,9 @@ cJSON* readJSONArrayItem(cJSON* obj, const char* name, int index)
 {
 	cJSON* array_json = cJSON_GetObjectItemCaseSensitive((cJSON*)obj, name);
 	if (!array_json)
-		return false;
+		return NULL;
 	if (!cJSON_IsArray(array_json))
-		return false;
+		return NULL;
 
 	return cJSON_GetArrayItem(array_json, index);
 }
@@ -817,5 +817,3 @@ void replaceJSONVector4(cJSON* obj, const char* name, Vector4 vector)
 	cJSON* new_item = cJSON_CreateFloatArray(new_array, 4);
 	cJSON_ReplaceItemInObjectCaseSensitive(obj, name, new_item);
 }
-
-

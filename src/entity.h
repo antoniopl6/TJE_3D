@@ -1,4 +1,5 @@
-
+#ifndef ENTITY_H
+#define ENTITY_H
 #pragma once
 #include "includes.h"
 #include "utils.h"
@@ -10,28 +11,17 @@
 
 using namespace std;
 
-enum EntityType {
-	MAIN = 0,
-	MONSTER = 1,
-	OBJECT = 2,
-	LIGHT = 3,
-	SOUND = 4
-};
-
-enum ObjectType {
-	PICK_OBJECT = 1,
-	RENDER_OBJECT = 2,
-};
-
-enum LightType {
-	POINT_LIGHT = 0,
-	SPOT_LIGHT = 1,
-	DIRECTIONAL_LIGHT = 2
-};
-
-
 class Entity {
 public:
+	//Entity Enum
+	enum EntityType {
+		MAIN = 0,
+		MONSTER = 1,
+		OBJECT = 2,
+		LIGHT = 3,
+		SOUND = 4
+	};
+
 	Entity(); //constructor
 	virtual ~Entity() {}; //destructor
 
@@ -50,9 +40,9 @@ public:
 	Vector3 getPosition();
 };
 
-class MainCharacterEntity: public Entity {
+class MainCharacterEntity : public Entity {
 public:
-	
+
 	//Main features
 	Camera* camera;
 	Mesh* mesh;
@@ -109,7 +99,12 @@ public:
 
 class ObjectEntity : public Entity {
 public:
-	
+	//Object enum
+	enum ObjectType {
+		PICK_OBJECT = 1,
+		RENDER_OBJECT = 2,
+	};
+
 	//Object features
 	int object_id;
 	Mesh* mesh;
@@ -117,7 +112,7 @@ public:
 	BoundingBox world_bounding_box;
 
 	//Object tree
-	int node_id; 
+	int node_id;
 	ObjectEntity* parent;
 	vector<ObjectEntity*> children;
 	vector<int> children_ids; //Just for JSON support
@@ -144,6 +139,12 @@ public:
 
 class LightEntity : public Entity {
 public:
+	//Light enum
+	enum LightType {
+		POINT_LIGHT = 0,
+		SPOT_LIGHT = 1,
+		DIRECTIONAL_LIGHT = 2
+	};
 
 	//Light features
 	int light_id;
@@ -166,7 +167,7 @@ public:
 	Camera* shadow_camera;
 
 	//Constructor
-	LightEntity(); 
+	LightEntity();
 
 	//JSON methods
 	void load(cJSON* light_json, int light_index);
@@ -177,8 +178,8 @@ public:
 	virtual void update(float elapsed_time) override;
 };
 
-class SoundEntity : public Entity{
-public:	
+class SoundEntity : public Entity {
+public:
 
 	//Sound features
 	int sound_id;
@@ -192,3 +193,4 @@ public:
 	void save(vector<cJSON*> json);
 	void updateJSON(vector<cJSON*> json);
 };
+#endif

@@ -11,7 +11,7 @@ Scene::Scene()
 
 	//General features
 	filename = "";
-	ambient_light = Vector3(1.f,1.f,1.f);
+	ambient_light = Vector3(1.f, 1.f, 1.f);
 	main_camera = Game::instance->camera;
 	shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs"); //Select shader to render the render calls
 
@@ -77,19 +77,19 @@ void Scene::addEntity(Entity* entity)
 {
 	switch (entity->entity_type)
 	{
-	case(EntityType::MAIN):
-		main_character = (MainCharacterEntity*) entity;
+	case(Entity::EntityType::MAIN):
+		main_character = (MainCharacterEntity*)entity;
 		break;
-	case(EntityType::MONSTER):
+	case(Entity::EntityType::MONSTER):
 		monster = (MonsterEntity*)entity;
 		break;
-	case(EntityType::OBJECT):
+	case(Entity::EntityType::OBJECT):
 		objects.push_back((ObjectEntity*)entity);
 		break;
-	case(EntityType::LIGHT):
+	case(Entity::EntityType::LIGHT):
 		lights.push_back((LightEntity*)entity);
 		break;
-	case(EntityType::SOUND):
+	case(Entity::EntityType::SOUND):
 		sounds.push_back((SoundEntity*)entity);
 		break;
 	}
@@ -100,23 +100,23 @@ void Scene::removeEntity(Entity* entity)
 	//Only for entity vectors
 	switch (entity->entity_type)
 	{
-	case(EntityType::MAIN):
+	case(Entity::EntityType::MAIN):
 		if (main_character == entity) main_character = NULL;
 		break;
-	case(EntityType::MONSTER):
+	case(Entity::EntityType::MONSTER):
 		if (monster == entity) monster = NULL;
 		break;
-	case(EntityType::OBJECT):
+	case(Entity::EntityType::OBJECT):
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			if (*it == entity) objects.erase(it);
 		}
 		break;
-	case(EntityType::LIGHT):
+	case(Entity::EntityType::LIGHT):
 		for (auto it = lights.begin(); it != lights.end(); ++it) {
 			if (*it == entity) lights.erase(it);
 		}
 		break;
-	case(EntityType::SOUND):
+	case(Entity::EntityType::SOUND):
 		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
 			if (*it == entity) sounds.erase(it);
 		}
@@ -293,8 +293,8 @@ bool Scene::load(const char* scene_filepath)
 		//Current object and children list
 		ObjectEntity* object = *i;
 		vector<int> children_ids = object->children_ids;
-		
-		if(!object->children_ids.empty())
+
+		if (!object->children_ids.empty())
 			for (auto j = children_ids.begin(); j != children_ids.end(); ++j)
 			{
 				for (auto k = objects.begin(); k != objects.end(); ++k)
@@ -303,7 +303,7 @@ bool Scene::load(const char* scene_filepath)
 					ObjectEntity* children_object = *k;
 
 					//Push children to parent object list
-					if(children_object->node_id == *j)
+					if (children_object->node_id == *j)
 						object->children.push_back(*k);
 				}
 			}
@@ -327,10 +327,10 @@ bool Scene::save()
 
 	//Create JSON
 	cJSON* scene_json = cJSON_CreateObject();
- 
+
 	//Add scene properties
 	writeJSONVector3(scene_json, "ambient_light", ambient_light);
-	
+
 	//Add main camera properties
 	writeJSONVector3(scene_json, "camera_position", main_camera->eye);
 	writeJSONVector3(scene_json, "camera_target", main_camera->center);
@@ -345,7 +345,7 @@ bool Scene::save()
 	//Monster JSON
 	cJSON* monster_json = cJSON_AddObjectToObject(scene_json, "monster");
 	monster->save(monster_json);
-	
+
 	//Objects JSON
 	map<int, vector<cJSON*>> scene_objects;
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
@@ -356,7 +356,7 @@ bool Scene::save()
 
 		//Check whether the object is registered or not
 		auto it = scene_objects.find(object->object_id);
-		
+
 		if (it == scene_objects.end()) //Object hasn't been registered yet
 		{
 			//Create JSONs
@@ -479,4 +479,3 @@ bool Scene::save()
 
 	return true;
 }
-
