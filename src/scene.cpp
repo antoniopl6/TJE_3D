@@ -77,19 +77,19 @@ void Scene::addEntity(Entity* entity)
 {
 	switch (entity->entity_type)
 	{
-	case(EntityType::MAIN):
+	case(Entity::EntityType::MAIN):
 		main_character = (MainCharacterEntity*) entity;
 		break;
-	case(EntityType::MONSTER):
+	case(Entity::EntityType::MONSTER):
 		monster = (MonsterEntity*)entity;
 		break;
-	case(EntityType::OBJECT):
+	case(Entity::EntityType::OBJECT):
 		objects.push_back((ObjectEntity*)entity);
 		break;
-	case(EntityType::LIGHT):
+	case(Entity::EntityType::LIGHT):
 		lights.push_back((LightEntity*)entity);
 		break;
-	case(EntityType::SOUND):
+	case(Entity::EntityType::SOUND):
 		sounds.push_back((SoundEntity*)entity);
 		break;
 	}
@@ -100,23 +100,23 @@ void Scene::removeEntity(Entity* entity)
 	//Only for entity vectors
 	switch (entity->entity_type)
 	{
-	case(EntityType::MAIN):
+	case(Entity::EntityType::MAIN):
 		if (main_character == entity) main_character = NULL;
 		break;
-	case(EntityType::MONSTER):
+	case(Entity::EntityType::MONSTER):
 		if (monster == entity) monster = NULL;
 		break;
-	case(EntityType::OBJECT):
+	case(Entity::EntityType::OBJECT):
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			if (*it == entity) objects.erase(it);
 		}
 		break;
-	case(EntityType::LIGHT):
+	case(Entity::EntityType::LIGHT):
 		for (auto it = lights.begin(); it != lights.end(); ++it) {
 			if (*it == entity) lights.erase(it);
 		}
 		break;
-	case(EntityType::SOUND):
+	case(Entity::EntityType::SOUND):
 		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
 			if (*it == entity) sounds.erase(it);
 		}

@@ -568,9 +568,9 @@ cJSON* readJSONArrayItem(cJSON* obj, const char* name, int index)
 {
 	cJSON* array_json = cJSON_GetObjectItemCaseSensitive((cJSON*)obj, name);
 	if (!array_json)
-		return false;
+		return NULL;
 	if (!cJSON_IsArray(array_json))
-		return false;
+		return NULL;
 
 	return cJSON_GetArrayItem(array_json, index);
 }

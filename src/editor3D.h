@@ -1,32 +1,35 @@
 #pragma once
-#include "game.h"
+#include "scene.h"
+#include "mesh.h"
+#include "texture.h"
 
 using namespace std;
-
-enum EditorLayer {
-	LAYER1,
-	LAYER2,
-	LAYER3
-};
-
-enum MenuOption {
-	NONE,
-	ADD,
-	EDIT,
-	REMOVE
-};
-
-enum EntityOption
-{
-	NONE,
-	OBJECT,
-	LIGHT,
-	SOUND
-};
 
 class Editor3D
 {
 public:
+
+	//Enums
+	enum EditorLayer {
+		LAYER1,
+		LAYER2,
+		LAYER3
+	};
+
+	enum MenuOption {
+		NO_MENU,
+		ADD,
+		EDIT,
+		REMOVE
+	};
+
+	enum EntityOption
+	{
+		NO_ENTITY,
+		OBJECT,
+		LIGHT,
+		SOUND
+	};
 	
 	//Game variables
 	Scene* scene;

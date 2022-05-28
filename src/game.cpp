@@ -156,8 +156,8 @@ void Game::update(double seconds_elapsed)
 		}
 	}
 
-	cout << Input::isMousePressed(SDL_BUTTON(1)) << endl;
-
+	if (Input::wasKeyPressed(SDL_BUTTON_LEFT))
+		cout << "Here" << endl;
 }
 
 //Keyboard event handler (sync input)

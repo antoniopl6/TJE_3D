@@ -228,7 +228,6 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 	float speed = 80.0f;
 
 	if (dist > 400.0f) {
-		std::cout << dist << std::endl;
 		Vector3 translate = forward * -speed * elapsed_time;
 		model.translate(translate.x, translate.y, translate.z);
 		//model.translate(-toTarget.x * speed * elapsed_time, 0, -toTarget.z * speed * elapsed_time);

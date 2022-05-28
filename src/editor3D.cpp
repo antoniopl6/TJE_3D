@@ -1,6 +1,5 @@
 #include "editor3D.h"
-#include <cstdio>
-#include <iostream>
+
 #include <filesystem>
 
 
@@ -42,8 +41,8 @@ Editor3D::Editor3D(Scene* scene)
 
 	//Options
 	current_layer = EditorLayer::LAYER1;
-	menu_option = MenuOption::NONE;
-	entity_option = EntityOption::NONE;
+	menu_option = MenuOption::NO_MENU;
+	entity_option = EntityOption::NO_ENTITY;
 
 	//Selectors
 	if (assets_size)
@@ -61,8 +60,8 @@ void Editor3D::reset()
 
 	//Option
 	current_layer = EditorLayer::LAYER1;
-	menu_option = MenuOption::NONE;
-	entity_option = EntityOption::NONE;
+	menu_option = MenuOption::NO_MENU;
+	entity_option = EntityOption::NO_ENTITY;
 
 	//Selectors
 	if (assets_size)
@@ -144,13 +143,13 @@ void Editor3D::show()
 	{
 		if (current_layer == EditorLayer::LAYER2)
 		{
-			menu_option = MenuOption::NONE;
+			menu_option = MenuOption::NO_MENU;
 			current_layer = EditorLayer::LAYER1;
 			start_menu = true;
 		}
 		else if (current_layer == EditorLayer::LAYER3)
 		{
-			entity_option == EntityOption::NONE;
+			entity_option == EntityOption::NO_ENTITY;
 			current_layer = EditorLayer::LAYER2;
 		}
 
@@ -194,7 +193,7 @@ void Editor3D::show()
 						cout << sounds[i] << endl;
 				}
 				break;
-			case(EntityOption::NONE):
+			case(EntityOption::NO_ENTITY):
 				cout << "Select an entity type" << endl << endl;
 				cout << "1. Object" << endl;
 				cout << "2. Light" << endl;
@@ -228,7 +227,7 @@ void Editor3D::show()
 						cout << scene->sounds[i] << endl;
 				}
 				break;
-			case(EntityOption::NONE):
+			case(EntityOption::NO_ENTITY):
 				cout << "Select an entity type" << endl << endl;
 				cout << "1. Object" << endl;
 				cout << "2. Light" << endl;
@@ -262,7 +261,7 @@ void Editor3D::show()
 						cout << scene->sounds[i] << endl;
 				}
 				break;
-			case(EntityOption::NONE):
+			case(EntityOption::NO_ENTITY):
 				cout << "Select an entity type" << endl << endl;
 				cout << "1. Object" << endl;
 				cout << "2. Light" << endl;
@@ -270,7 +269,7 @@ void Editor3D::show()
 				break;
 			}
 			break;
-		case(MenuOption::NONE):
+		case(MenuOption::NO_MENU):
 			cout << "Welcome to the editor mode" << endl << endl;
 			cout << "1. Add entity" << endl;
 			cout << "2. Edit entity" << endl;
@@ -378,15 +377,15 @@ void Editor3D::addEntity()
 		string light_type = lights[current_light];
 		if (light_type == "point light")
 		{
-			new_light->light_type = LightType::POINT_LIGHT;
+			new_light->light_type = LightEntity::LightType::POINT_LIGHT;
 		}
 		else if (light_type == "spot light")
 		{
-			new_light->light_type = LightType::SPOT_LIGHT;
+			new_light->light_type = LightEntity::LightType::SPOT_LIGHT;
 		}
 		else if (light_type == "directional light")
 		{
-			new_light->light_type = LightType::DIRECTIONAL_LIGHT;
+			new_light->light_type = LightEntity::LightType::DIRECTIONAL_LIGHT;
 		}
 
 		//Position

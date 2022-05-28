@@ -84,8 +84,12 @@ void Renderer::renderScene()
 
 	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
 	computeShadowMap();	
+
+	//Enable shader
+	scene->shader->enable();
 	
 	//Entity render
+	setSceneUniforms(scene->shader);
 	for (int i = 0; i < render_calls.size(); i++)
 	{
 		RenderCall* rc = render_calls[i];
@@ -93,9 +97,26 @@ void Renderer::renderScene()
 			renderDrawCall(scene->shader , rc, camera);
 	}
 
+	//Disable shader
+	scene->shader->disable();
+
 	//Debug shadow maps
 	if (scene->show_atlas) showShadowAtlas();
 
+}
+
+void Renderer::setSceneUniforms(Shader* shader)
+{
+	//Shadow Atlas
+	if (scene->shadow_atlas)
+		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
+
+	//Upload scene uniforms
+	shader->setUniform("u_ambient_light", scene->ambient_light);
+	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	shader->setUniform("u_camera_position", camera->eye);
+	shader->setUniform("u_time", (float)getTime());
+	shader->setUniform("u_num_shadows", (float)scene->num_shadows);
 }
 
 //Render a draw call
@@ -104,10 +125,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	//In case there is nothing to do
 	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
 		return;
-	assert(glGetError() == GL_NO_ERROR);
-
-	//Enable shader
-	shader->enable();
+	assert(glGetError() == GL_NO_ERROR);	
 
 	//Textures
 	Texture* color_texture = NULL;
@@ -156,17 +174,6 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	//Normal mapping
 	if (normal_texture) shader->setUniform("u_normal_mapping", 1);
 	else shader->setUniform("u_normal_mapping", 0);
-
-	//Shadow Atlas
-	if (scene->shadow_atlas)
-		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
-
-	//Upload scene uniforms
-	shader->setUniform("u_ambient_light", scene->ambient_light);
-	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
-	shader->setUniform("u_camera_position", camera->eye);
-	shader->setUniform("u_time", getTime());
-	shader->setUniform("u_num_shadows", (float)scene->num_shadows);
 
 	//Upload entity uniforms
 	shader->setMatrix44("u_model", *rc->model);
@@ -252,15 +259,15 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			//Specific light properties
 			switch (light->light_type)
 			{
-			case(LightType::POINT_LIGHT):
+			case(LightEntity::LightType::POINT_LIGHT):
 				lights_type[j] = light->light_type;
 				break;
-			case (LightType::SPOT_LIGHT):
+			case (LightEntity::LightType::SPOT_LIGHT):
 				spots_direction[j] = light->model.rotateVector(Vector3(0, 0, -1));
 				spots_cone[j] = Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD));
 				lights_type[j] = light->light_type;
 				break;
-			case (LightType::DIRECTIONAL_LIGHT):
+			case (LightEntity::LightType::DIRECTIONAL_LIGHT):
 				directionals_front[j] = light->model.rotateVector(Vector3(0, 0, -1));
 				lights_type[j] = light->light_type;
 				break;
@@ -308,8 +315,6 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 		final_light = min(max_num_lights + final_light, lights_size - 1);
 
 	}
-	//disable shader
-	shader->disable();
 
 	//set the render state as it was before to avoid problems with future renders
 	glDisable(GL_BLEND);
@@ -347,15 +352,15 @@ void Renderer::MultiPassLoop(Shader* shader, Mesh* mesh)
 		//Specific light uniforms
 		switch (light->light_type)
 		{
-		case(LightType::POINT_LIGHT):
+		case(LightEntity::LightType::POINT_LIGHT):
 			shader->setUniform("u_light_type", 0);
 			break;
-		case (LightType::SPOT_LIGHT):
+		case (LightEntity::LightType::SPOT_LIGHT):
 			shader->setVector3("u_spot_direction", light->model.rotateVector(Vector3(0, 0, -1)));
 			shader->setUniform("u_spot_cone", Vector2(light->cone_exp, cos(light->cone_angle * DEG2RAD)));
 			shader->setUniform("u_light_type", 1);
 			break;
-		case (LightType::DIRECTIONAL_LIGHT):
+		case (LightEntity::LightType::DIRECTIONAL_LIGHT):
 			shader->setVector3("u_directional_front", light->model.rotateVector(Vector3(0, 0, -1)));
 			shader->setUniform("u_area_size", light->area_size);
 			shader->setUniform("u_light_type", 2);

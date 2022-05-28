@@ -10,28 +10,18 @@
 
 using namespace std;
 
-enum EntityType {
-	MAIN = 0,
-	MONSTER = 1,
-	OBJECT = 2,
-	LIGHT = 3,
-	SOUND = 4
-};
-
-enum ObjectType {
-	PICK_OBJECT = 1,
-	RENDER_OBJECT = 2,
-};
-
-enum LightType {
-	POINT_LIGHT = 0,
-	SPOT_LIGHT = 1,
-	DIRECTIONAL_LIGHT = 2
-};
-
 
 class Entity {
 public:
+	//Entity Enum
+	enum EntityType {
+		MAIN = 0,
+		MONSTER = 1,
+		OBJECT = 2,
+		LIGHT = 3,
+		SOUND = 4
+	};
+
 	Entity(); //constructor
 	virtual ~Entity() {}; //destructor
 
@@ -109,6 +99,11 @@ public:
 
 class ObjectEntity : public Entity {
 public:
+	//Object enum
+	enum ObjectType {
+		PICK_OBJECT = 1,
+		RENDER_OBJECT = 2,
+	};
 	
 	//Object features
 	int object_id;
@@ -144,6 +139,12 @@ public:
 
 class LightEntity : public Entity {
 public:
+	//Light enum
+	enum LightType {
+		POINT_LIGHT = 0,
+		SPOT_LIGHT = 1,
+		DIRECTIONAL_LIGHT = 2
+	};
 
 	//Light features
 	int light_id;
