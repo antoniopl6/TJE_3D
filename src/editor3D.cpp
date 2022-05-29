@@ -2,12 +2,13 @@
 #include "game.h"
 #include <filesystem>
 
-Game* g = Game::instance;
+Game* g;
 
 Editor3D::Editor3D(Scene* scene)
 {
 	//Game Scene
 	this->scene = scene;
+	g = Game::instance;
 
 	//Intializate vectors
 	string assets_path = filesystem::current_path().string() + "\\data\\assets";
@@ -78,23 +79,27 @@ void Editor3D::show()
 	//Support variable
 	bool menu_change = start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE);
 
-	//Select Menu Option //isKeyPressed
-	if (current_layer == EditorLayer::LAYER1 && Input::wasKeyPressed(SDL_SCANCODE_1))
-		menu_option = MenuOption::ADD, current_layer = EditorLayer::LAYER2;
-	if (current_layer == EditorLayer::LAYER1 && Input::wasKeyPressed(SDL_SCANCODE_2))
-		menu_option = MenuOption::EDIT, current_layer = EditorLayer::LAYER2;
-	if (current_layer == EditorLayer::LAYER1 && Input::wasKeyPressed(SDL_SCANCODE_3))
-		menu_option = MenuOption::REMOVE, current_layer = EditorLayer::LAYER2;
-
+	//Select Menu Option
+	if (current_layer == EditorLayer::LAYER1) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_1))
+			menu_option = MenuOption::ADD, current_layer = EditorLayer::LAYER2;
+		if (Input::wasKeyPressed(SDL_SCANCODE_2))
+			menu_option = MenuOption::EDIT, current_layer = EditorLayer::LAYER2;
+		if (Input::wasKeyPressed(SDL_SCANCODE_3))
+			menu_option = MenuOption::REMOVE, current_layer = EditorLayer::LAYER2;
+	}
 	//Select Entity Option
-	if (current_layer == EditorLayer::LAYER2 && Input::wasKeyPressed(SDL_SCANCODE_1))
-		entity_option = EntityOption::OBJECT, current_layer = EditorLayer::LAYER3;
-	if (current_layer == EditorLayer::LAYER2 && Input::wasKeyPressed(SDL_SCANCODE_2))
-		entity_option = EntityOption::LIGHT, current_layer = EditorLayer::LAYER3;
-	if (current_layer == EditorLayer::LAYER2 && Input::wasKeyPressed(SDL_SCANCODE_3))
-		entity_option = EntityOption::SOUND, current_layer = EditorLayer::LAYER3;
+	else if (current_layer == EditorLayer::LAYER2) {
+		if (Input::wasKeyPressed(SDL_SCANCODE_1))
+			entity_option = EntityOption::OBJECT, current_layer = EditorLayer::LAYER3;
+		if (Input::wasKeyPressed(SDL_SCANCODE_2))
+			entity_option = EntityOption::LIGHT, current_layer = EditorLayer::LAYER3;
+		if (Input::wasKeyPressed(SDL_SCANCODE_3))
+			entity_option = EntityOption::SOUND, current_layer = EditorLayer::LAYER3;
+	}
 
-	//Selector
+
+	//Selector entities from list
 	if (Input::wasKeyPressed(SDL_SCANCODE_TAB))
 	{
 		if (menu_option == MenuOption::ADD && entity_option == EntityOption::OBJECT)
@@ -111,7 +116,7 @@ void Editor3D::show()
 				if (next_light < lights_size) current_light = next_light;
 				else current_light = 0;
 			}
-			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::ADD)
+			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::REMOVE)
 			{
 				int next_light = current_light + 1;
 				if (next_light < scene->lights.size()) current_light = next_light;
@@ -127,7 +132,7 @@ void Editor3D::show()
 				if (next_sound < sounds_size) current_sound = next_sound;
 				else current_sound = 0;
 			}
-			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::ADD)
+			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::REMOVE)
 			{
 				int next_sound = current_sound + 1;
 				if (next_sound < scene->sounds.size()) current_sound = next_sound;
@@ -156,7 +161,7 @@ void Editor3D::show()
 
 	}
 
-	//Menu
+	//Menu display
 	if (menu_change)
 	{
 		switch (menu_option)
@@ -165,7 +170,7 @@ void Editor3D::show()
 			switch (entity_option)
 			{
 			case(EntityOption::OBJECT):
-				cout << "Select an asset type from the list (Click in the screen to add it)" << endl << endl;
+				cout << "Select an asset type from the list (Click in the screen to add it), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < assets_size; ++i)
 				{
 					if (i == current_asset)
@@ -175,7 +180,7 @@ void Editor3D::show()
 				}
 				break;
 			case(EntityOption::LIGHT):
-				cout << "Select a light type from the list (Click in the screen to add it)" << endl << endl;
+				cout << "Select a light type from the list (Click in the screen to add it), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < lights_size; ++i)
 				{
 					if (i == current_light)
@@ -185,7 +190,7 @@ void Editor3D::show()
 				}
 				break;
 			case(EntityOption::SOUND):
-				cout << "Select a sound type from the list (Click in the screen to add it)" << endl << endl;
+				cout << "Select a sound type from the list (Click in the screen to add it), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < sounds_size; ++i)
 				{
 					if (i == current_sound)
@@ -209,7 +214,7 @@ void Editor3D::show()
 				cout << "Click an object to start editing it" << endl;
 				break;
 			case(EntityOption::LIGHT):
-				cout << "Select a light from the list (Press SPACE to edit)" << endl << endl;
+				cout << "Select a light from the list (Press SPACE to edit), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < scene->lights.size(); ++i)
 				{
 					if (i == current_light)
@@ -219,7 +224,7 @@ void Editor3D::show()
 				}
 				break;
 			case(EntityOption::SOUND):
-				cout << "Select a sound from the list (Press SPACE to edit)" << endl << endl;
+				cout << "Select a sound from the list (Press SPACE to edit), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < scene->sounds.size(); ++i)
 				{
 					if (i == current_sound)
@@ -243,7 +248,7 @@ void Editor3D::show()
 				cout << "Click an object to remove it" << endl;
 				break;
 			case(EntityOption::LIGHT):
-				cout << "Select a light from the list (Press SPACE to remove)" << endl << endl;
+				cout << "Select a light from the list (Press SPACE to remove), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < scene->lights.size(); ++i)
 				{
 					if (i == current_light)
@@ -253,7 +258,7 @@ void Editor3D::show()
 				}
 				break;
 			case(EntityOption::SOUND):
-				cout << "Select a sound from the list (Press SPACE to remove)" << endl << endl;
+				cout << "Select a sound from the list (Press SPACE to remove), press TAB to change selection" << endl << endl;
 				for (int i = 0; i < scene->sounds.size(); ++i)
 				{
 					if (i == current_sound)
@@ -274,7 +279,7 @@ void Editor3D::show()
 			cout << "Welcome to the editor mode" << endl << endl;
 			cout << "1. Add entity" << endl;
 			cout << "2. Edit entity" << endl;
-			cout << "3. Remove entity" << endl;
+			cout << "3. Remove entity" << endl << endl;
 			start_menu = false;
 			break;
 		}
@@ -294,6 +299,7 @@ void Editor3D::work()
 		{
 			//Pick an entity with a ray cast
 			//Send that entity to editEntity method
+			editEntity(selectEntityInScene());
 		}
 		else if (entity_option == EntityOption::LIGHT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 		{
@@ -310,6 +316,7 @@ void Editor3D::work()
 		{
 			//Pick an entity with a ray cast
 			//Send that entity to RemoveEntity method
+			removeEntity(selectEntityInScene());
 		}
 		else if (entity_option == EntityOption::LIGHT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 		{
@@ -339,14 +346,14 @@ void Editor3D::addEntity()
 
 		//Asset paths
 		string asset_name = assets[current_asset];
-		string asset_path = "\data\assets\\" + asset_name;
+		string asset_path = "\\data\\assets\\" + asset_name;
 		string asset_mesh = asset_path + "\\" + asset_name + ".obj";
-		string asset_color = asset_path + "\color_texture.tga";
-		string asset_normal = asset_path + "\normal_texture.tga";
-		string asset_opacity = asset_path + "\opacity_texture.tga";
-		string asset_metallic_roughness = asset_path + "\metallic_roughness_texture.tga";
-		string asset_occlusion = asset_path + "\occlusion_texture.tga";
-		string asset_emissive = asset_path + "\emissive_texture.tga";
+		string asset_color = asset_path + "\\color_texture.tga";
+		string asset_normal = asset_path + "\\normal_texture.tga";
+		string asset_opacity = asset_path + "\\opacity_texture.tga";
+		string asset_metallic_roughness = asset_path + "\\metallic_roughness_texture.tga";
+		string asset_occlusion = asset_path + "\\occlusion_texture.tga";
+		string asset_emissive = asset_path + "\\emissive_texture.tga";
 
 		//Assets features
 		new_object->mesh = Mesh::Get(asset_mesh.c_str());
@@ -362,6 +369,7 @@ void Editor3D::addEntity()
 
 		//Position
 		//Cast a ray get the object positon and set it with a translate
+		addEntityInScene(new_object);
 
 		//Add the new object to the scene
 		scene->addEntity(new_object);
@@ -391,6 +399,7 @@ void Editor3D::addEntity()
 
 		//Position
 		//Cast a ray get the object positon and set it with a translate
+		addEntityInScene(new_light);
 
 		//Add the new object to the scene
 		scene->addEntity(new_light);
@@ -405,10 +414,11 @@ void Editor3D::addEntity()
 
 		//Sound filename
 		string sound_name = sounds[current_sound];
-		new_sound->filename = "\data\assets\\" + sound_name;
+		new_sound->filename = "\\data\\assets\\" + sound_name;
 
 		//Position
 		//Cast a ray get the object positon and set it with a translate
+		addEntityInScene(new_sound);
 
 		//Add the new object to the scene
 		scene->addEntity(new_sound);
@@ -420,6 +430,15 @@ void Editor3D::addEntity()
 
 void Editor3D::editEntity(Entity* entity)
 {
+	cout << "You have selected: " << entity->name << " with ID: " << entity->ID << endl;
+	cout << "To scalate the entity press +/-, to translate the entity in scene use keyboard arrows and to rotate use   " << endl;
+
+	if (Input::wasKeyPressed(SDLK_PLUS)) {
+		entity->model.scale()
+	}if (Input::wasKeyPressed(SDLK_MINUS)) {
+
+	}
+
 }
 
 void Editor3D::removeEntity(Entity* entity)
@@ -458,5 +477,5 @@ ObjectEntity* Editor3D::selectEntityInScene() {
 		if (entity->mesh->testRayCollision(entity->model, rayOrigin, dir, pos, normal))
 			return entity;
 	}
-	return;
+	return NULL;
 }

@@ -11,8 +11,8 @@ public:
 
 	//Enums
 	enum EditorLayer {
-		LAYER1,
-		LAYER2,
+		LAYER1, //Select the menu option (add, remove or edit)
+		LAYER2, //Select entity
 		LAYER3
 	};
 
@@ -61,8 +61,8 @@ public:
 	Editor3D(Scene* scene);
 
 	//General Methods
-	void reset();
-	void show();
+	void reset(); //Resets class flowtime
+	void show(); //
 	void work();
 	void render();
 
