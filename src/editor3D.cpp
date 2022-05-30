@@ -431,14 +431,49 @@ void Editor3D::addEntity()
 void Editor3D::editEntity(Entity* entity)
 {
 	cout << "You have selected: " << entity->name << " with ID: " << entity->ID << endl;
-	cout << "To scalate the entity press +/-, to translate the entity in scene use keyboard arrows and to rotate use   " << endl;
+	cout << "To scalate the entity press +/-, to translate the entity in scene use      and to rotate use      " << endl;
+	float scaleSpeed = 30.0f;
+	float translateSpeed = 30.0f;
+	float angleDegrees = 3.0f;
 
-	if (Input::wasKeyPressed(SDLK_PLUS)) {
-		entity->model.scale()
+	//Scalate entity + -
+	if (Input::wasKeyPressed(SDLK_PLUS)) {	
+		entity->model.scale(scaleSpeed, scaleSpeed, scaleSpeed);
 	}if (Input::wasKeyPressed(SDLK_MINUS)) {
-
+		entity->model.scale(-scaleSpeed, -scaleSpeed, -scaleSpeed);
 	}
 
+	//Rotate entity KEYPAD
+	if (Input::wasKeyPressed(SDLK_LEFT)) {
+		entity->model.rotate(angleDegrees * DEG2RAD, Vector3(0, 1, 0));
+	}if (Input::wasKeyPressed(SDLK_RIGHT)) {
+		entity->model.rotate(-angleDegrees * DEG2RAD, Vector3(0, 1, 0));
+	}if (Input::wasKeyPressed(SDLK_UP)) {
+		entity->model.rotate(angleDegrees * DEG2RAD, Vector3(1, 0, 0));
+	}if (Input::wasKeyPressed(SDLK_DOWN)) {
+		entity->model.rotate(-angleDegrees * DEG2RAD, Vector3(1, 0, 0));
+	}if (Input::wasKeyPressed(SDLK_HOME)) {
+		entity->model.rotate(angleDegrees * DEG2RAD, Vector3(0, 0, 1));
+	}if (Input::wasKeyPressed(SDLK_END)) {
+		entity->model.rotate(-angleDegrees * DEG2RAD, Vector3(0, 0, 1));
+	}
+
+	//Translate entity U I O J K L
+	if (Input::wasKeyPressed(SDL_SCANCODE_I)) {
+		entity->model.translateGlobal(0, translateSpeed, 0);
+	}if (Input::wasKeyPressed(SDL_SCANCODE_K)) {
+		entity->model.translateGlobal(0, -translateSpeed, 0);
+	}if (Input::wasKeyPressed(SDL_SCANCODE_J)) {
+		entity->model.translateGlobal(translateSpeed, 0, 0);
+	}if (Input::wasKeyPressed(SDL_SCANCODE_L)) {
+		entity->model.translateGlobal(-translateSpeed, 0, 0);
+	}if (Input::wasKeyPressed(SDL_SCANCODE_U)) {
+		entity->model.translateGlobal(0, 0, translateSpeed);
+	}if (Input::wasKeyPressed(SDL_SCANCODE_O)) {
+		entity->model.translateGlobal(0, 0, -translateSpeed);
+	}
+
+	entity->updateBoundingBox();
 }
 
 void Editor3D::removeEntity(Entity* entity)
