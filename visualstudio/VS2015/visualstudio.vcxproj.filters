@@ -92,6 +92,9 @@
     <ClCompile Include="..\..\src\path.cpp">
       <Filter>elements</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\pathfinders.cpp">
+      <Filter>elements</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -178,8 +181,14 @@
     <ClInclude Include="..\..\src\editor3D.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="path.h">
+    <ClInclude Include="..\..\src\pathfinders.h">
       <Filter>elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\path.h">
+      <Filter>elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\include\bass.h">
+      <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
