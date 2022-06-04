@@ -9,6 +9,7 @@
 #include "entity.h"
 #include "camera.h"
 #include "shader.h"
+#include "path.h"
 
 //Forward declaration
 class FBO;
@@ -38,6 +39,9 @@ public:
 	vector<ObjectEntity*> objects;
 	vector<LightEntity*> lights;
 	vector<SoundEntity*> sounds;
+
+	//Path for monster
+	vector<Route*> route;
 
 	//Counters
 	int num_objects;

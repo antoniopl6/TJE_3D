@@ -30,7 +30,7 @@ public:
 	int H;
 
 	Route(int W, int H, std::vector<Vector3> &points);
-	Point getClosestPoint(Vector3 translation); //Gets the closest route point to start path
+	Point* getClosestPoint(Vector3 translation); //Gets the closest route point to start path
 	bool hasArrived(Vector3 translation); //Cheks if has arrived to the target point
 	Vector3 getSceneVector(int x, int y);
 	Vector2 getGridVector(int x, int y, int z);

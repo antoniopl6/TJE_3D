@@ -6,7 +6,7 @@ Scene* scene;
 Point::Point(int startx, int starty) {
 	this->startx = startx;
 	this->starty = starty;
-	path_steps = 0;
+	path_steps = -1;
 
 }
 
@@ -38,8 +38,9 @@ Route::Route(int W, int H, std::vector<Vector3> &points) {
 	{
 		for (size_t j = 0; j < H; j++)
 		{
-			bool value = !scene->hasCollision(getSceneVector(i, j), coll, collnorm);
-			grid[i + j * W] = (int) value;
+			//bool value = !scene->hasCollision(getSceneVector(i, j), coll, collnorm);
+			//grid[i + j * W] = (int) value;
+			grid[i + j * W] = 1;
 		}
 	}
 
@@ -62,7 +63,7 @@ Route::Route(int W, int H, std::vector<Vector3> &points) {
 
 }
 
-Point Route::getClosestPoint(Vector3 translation) {
+Point* Route::getClosestPoint(Vector3 translation) {
 	Vector2 currPos = getGridVector(translation.x, translation.y, translation.z);
 	Point* closest = route[0];
 	Vector2 toPos = currPos - Vector2(closest->startx, closest->starty);
@@ -78,7 +79,7 @@ Point Route::getClosestPoint(Vector3 translation) {
 			closest = point;
 		}
 	}
-	return *closest;
+	return closest;
 }
 
 Vector3 Route::getSceneVector(int x, int y) {

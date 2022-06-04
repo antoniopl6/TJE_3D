@@ -28,6 +28,16 @@ using namespace std;
 Game* Game::instance = NULL;
 bool scene_saved = false;
 
+///////////////prueba route
+Route* route;
+bool MonsterArrivedToPoint = false;
+bool MonsterIsInPathRoute = false;
+Point* closestPoint;
+Vector2* routeActive;
+int idx = 0;
+///////////////
+
+
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
 	this->window_width = window_width;
@@ -66,6 +76,19 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+
+
+	//////////////////////////prueba route
+	std::vector<Vector3> points;
+	Vector3* p1 = new Vector3(120,0,0);
+	Vector3* p2 = new Vector3(100, 0, 0);
+	Vector3* p3 = new Vector3(0, 0, 100);
+	points.push_back(*p1);
+	points.push_back(*p2);
+	points.push_back(*p3);
+	route = new Route(300, 300, points);
+
+	/////////////////////////
 }
 
 //what to do when the image has to be draw
@@ -113,10 +136,33 @@ void Game::update(double seconds_elapsed)
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
-	if (monster->isInFollowRange(camera)) {
-		monster->updateFollow(elapsed_time, camera);
-	}
+	//if (monster->isInFollowRange(camera)) {
+		//monster->updateFollow(elapsed_time, camera);
+	//}
+	//////////////////////////// prueba path
+	//else {
+	/*Matrix44 model = monster->model;
+		if (!MonsterArrivedToPoint && !MonsterIsInPathRoute) {
+			closestPoint = route->getClosestPoint(model.getTranslation());
+			Vector2 start = route->getGridVector(model.getTranslation().x, model.getTranslation().y, model.getTranslation().z);
+			Point currentPoint = Point(start.x, start.y);
+			currentPoint.SetPath(route->grid, closestPoint->startx, closestPoint->starty, route->W, route->H);
+			routeActive = currentPoint.path;
+			MonsterIsInPathRoute = true;
+		}
+		if (!MonsterArrivedToPoint && MonsterIsInPathRoute) {
+			Vector2 newPos = routeActive[idx];
+			std::cout << "Nueva pos: x:" << newPos.x <<", y: "<< newPos.y << std::endl;
+			std::cout << "Anterior pos:" << model.getTranslation().x << model.getTranslation().z << std::endl;
+			monster->model.translateGlobal(newPos.x*30.0f, 0, newPos.y * 30.0f);
+			if (idx == closestPoint->path_steps) {
+				MonsterIsInPathRoute = false;
+				idx = 0;
+			}
+		}*/
 
+	//}
+	///////////////////////////
 	//Update Objects
 	for (int i = 0; i < scene->objects.size(); ++i)
 	{
