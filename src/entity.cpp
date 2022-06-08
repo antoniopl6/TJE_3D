@@ -257,11 +257,13 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running a
 
 }
 
+float bounding = 7.0f;
+
 void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 {
 	if (!isInPathRoute) { //If monster do not have a route to follow generate one on path closestPoint
 		closestPoint = route->getClosestPoint(model.getTranslation());
-		Vector2 start = route->getGridVector(model.getTranslation().x, model.getTranslation().y, model.getTranslation().z);
+		Vector2 start = route->getGridVector(model.getTranslation().x + bounding, model.getTranslation().y, model.getTranslation().z + bounding);
 		Point currentPoint = Point(start.x, start.y);
 		closestPoint->SetPath(route->grid, currentPoint.startx, currentPoint.starty, route->W, route->H);
 		isInPathRoute = true;
@@ -293,7 +295,6 @@ float computeDeg(Vector2 a, Vector2 b) {
 	return 0;
 }
 
-
 bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true if has arrived to pos target, false otherwise
 {
 	
@@ -311,13 +312,13 @@ bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true
 	float walkSpeed = 200.0f;
 	Vector3 translate = forward * -walkSpeed * elapsed_time;
 	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	//std::cout << "Grados a rotar                  " << degrees << std::endl;
+	std::cout << "Grados a rotar                  " << degrees << std::endl;
 	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 
 	model.translateGlobal(translate.x, 0, translate.z);
 
 	this->updateBoundingBox();
-	if (dist <= 3.0f) {
+	if (dist <= bounding) {
 		return true;
 
 	}
