@@ -10,6 +10,7 @@
 #include "framework.h"
 #include "animation.h"
 #include "audio.h"
+#include "path.h"
 
 using namespace std;
 
@@ -76,9 +77,17 @@ public:
 	Mesh* mesh;
 	Material* material;
 	BoundingBox world_bounding_box;
+	
+	//Animations
 	Animation* running;
 	Animation* walking;
 	Animation* idle;
+
+	//Path finding
+	Route* route;
+	bool isInPathRoute;
+	Point* closestPoint;
+	int idx;
 
 	//Triggers
 	bool bounding_box_trigger;

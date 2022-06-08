@@ -4,7 +4,6 @@
 #include "includes.h"
 #include "utils.h"
 #include "pathfinders.h"
-#include "entity.h"
 
 #define MAX_STEPS 100
 

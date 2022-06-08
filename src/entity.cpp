@@ -132,6 +132,22 @@ MonsterEntity::MonsterEntity()
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+	
+	////////////////////////// route define
+	idx = 0;
+	isInPathRoute = false;
+	std::vector<Vector3> points;
+	Vector3* p0 = new Vector3(0, 0, 0);
+	Vector3* p1 = new Vector3(1600, 0, 0);
+	Vector3* p2 = new Vector3(1600, 0, 1600);
+	Vector3* p3 = new Vector3(0, 0, 1600);
+	points.push_back(*p0);
+	points.push_back(*p1);
+	points.push_back(*p2);
+	points.push_back(*p3);
+	route = new Route(100, 100, points);
+
+	/////////////////////////
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -243,7 +259,25 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running a
 
 void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 {
+	if (!isInPathRoute) { //If monster do not have a route to follow generate one on path closestPoint
+		closestPoint = route->getClosestPoint(model.getTranslation());
+		Vector2 start = route->getGridVector(model.getTranslation().x, model.getTranslation().y, model.getTranslation().z);
+		Point currentPoint = Point(start.x, start.y);
+		closestPoint->SetPath(route->grid, currentPoint.startx, currentPoint.starty, route->W, route->H);
+		isInPathRoute = true;
 
+	}
+	else {
+		Vector2 newPos = closestPoint->path[idx];
+		Vector3 newTranslate = route->getSceneVector(newPos.x, newPos.y);
+		if (moveToTarget(elapsed_time, newTranslate))
+			idx++;
+		//std::cout << "Next target" << std::endl,
+		if (idx == closestPoint->path_steps) {
+			isInPathRoute = false;
+			idx = 0;
+		}
+	}
 
 }
 
@@ -267,21 +301,20 @@ bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
 	//std::cout << "forward " << forward.x << std::endl;
 	Vector3 toTarget = model.getTranslation() - pos;
-	//std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
+	std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
 	float dist = toTarget.length();
 	toTarget.normalize();
 
 	float sideDot = side.dot(toTarget);
 	float forwardDot = forward.dot(toTarget);
 	float rotSpeed = 80.0f;
-	float runSpeed = 400.0f;
-	Vector3 translate = forward * runSpeed * elapsed_time;
-	float smallest = 1.17549e-38;
+	float walkSpeed = 200.0f;
+	Vector3 translate = forward * -walkSpeed * elapsed_time;
 	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
 	//std::cout << "Grados a rotar                  " << degrees << std::endl;
 	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 
-	model.translateGlobal(-forward.x * 3.0f, 0, -forward.z * 3.0f);
+	model.translateGlobal(translate.x, 0, translate.z);
 
 	this->updateBoundingBox();
 	if (dist <= 3.0f) {
