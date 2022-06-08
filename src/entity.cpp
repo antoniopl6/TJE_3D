@@ -1,6 +1,6 @@
 #include "entity.h"
 #include "scene.h"
-
+#include <limits>
 //Entity
 Entity::Entity() {
 	name = "";
@@ -213,7 +213,7 @@ bool MonsterEntity::isInFollowRange(Camera* camera)
 	return (1900.0f > dist && forwardDot > 0.30f);
 }
 
-void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
+void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running animation
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
@@ -239,6 +239,57 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 
 	this->updateBoundingBox();
 
+}
+
+void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
+{
+
+
+}
+
+float computeDeg(Vector2 a, Vector2 b) {
+	float modA = sqrt(a.x * a.x + a.y * a.y);
+	float modB = sqrt(b.x * b.x + b.y * b.y);
+	float dot = a.x * b.x + a.y * b.y;
+	float degrees = acos(a.dot(b) / (modA * modB));
+	float smallest = 1.17549e-38;
+	//std::cout << "Grados a rotar" << degrees << std::endl;
+	if (degrees > smallest)
+		return degrees;
+	return 0;
+}
+
+
+bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true if has arrived to pos target, false otherwise
+{
+	
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	//std::cout << "forward " << forward.x << std::endl;
+	Vector3 toTarget = model.getTranslation() - pos;
+	//std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
+	float dist = toTarget.length();
+	toTarget.normalize();
+
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+	float rotSpeed = 80.0f;
+	float runSpeed = 400.0f;
+	Vector3 translate = forward * runSpeed * elapsed_time;
+	float smallest = 1.17549e-38;
+	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+	//std::cout << "Grados a rotar                  " << degrees << std::endl;
+	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
+
+	model.translateGlobal(-forward.x * 3.0f, 0, -forward.z * 3.0f);
+
+	this->updateBoundingBox();
+	if (dist <= 3.0f) {
+		return true;
+
+	}
+	
+	return false;
 }
 
 //Objects
@@ -558,6 +609,23 @@ SoundEntity::SoundEntity()
 	this->model = Matrix44();
 	this->entity_type = EntityType::SOUND;
 	this->filename = "";
+	this->audio = new Audio();
+}
+
+void SoundEntity::Play()
+{
+	const char* filenamecr = filename.c_str();
+	audio->Play(filenamecr);
+}
+
+void SoundEntity::Stop()
+{
+	audio->Stop(audio->sample);
+}
+
+void SoundEntity::changeVolume(float volume)
+{
+	
 }
 
 void SoundEntity::load(cJSON* sound_json, int sound_index)
@@ -633,3 +701,4 @@ void SoundEntity::updateJSON(vector<cJSON*> json)
 	//Add model
 	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
 }
+

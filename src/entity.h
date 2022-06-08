@@ -8,6 +8,8 @@
 #include "mesh.h"
 #include "material.h"
 #include "framework.h"
+#include "animation.h"
+#include "audio.h"
 
 using namespace std;
 
@@ -74,6 +76,9 @@ public:
 	Mesh* mesh;
 	Material* material;
 	BoundingBox world_bounding_box;
+	Animation* running;
+	Animation* walking;
+	Animation* idle;
 
 	//Triggers
 	bool bounding_box_trigger;
@@ -87,6 +92,8 @@ public:
 	//Methods
 	bool isInFollowRange(Camera* camera);
 	void updateFollow(float elapsed_time, Camera* camera);
+	void followPath(float elapsed_time);
+	bool moveToTarget(float elapsed_time, Vector3 pos);
 
 	//JSON Methods
 	void load(cJSON* mosnter_json);
@@ -184,9 +191,13 @@ public:
 	//Sound features
 	int sound_id;
 	string filename;
+	Audio* audio;
 
 	//Methods
 	SoundEntity();
+	void Play();
+	void Stop();
+	void changeVolume(float volume);
 
 	//JSON methods
 	void load(cJSON* sound_json, int sound_index);

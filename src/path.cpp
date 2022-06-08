@@ -11,9 +11,9 @@ Point::Point(int startx, int starty) {
 }
 
 void Point::SetPath(uint8* grid, int targetx, int targety, int W, int H) {
-	path_steps = AStarFindPathNoTieDiag(
-		startx, starty, //origin (tienen que ser enteros)
+	path_steps = AStarFindPath(
 		targetx, targety, //target (tienen que ser enteros)
+		startx, starty, //origin (tienen que ser enteros)
 		grid, //pointer to map data
 		W, H, //map width and height
 		output, //pointer where the final path will be stored
@@ -21,7 +21,8 @@ void Point::SetPath(uint8* grid, int targetx, int targety, int W, int H) {
 	if (path_steps != -1)
 	{
 		for (int i = 0; i < path_steps; ++i)
-			path[i] = Vector2((output[i] % W), floor(output[i] / W));
+			path[i] = Vector2((output[i] % W), floor(output[i] / W)),
+			std::cout << "Nueva pos: x:" << path[i].x << ", y: " << path[i].y << std::endl;
 	}
 }
 
@@ -64,7 +65,7 @@ Route::Route(int W, int H, std::vector<Vector3> &points) {
 }
 
 Point* Route::getClosestPoint(Vector3 translation) {
-	Vector2 currPos = getGridVector(translation.x, translation.y, translation.z);
+	/*Vector2 currPos = getGridVector(translation.x, translation.y, translation.z);
 	Point* closest = route[0];
 	Vector2 toPos = currPos - Vector2(closest->startx, closest->starty);
 	float lenght = toPos.length();
@@ -75,19 +76,25 @@ Point* Route::getClosestPoint(Vector3 translation) {
 		Point* point = route[i];
 		Vector2 toPos = currPos - Vector2(point->startx, point->starty);
 		newLenght = toPos.length();
-		if (newLenght < lenght) {
+		if (newLenght < lenght && lenght < 10.0f) {
 			closest = point;
 		}
 	}
-	return closest;
+	return closest;*/
+	currPoint++;
+	if (currPoint == route.size()) {
+		currPoint = 0;
+	}
+	return route[currPoint];
 }
 
 Vector3 Route::getSceneVector(int x, int y) {
 
-	return Vector3(x * W, 0, y * H);
+	return Vector3(x * tileSizeX, 0, y * tileSizeY);
 }
 
 Vector2 Route::getGridVector(int x, int y, int z) {
 
-	return Vector2((int)x % W, floor((int)z / W));
+	//return Vector2((int)x % W, floor((int)z / W));
+	return Vector2((int)x / tileSizeX, floor((int)z / tileSizeY));
 }

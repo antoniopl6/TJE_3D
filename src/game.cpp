@@ -30,11 +30,11 @@ bool scene_saved = false;
 
 ///////////////prueba route
 Route* route;
-bool MonsterArrivedToPoint = false;
 bool MonsterIsInPathRoute = false;
 Point* closestPoint;
-Vector2* routeActive;
 int idx = 0;
+int numPoints;
+double time2 = 0.0;
 ///////////////
 
 
@@ -80,13 +80,16 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//////////////////////////prueba route
 	std::vector<Vector3> points;
-	Vector3* p1 = new Vector3(120,0,0);
-	Vector3* p2 = new Vector3(100, 0, 0);
-	Vector3* p3 = new Vector3(0, 0, 100);
+	Vector3* p0 = new Vector3(0, 0, 0);
+	Vector3* p1 = new Vector3(1600, 0, 0);
+	Vector3* p2 = new Vector3(1600, 0, 1600);
+	Vector3* p3 = new Vector3(0, 0, 1600);
+	points.push_back(*p0);
 	points.push_back(*p1);
 	points.push_back(*p2);
 	points.push_back(*p3);
-	route = new Route(300, 300, points);
+	numPoints = 2;
+	route = new Route(100, 100, points);
 
 	/////////////////////////
 }
@@ -136,30 +139,37 @@ void Game::update(double seconds_elapsed)
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
-	//if (monster->isInFollowRange(camera)) {
-		//monster->updateFollow(elapsed_time, camera);
-	//}
-	//////////////////////////// prueba path
+	//std::cout << "pos: x:" << monster->model.getTranslation().x << ", y: " << monster->model.getTranslation().z << std::endl;
+	/*Vector2 start = route->getGridVector(monster->model.getTranslation().x, monster->model.getTranslation().y, monster->model.getTranslation().z);
+	std::cout << "pos: x:" << start.x << ", y: " << start.y << std::endl;*/
+	/*if (monster->isInFollowRange(camera)) {
+		monster->updateFollow(elapsed_time, camera);
+		MonsterIsInPathRoute = false;
+	}*/
+	//////////////////////////// path
 	//else {
-	/*Matrix44 model = monster->model;
-		if (!MonsterArrivedToPoint && !MonsterIsInPathRoute) {
+		Matrix44 model = monster->model;
+		if (!MonsterIsInPathRoute) { //If monster do not have a route to follow generate one on path closestPoint
 			closestPoint = route->getClosestPoint(model.getTranslation());
 			Vector2 start = route->getGridVector(model.getTranslation().x, model.getTranslation().y, model.getTranslation().z);
 			Point currentPoint = Point(start.x, start.y);
-			currentPoint.SetPath(route->grid, closestPoint->startx, closestPoint->starty, route->W, route->H);
-			routeActive = currentPoint.path;
+			closestPoint->SetPath(route->grid, currentPoint.startx, currentPoint.starty, route->W, route->H);
 			MonsterIsInPathRoute = true;
+			
 		}
-		if (!MonsterArrivedToPoint && MonsterIsInPathRoute) {
-			Vector2 newPos = routeActive[idx];
-			std::cout << "Nueva pos: x:" << newPos.x <<", y: "<< newPos.y << std::endl;
-			std::cout << "Anterior pos:" << model.getTranslation().x << model.getTranslation().z << std::endl;
-			monster->model.translateGlobal(newPos.x*30.0f, 0, newPos.y * 30.0f);
+		else {
+			Vector2 newPos = closestPoint->path[idx];
+			Vector3 newTranslate = route->getSceneVector(newPos.x, newPos.y);
+			if (monster->moveToTarget(elapsed_time, newTranslate))
+				idx++;
+				//std::cout << "Next target" << std::endl,
 			if (idx == closestPoint->path_steps) {
 				MonsterIsInPathRoute = false;
 				idx = 0;
 			}
-		}*/
+		}
+	//}
+	
 
 	//}
 	///////////////////////////
