@@ -75,6 +75,27 @@ void Camera::rotate(float angle, const Vector3& axis)
 
 }
 
+void Camera::orbit(float yaw, float pitch)
+{
+	vec3 front = normalize(center - eye);
+	float problem_angle = dot(front, up);
+
+	vec3 right = getLocalVector(vec3(1.0, 0, 0));
+	vec3 dist = eye - center;
+
+	//yaw
+	quat R = quat(up, -yaw);
+	dist = TransformQuaterion(dist, R);
+
+	if (!(problem_angle > 0.99 && pitch > 0 || problem_angle < -0.99 && pitch < 0))
+		R.setAxisAngle(right, pitch);
+
+	dist = TransformQuaterion(dist, R);
+
+	eye = dist + center;
+
+	updateViewMatrix();
+}
 
 void Camera::setOrthographic(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {

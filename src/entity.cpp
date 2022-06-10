@@ -1,6 +1,6 @@
 #include "entity.h"
 #include "scene.h"
-
+#include <limits>
 //Entity
 Entity::Entity() {
 	name = "";
@@ -88,7 +88,7 @@ void MainCharacterEntity::load(cJSON* main_json)
 		mesh = Mesh::Get(mesh_path.c_str());
 	else
 		cout << "ERROR: Main character mesh hasn't been found at: " << mesh_path << endl;
-	
+
 	//Material
 	if (!mesh_path.empty())
 	{
@@ -112,7 +112,7 @@ void MainCharacterEntity::save(cJSON* main_json)
 	writeJSONFloatVector(main_json, "model", model.m, 16);
 
 	//Mesh
-	if(mesh) writeJSONString(main_json, "mesh", mesh->filename);
+	if (mesh) writeJSONString(main_json, "mesh", mesh->filename);
 	else writeJSONString(main_json, "mesh", "");
 
 	//Material
@@ -132,6 +132,22 @@ MonsterEntity::MonsterEntity()
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+	
+	////////////////////////// route define
+	idx = 0;
+	isInPathRoute = false;
+	std::vector<Vector3> points;
+	Vector3* p0 = new Vector3(0, 0, 0);
+	Vector3* p1 = new Vector3(1600, 0, 0);
+	Vector3* p2 = new Vector3(1600, 0, 1600);
+	Vector3* p3 = new Vector3(0, 0, 1600);
+	points.push_back(*p0);
+	points.push_back(*p1);
+	points.push_back(*p2);
+	points.push_back(*p3);
+	route = new Route(100, 100, points);
+
+	/////////////////////////
 }
 
 void MonsterEntity::updateBoundingBox()
@@ -207,14 +223,13 @@ bool MonsterEntity::isInFollowRange(Camera* camera)
 	float dist = toTarget.length();
 	toTarget.normalize();
 
-	float sideDot = side.dot(toTarget);
 	float forwardDot = forward.dot(toTarget);
 
 	//If the player is in vision range of the monster then should start following
 	return (1900.0f > dist && forwardDot > 0.30f);
 }
 
-void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
+void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running animation
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
@@ -225,21 +240,90 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera)
 
 	float sideDot = side.dot(toTarget);
 	float forwardDot = forward.dot(toTarget);
-	float speed = 80.0f;
+	float rotSpeed = 80.0f;
+	float runSpeed = 400.0f;
 
+	//Translate the model of the monster to catch the player
 	if (dist > 400.0f) {
-		Vector3 translate = forward * -speed * elapsed_time;
-		model.translate(translate.x, translate.y, translate.z);
-		//model.translate(-toTarget.x * speed * elapsed_time, 0, -toTarget.z * speed * elapsed_time);
-
+		Vector3 translate = forward * -runSpeed * elapsed_time;
+		model.translateGlobal(translate.x, 0, translate.z);
 	}
 	//Change the rotation based on main character pos
 	if (forwardDot < 0.98f) {
-		model.rotate(speed * elapsed_time * DEG2RAD * sign(sideDot), Vector3(0, 1, 0));
+		model.rotate(rotSpeed * elapsed_time * DEG2RAD * sign(sideDot), Vector3(0, 1, 0));
 	}
 
 	this->updateBoundingBox();
 
+}
+
+float bounding = 7.0f;
+
+void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
+{
+	if (!isInPathRoute) { //If monster do not have a route to follow generate one on path closestPoint
+		closestPoint = route->getClosestPoint(model.getTranslation());
+		Vector2 start = route->getGridVector(model.getTranslation().x + bounding, model.getTranslation().y, model.getTranslation().z + bounding);
+		Point currentPoint = Point(start.x, start.y);
+		closestPoint->SetPath(route->grid, currentPoint.startx, currentPoint.starty, route->W, route->H);
+		isInPathRoute = true;
+
+	}
+	else {
+		Vector2 newPos = closestPoint->path[idx];
+		Vector3 newTranslate = route->getSceneVector(newPos.x, newPos.y);
+		if (moveToTarget(elapsed_time, newTranslate))
+			idx++;
+		//std::cout << "Next target" << std::endl,
+		if (idx == closestPoint->path_steps) {
+			isInPathRoute = false;
+			idx = 0;
+		}
+	}
+
+}
+
+float computeDeg(Vector2 a, Vector2 b) {
+	float modA = sqrt(a.x * a.x + a.y * a.y);
+	float modB = sqrt(b.x * b.x + b.y * b.y);
+	float dot = a.x * b.x + a.y * b.y;
+	float degrees = acos(a.dot(b) / (modA * modB));
+	float smallest = 1.17549e-38;
+	//std::cout << "Grados a rotar" << degrees << std::endl;
+	if (degrees > smallest)
+		return degrees;
+	return 0;
+}
+
+bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true if has arrived to pos target, false otherwise
+{
+	
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	//std::cout << "forward " << forward.x << std::endl;
+	Vector3 toTarget = model.getTranslation() - pos;
+	//std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
+	float dist = toTarget.length();
+	toTarget.normalize();
+
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+	float rotSpeed = 80.0f;
+	float walkSpeed = 200.0f;
+	Vector3 translate = forward * -walkSpeed * elapsed_time;
+	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+	//std::cout << "Grados a rotar                  " << degrees << std::endl;
+	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
+
+	model.translateGlobal(translate.x, 0, translate.z);
+
+	this->updateBoundingBox();
+	if (dist <= bounding) {
+		return true;
+
+	}
+	
+	return false;
 }
 
 //Objects
@@ -265,21 +349,21 @@ Matrix44 ObjectEntity::computeGlobalMatrix()
 
 void ObjectEntity::updateBoundingBox()
 {
-	if(mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void ObjectEntity::load(cJSON* object_json, int object_index)
 {
 	//Object ID
 	object_id = readJSONNumber(object_json, "Object ID", object_id);
-	
+
 	//Name
 	cJSON* name_json = readJSONArrayItem(object_json, "names", object_index);
-	if(name_json) name = name_json->valuestring;
+	if (name_json) name = name_json->valuestring;	
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
-	if(visibility_json) visible = visibility_json->valueint;
+	if (visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(object_json, "models", object_index);
@@ -308,11 +392,11 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 
 	//Node ID
 	cJSON* node_ID_json = readJSONArrayItem(object_json, "node_ID", object_index);
-	if(node_ID_json) object_id = node_ID_json->valueint;
+	if (node_ID_json) object_id = node_ID_json->valueint;
 
 	//Children IDs
 	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
-	if(children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
+	if (children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
 }
 
 void ObjectEntity::save(vector<cJSON*> json)
@@ -375,7 +459,7 @@ void ObjectEntity::updateJSON(vector<cJSON*> json)
 	{
 		units++;
 		replaceJSONNumber(object_json, "units", units);
-	}	
+	}
 
 	//Add name
 	cJSON_AddStringToArray(names_array, name.c_str());
@@ -400,7 +484,7 @@ void ObjectEntity::update(float elapsed_time)
 }
 
 //Lights
-LightEntity::LightEntity() 
+LightEntity::LightEntity()
 {
 	//General features
 	this->light_id = -1;
@@ -432,16 +516,16 @@ void LightEntity::load(cJSON* light_json, int light_index)
 
 	//Name
 	cJSON* names_json = readJSONArrayItem(light_json, "names", light_index);
-	if(names_json) name = names_json->valuestring;
+	if (names_json) name = names_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(light_json, "visibilities", light_index);
-	if(visibility_json) visible = visibility_json->valueint;
+	if (visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(light_json, "models", light_index);
-	if(model_json) populateJSONFloatArray(model_json, model.m, 16);
-	
+	if (model_json) populateJSONFloatArray(model_json, model.m, 16);
+
 	//General features
 	color = readJSONVector3(light_json, "color", color);
 	intensity = readJSONNumber(light_json, "intensity", intensity);
@@ -559,6 +643,23 @@ SoundEntity::SoundEntity()
 	this->model = Matrix44();
 	this->entity_type = EntityType::SOUND;
 	this->filename = "";
+	this->audio = new Audio();
+}
+
+void SoundEntity::Play()
+{
+	const char* filenamecr = filename.c_str();
+	audio->Play(filenamecr);
+}
+
+void SoundEntity::Stop()
+{
+	audio->Stop(audio->sample);
+}
+
+void SoundEntity::changeVolume(float volume)
+{
+	
 }
 
 void SoundEntity::load(cJSON* sound_json, int sound_index)
@@ -568,16 +669,16 @@ void SoundEntity::load(cJSON* sound_json, int sound_index)
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(sound_json, "names", sound_index);
-	if(name_json) name = name_json->valuestring;
+	if (name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(sound_json, "visibilities", sound_index);
-	if(visibility_json) visible = visibility_json->valueint;
+	if (visibility_json) visible = visibility_json->valueint;
 
 	//Model
 	cJSON* model_json = readJSONArrayItem(sound_json, "models", sound_index);
-	if(model_json) populateJSONFloatArray(model_json, model.m, 16);
-	
+	if (model_json) populateJSONFloatArray(model_json, model.m, 16);
+
 	//Filename
 	filename = readJSONString(sound_json, "filename", "");
 
@@ -634,5 +735,4 @@ void SoundEntity::updateJSON(vector<cJSON*> json)
 	//Add model
 	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
 }
-
 

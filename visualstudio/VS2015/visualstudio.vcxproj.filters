@@ -1,6 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Project ToolsVersion="4.0" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <ItemGroup>
+    <ClCompile Include="..\..\src\camera.cpp" />
+    <ClCompile Include="..\..\src\game.cpp" />
+    <ClCompile Include="..\..\src\main.cpp" />
     <ClCompile Include="..\..\src\extra\textparser.cpp">
       <Filter>extra</Filter>
     </ClCompile>
@@ -62,7 +65,7 @@
       <Filter>extra</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\entity.cpp">
-      <Filter>pipeline</Filter>
+      <Filter>elements</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\intro.cpp">
       <Filter>Stages</Filter>
@@ -73,6 +76,7 @@
     <ClCompile Include="..\..\src\play.cpp">
       <Filter>Stages</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\scene.cpp" />
     <ClCompile Include="..\..\src\extra\cJSON.cpp">
       <Filter>extra</Filter>
     </ClCompile>
@@ -82,23 +86,22 @@
     <ClCompile Include="..\..\src\renderer.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\camera.cpp">
-      <Filter>pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\game.cpp">
-      <Filter>pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\main.cpp">
-      <Filter>pipeline</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\scene.cpp">
-      <Filter>pipeline</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\editor3D.cpp">
-      <Filter>pipeline</Filter>
+      <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\path.cpp">
+      <Filter>elements</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\pathfinders.cpp">
+      <Filter>elements</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\audio.cpp">
+      <Filter>gfx</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="..\..\src\camera.h" />
+    <ClInclude Include="..\..\src\game.h" />
     <ClInclude Include="..\..\src\extra\textparser.h">
       <Filter>extra</Filter>
     </ClInclude>
@@ -157,7 +160,7 @@
       <Filter>extra</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\entity.h">
-      <Filter>pipeline</Filter>
+      <Filter>elements</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\stage.h">
       <Filter>Stages</Filter>
@@ -168,6 +171,7 @@
     <ClInclude Include="..\..\src\play.h">
       <Filter>Stages</Filter>
     </ClInclude>
+    <ClInclude Include="..\..\src\scene.h" />
     <ClInclude Include="..\..\src\extra\cJSON.h">
       <Filter>extra</Filter>
     </ClInclude>
@@ -177,17 +181,20 @@
     <ClInclude Include="..\..\src\renderer.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\camera.h">
-      <Filter>pipeline</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\game.h">
-      <Filter>pipeline</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\scene.h">
-      <Filter>pipeline</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\editor3D.h">
-      <Filter>pipeline</Filter>
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\pathfinders.h">
+      <Filter>elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\path.h">
+      <Filter>elements</Filter>
+    </ClInclude>
+    <ClInclude Include="..\libs\include\bass.h">
+      <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\audio.h">
+      <Filter>gfx</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>
@@ -203,11 +210,11 @@
     <Filter Include="utils">
       <UniqueIdentifier>{feb78646-9d96-43df-8d00-2397429ea3ef}</UniqueIdentifier>
     </Filter>
+    <Filter Include="elements">
+      <UniqueIdentifier>{e7bbef91-c882-4048-9585-30e6a6696d4b}</UniqueIdentifier>
+    </Filter>
     <Filter Include="Stages">
       <UniqueIdentifier>{a4ec4929-fa6e-4970-8faf-d261bad3b4df}</UniqueIdentifier>
-    </Filter>
-    <Filter Include="pipeline">
-      <UniqueIdentifier>{e7bbef91-c882-4048-9585-30e6a6696d4b}</UniqueIdentifier>
     </Filter>
   </ItemGroup>
 </Project>

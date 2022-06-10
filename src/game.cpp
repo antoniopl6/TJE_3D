@@ -28,6 +28,7 @@ using namespace std;
 Game* Game::instance = NULL;
 bool scene_saved = false;
 
+
 Game::Game(int window_width, int window_height, SDL_Window* window)
 {
 	this->window_width = window_width;
@@ -44,33 +45,40 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	mouse_locked = false;
 
 	//OpenGL flags
-	glEnable( GL_CULL_FACE ); //render both sides of every triangle
-	glEnable( GL_DEPTH_TEST ); //check the occlusions using the Z buffer
+	glEnable(GL_CULL_FACE); //render both sides of every triangle
+	glEnable(GL_DEPTH_TEST); //check the occlusions using the Z buffer
 
 	//Create the scene
 	scene = new Scene();
-	
+
 	//Create the main camera
-	camera = new Camera();
-	scene->main_camera = camera;
+	main_camera = new Camera();
+	scene->main_camera = main_camera;
 
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
 
+	//Debuggear esto
+	for (int i = 0; i < scene->objects.size(); ++i)
+	{
+		cout << scene->objects[i]->name << endl;		
+	}
+	
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 
 	//This class will be the one in charge of rendering the scene
-	renderer = new Renderer(scene);
+	renderer = new Renderer();
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+
 }
 
 //what to do when the image has to be draw
 void Game::render(void)
-{	
+{
 	//Set the clear color (the background color)
 	glClearColor(0.0, 0.0, 0.0, 1.0);
 
@@ -80,14 +88,21 @@ void Game::render(void)
 	//Check gl errors before starting
 	checkGLErrors();
 
-	//Enable view camera
-	camera->enable();
-
 	//Draw the floor grid
 	//drawGrid();
 
 	//Render the scene
-	renderer->renderScene();
+	switch(entity_editor->current_camera)
+	{
+		case(Editor3D::MAIN):
+			entity_editor->camera->enable(); 
+			renderer->renderScene(scene, entity_editor->camera); 
+			break;
+		case(Editor3D::ENTITY):
+			main_camera->enable(); 
+			renderer->renderScene(scene, main_camera);
+			break;	
+	}
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
@@ -113,10 +128,18 @@ void Game::update(double seconds_elapsed)
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
-	if (monster->isInFollowRange(camera)) {
+	/*if (monster->isInFollowRange(camera)) {
 		monster->updateFollow(elapsed_time, camera);
-	}
+		MonsterIsInPathRoute = false;
+	}*/
+	//////////////////////////// path
+	//else {
+		monster->followPath(elapsed_time);
+	//}
+	
 
+	//}
+	
 	//Update Objects
 	for (int i = 0; i < scene->objects.size(); ++i)
 	{
@@ -139,8 +162,16 @@ void Game::update(double seconds_elapsed)
 		//TODO
 	}
 
-	//Update main character camera
-	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+	//Update cameras
+	switch (entity_editor->current_camera)
+	{
+	case(Editor3D::MAIN):
+		scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		break;
+	case(Editor3D::ENTITY):
+		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		break;
+	}
 
 	//Render entity editor
 	if (render_editor)
@@ -155,37 +186,36 @@ void Game::update(double seconds_elapsed)
 			scene_saved = true;
 		}
 	}
-
-	if (Input::wasKeyPressed(SDL_BUTTON_LEFT))
-		cout << "Here" << endl;
 }
 
+
 //Keyboard event handler (sync input)
-void Game::onKeyDown( SDL_KeyboardEvent event )
+void Game::onKeyDown(SDL_KeyboardEvent event)
 {
-	switch(event.keysym.sym)
+	switch (event.keysym.sym)
 	{
-		case SDLK_ESCAPE: 
-			if(!render_editor)
-				must_exit = true; //ESC key, kill the app
-			break; 
-		case SDLK_F1: Shader::ReloadAll(); break; 
-		
+	case SDLK_ESCAPE:
+		if (!render_editor)
+			must_exit = true; //ESC key, kill the app
+		break;
+	case SDLK_F1: Shader::ReloadAll(); break;
+
 		//Turn around
-		case SDLK_q: 
-			if (!turn_around)
-			{
-				camera->center *= -1.f;
-				turn_around = true;
-			}
-			break;
-		
+	case SDLK_q:
+		if (!turn_around)
+		{
+			main_camera->center *= -1.f;
+			turn_around = true;
+		}
+		break;
+
 		//Entity editor
-		case SDLK_h:
-			render_editor = !render_editor;
-			if (render_editor)
-				entity_editor->reset();
-			break;
+	case SDLK_h:
+		render_editor = !render_editor;
+		entity_editor->current_camera = Editor3D::MAIN;
+		if (render_editor)
+			entity_editor->reset();
+		break;
 	}
 }
 
@@ -194,7 +224,7 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 		//Keep looking forward
-		case SDLK_q: camera->center *= -1.f;
+		case SDLK_q: main_camera->center *= -1.f;
 	}
 }
 
@@ -230,7 +260,7 @@ void Game::onResize(int width, int height)
 {
     std::cout << "window resized: " << width << "," << height << std::endl;
 	glViewport( 0,0, width, height );
-	camera->aspect =  width / (float)height;
+	main_camera->aspect =  width / (float)height;
 	window_width = width;
 	window_height = height;
 }

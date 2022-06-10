@@ -1,4 +1,3 @@
-
 #pragma once
 #include "includes.h"
 #include "utils.h"
@@ -7,9 +6,11 @@
 #include "mesh.h"
 #include "material.h"
 #include "framework.h"
+#include "animation.h"
+#include "audio.h"
+#include "path.h"
 
 using namespace std;
-
 
 class Entity {
 public:
@@ -40,9 +41,9 @@ public:
 	Vector3 getPosition();
 };
 
-class MainCharacterEntity: public Entity {
+class MainCharacterEntity : public Entity {
 public:
-	
+
 	//Main features
 	Camera* camera;
 	Mesh* mesh;
@@ -74,6 +75,17 @@ public:
 	Mesh* mesh;
 	Material* material;
 	BoundingBox world_bounding_box;
+	
+	//Animations
+	Animation* running;
+	Animation* walking;
+	Animation* idle;
+
+	//Path finding
+	Route* route;
+	bool isInPathRoute;
+	Point* closestPoint;
+	int idx;
 
 	//Triggers
 	bool bounding_box_trigger;
@@ -87,6 +99,8 @@ public:
 	//Methods
 	bool isInFollowRange(Camera* camera);
 	void updateFollow(float elapsed_time, Camera* camera);
+	void followPath(float elapsed_time);
+	bool moveToTarget(float elapsed_time, Vector3 pos);
 
 	//JSON Methods
 	void load(cJSON* mosnter_json);
@@ -104,7 +118,7 @@ public:
 		PICK_OBJECT = 1,
 		RENDER_OBJECT = 2,
 	};
-	
+
 	//Object features
 	int object_id;
 	Mesh* mesh;
@@ -112,7 +126,7 @@ public:
 	BoundingBox world_bounding_box;
 
 	//Object tree
-	int node_id; 
+	int node_id;
 	ObjectEntity* parent;
 	vector<ObjectEntity*> children;
 	vector<int> children_ids; //Just for JSON support
@@ -167,7 +181,7 @@ public:
 	Camera* shadow_camera;
 
 	//Constructor
-	LightEntity(); 
+	LightEntity();
 
 	//JSON methods
 	void load(cJSON* light_json, int light_index);
@@ -178,15 +192,19 @@ public:
 	virtual void update(float elapsed_time) override;
 };
 
-class SoundEntity : public Entity{
-public:	
+class SoundEntity : public Entity {
+public:
 
 	//Sound features
 	int sound_id;
 	string filename;
+	Audio* audio;
 
 	//Methods
 	SoundEntity();
+	void Play();
+	void Stop();
+	void changeVolume(float volume);
 
 	//JSON methods
 	void load(cJSON* sound_json, int sound_index);

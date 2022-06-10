@@ -948,6 +948,41 @@ void Quaternion::toMatrix(Matrix44& matrix) const
 	matrix._44 = 1;
 }
 
+Vector3 TransformQuaterion(const Vector3& a, const Quaternion& q)
+{
+	// benchmarks: https://jsperf.com/quaternion-transform-vec3-implementations-fixed
+	float qx = q.x, qy = q.y, qz = q.z, qw = q.w;
+	float x = a.x, y = a.y, z = a.z;
+	// var qvec = [qx, qy, qz];
+	// var uv = vec3.cross([], qvec, a);
+	float uvx = qy * z - qz * y,
+		uvy = qz * x - qx * z,
+		uvz = qx * y - qy * x;
+	// var uuv = vec3.cross([], qvec, uv);
+	float uuvx = qy * uvz - qz * uvy,
+		uuvy = qz * uvx - qx * uvz,
+		uuvz = qx * uvy - qy * uvx;
+	// vec3.scale(uv, uv, 2 * w);
+	float w2 = qw * 2;
+	uvx *= w2;
+	uvy *= w2;
+	uvz *= w2;
+	// vec3.scale(uuv, uuv, 2);
+	uuvx *= 2;
+	uuvy *= 2;
+	uuvz *= 2;
+	// return vec3.add(out, a, vec3.add(out, uv, uuv));
+
+	Vector3 out;
+
+	out[0] = x + uvx + uuvx;
+	out[1] = y + uvy + uuvy;
+	out[2] = z + uvz + uuvz;
+
+	return out;
+
+}
+
 float DotProduct(const Quaternion& q1, const Quaternion& q2)
 {
 	return q1.x * q2.x + q1.y * q2.y + q1.z * q2.z + q1.w * q2.w;

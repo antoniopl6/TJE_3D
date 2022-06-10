@@ -11,8 +11,8 @@ Scene::Scene()
 
 	//General features
 	filename = "";
-	ambient_light = Vector3(1.f,1.f,1.f);
-	main_camera = Game::instance->camera;
+	ambient_light = Vector3(1.f, 1.f, 1.f);
+	main_camera = Game::instance->main_camera;
 	shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs"); //Select shader to render the render calls
 
 	//Shadow Atlas
@@ -78,7 +78,7 @@ void Scene::addEntity(Entity* entity)
 	switch (entity->entity_type)
 	{
 	case(Entity::EntityType::MAIN):
-		main_character = (MainCharacterEntity*) entity;
+		main_character = (MainCharacterEntity*)entity;
 		break;
 	case(Entity::EntityType::MONSTER):
 		monster = (MonsterEntity*)entity;
@@ -131,24 +131,27 @@ Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_ti
 	Vector3 coll;
 	Vector3 collnorm;
 	nextPos = currPos + nextPos;
-	if (monster->mesh->testSphereCollision(monster->model, nextPos, 20.0f, coll, collnorm)) {
+
+	if (hasCollision(nextPos, coll, collnorm)) {
 		Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
 		nextPos = currPos - push_away;
 		//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
-		return nextPos;
 	};
+
+	return nextPos;
+
+}
+
+bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
+	if (monster->mesh->testSphereCollision(monster->model, pos, 20.0f, coll, collnorm))
+		return true;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		ObjectEntity* object = objects[i];
-		if (objects[i]->mesh->testSphereCollision(object->model, nextPos, 20.0f, coll, collnorm)) {
-			Vector3 push_away = normalize(coll - nextPos) * elapsed_time;
-			nextPos = currPos - push_away;
-			//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
-			return nextPos;
-		};
+		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm))
+			return true;
 	}
-	return nextPos;
-
+	return false;
 }
 
 //JSON Methods
@@ -293,8 +296,8 @@ bool Scene::load(const char* scene_filepath)
 		//Current object and children list
 		ObjectEntity* object = *i;
 		vector<int> children_ids = object->children_ids;
-		
-		if(!object->children_ids.empty())
+
+		if (!object->children_ids.empty())
 			for (auto j = children_ids.begin(); j != children_ids.end(); ++j)
 			{
 				for (auto k = objects.begin(); k != objects.end(); ++k)
@@ -303,7 +306,7 @@ bool Scene::load(const char* scene_filepath)
 					ObjectEntity* children_object = *k;
 
 					//Push children to parent object list
-					if(children_object->node_id == *j)
+					if (children_object->node_id == *j)
 						object->children.push_back(*k);
 				}
 			}
@@ -327,10 +330,10 @@ bool Scene::save()
 
 	//Create JSON
 	cJSON* scene_json = cJSON_CreateObject();
- 
+
 	//Add scene properties
 	writeJSONVector3(scene_json, "ambient_light", ambient_light);
-	
+
 	//Add main camera properties
 	writeJSONVector3(scene_json, "camera_position", main_camera->eye);
 	writeJSONVector3(scene_json, "camera_target", main_camera->center);
@@ -345,7 +348,7 @@ bool Scene::save()
 	//Monster JSON
 	cJSON* monster_json = cJSON_AddObjectToObject(scene_json, "monster");
 	monster->save(monster_json);
-	
+
 	//Objects JSON
 	map<int, vector<cJSON*>> scene_objects;
 	cJSON* objects_json = cJSON_AddArrayToObject(scene_json, "objects");
@@ -356,7 +359,7 @@ bool Scene::save()
 
 		//Check whether the object is registered or not
 		auto it = scene_objects.find(object->object_id);
-		
+
 		if (it == scene_objects.end()) //Object hasn't been registered yet
 		{
 			//Create JSONs
@@ -479,4 +482,3 @@ bool Scene::save()
 
 	return true;
 }
-

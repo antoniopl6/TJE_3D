@@ -9,6 +9,7 @@
 #include "entity.h"
 #include "camera.h"
 #include "shader.h"
+#include "path.h"
 
 //Forward declaration
 class FBO;
@@ -39,6 +40,9 @@ public:
 	vector<LightEntity*> lights;
 	vector<SoundEntity*> sounds;
 
+	//Path for monster
+	vector<Route*> route;
+
 	//Counters
 	int num_objects;
 	int num_lights;
@@ -59,6 +63,8 @@ public:
 	void addEntity(Entity* entity);
 	void removeEntity(Entity* entity);
 	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
+
+	bool hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm);
 
 	//JSON methods
 	bool load(const char* scene_filepath);

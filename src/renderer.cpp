@@ -8,11 +8,11 @@ constexpr int SHADOW_MAP_RESOLUTION = 2048;
 using namespace std;
 
 //Constructor
-Renderer::Renderer(Scene* scene)
+Renderer::Renderer()
 {
-	//Set scene and camera
-	this->scene = scene;
-	this->camera = scene->main_camera;
+	//Set scene and camera to NULL
+	this->scene = NULL;
+	this->camera = NULL;
 
 	//Create render calls vector
 	createRenderCalls();
@@ -40,7 +40,7 @@ void Renderer::createRenderCalls()
 	render_calls.clear();
 
 	//Main character render call
-	MainCharacterEntity* mc = scene->main_character; 
+	MainCharacterEntity* mc = scene->main_character;
 	if (mc->visible && mc->mesh && mc->material)
 		render_calls.push_back(new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera));
 
@@ -55,7 +55,7 @@ void Renderer::createRenderCalls()
 		ObjectEntity* object = scene->objects[i];
 		if (object->visible && object->mesh && object->material)
 		{
-			render_calls.push_back(new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box,camera));
+			render_calls.push_back(new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box, camera));
 		}
 	}
 
@@ -63,14 +63,18 @@ void Renderer::createRenderCalls()
 	sort(render_calls.begin(), render_calls.end(), sortRenderCall);
 }
 
-void Renderer::renderScene()
+void Renderer::renderScene(Scene* scene, Camera* camera)
 {
+	//Set the scene and the camera with which to render
+	this->scene = scene;
+	this->camera = camera;
+
 	//no shader? then nothing to render
 	if (!scene->shader)
 		return;
 
 	//If there aren't lights in the scene don't render nothing
-	if (scene->lights.empty()) 
+	if (scene->lights.empty())
 		return;
 
 	//Set the clear color (the background color)
@@ -83,18 +87,18 @@ void Renderer::renderScene()
 	checkGLErrors();
 
 	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
-	computeShadowMap();	
+	computeShadowMap();
 
 	//Enable shader
 	scene->shader->enable();
-	
+
 	//Entity render
 	setSceneUniforms(scene->shader);
 	for (int i = 0; i < render_calls.size(); i++)
 	{
 		RenderCall* rc = render_calls[i];
 		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
-			renderDrawCall(scene->shader , rc, camera);
+			renderDrawCall(scene->shader, rc, camera);
 	}
 
 	//Disable shader
@@ -125,7 +129,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	//In case there is nothing to do
 	if (!rc->mesh || !rc->mesh->getNumVertices() || !rc->material)
 		return;
-	assert(glGetError() == GL_NO_ERROR);	
+	assert(glGetError() == GL_NO_ERROR);
 
 	//Textures
 	Texture* color_texture = NULL;
@@ -152,20 +156,20 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 		glEnable(GL_BLEND);
 		glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
 	}
-	else 
+	else
 		glDisable(GL_BLEND);
 
 	//Select whether to render both sides of the triangles
-	if (rc->material->two_sided) 
+	if (rc->material->two_sided)
 		glDisable(GL_CULL_FACE);
-	else 
+	else
 		glEnable(GL_CULL_FACE);
 
 	//Check gl errors
 	assert(glGetError() == GL_NO_ERROR);
 
 	//Upload textures
-	if(color_texture) shader->setTexture("u_color_texture", color_texture, 0);
+	if (color_texture) shader->setTexture("u_color_texture", color_texture, 0);
 	if (emissive_texture) shader->setTexture("u_emissive_texture", emissive_texture, 1);
 	if (omr_texture) shader->setTexture("u_omr_texture", omr_texture, 2);
 	if (normal_texture) shader->setTexture("u_normal_texture", normal_texture, 3);
@@ -254,7 +258,7 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			lights_position[j] = light->model.getTranslation();
 			lights_color[j] = light->color;
 			lights_intensity[j] = light->intensity;
-			lights_max_distance[j] = light->max_distance;			
+			lights_max_distance[j] = light->max_distance;
 
 			//Specific light properties
 			switch (light->light_type)
@@ -581,7 +585,7 @@ void Renderer::showShadowAtlas()
 				glViewport((light->shadow_index - starting_shadow) * SHOW_ATLAS_RESOLUTION + shadow_offset, 0, SHOW_ATLAS_RESOLUTION, SHOW_ATLAS_RESOLUTION);
 
 				//Render the shadow map with the linearized shader
-				Shader* shader = Shader::Get("quad.vs","linearize.fs");
+				Shader* shader = Shader::Get("quad.vs", "linearize.fs");
 				shader->enable();
 				shader->setUniform("u_camera_nearfar", Vector2(light->shadow_camera->near_plane, light->shadow_camera->far_plane));
 				shader->setUniform("u_shadow_index", (float)light->shadow_index);
