@@ -8,15 +8,12 @@ constexpr int SHADOW_MAP_RESOLUTION = 2048;
 using namespace std;
 
 //Constructor
-Renderer::Renderer()
+Renderer::Renderer(Scene* scene, Camera* camera)
 {
 	//Set scene and camera to NULL
-	this->scene = NULL;
-	this->camera = NULL;
-
-	//Create render calls vector
-	createRenderCalls();
-
+	this->scene = scene;
+	this->camera = camera;
+	
 	//Create Shadow Atlas: We create a dynamic atlas to be resizable
 	createShadowAtlas();
 }
@@ -68,6 +65,9 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 	//Set the scene and the camera with which to render
 	this->scene = scene;
 	this->camera = camera;
+
+	//Create render calls vector
+	createRenderCalls();
 
 	//no shader? then nothing to render
 	if (!scene->shader)

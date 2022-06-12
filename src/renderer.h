@@ -41,7 +41,7 @@ public:
 	std::vector<RenderCall*> render_calls; // Here we store each RenderCall to be sent to the GPU.
 
 	//Constructor
-	Renderer();
+	Renderer(Scene* scene, Camera* camera);
 
 	//Renders several elements of the scene
 	void renderScene(Scene* scene, Camera* camera);

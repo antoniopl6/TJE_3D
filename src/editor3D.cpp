@@ -92,7 +92,7 @@ void Editor3D::reset()
 void Editor3D::show()
 {
 	//Support variable
-	bool menu_change = (start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE)) && !current_layer == LAYER3;
+	bool menu_change = (start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE)) && !(current_layer == LAYER3);
 
 	//Select Menu Option
 	if (current_layer == EditorLayer::LAYER1) {
@@ -554,9 +554,10 @@ ObjectEntity* Editor3D::selectEntity() {
 	//Get global variables
 	Vector2 mouse = Input::mouse_position;
 	Camera* camera = scene->main_character->camera;
+	Game* game = Game::instance;
 
 	//Compute the direction form mouse to window
-	Vector3 ray_direction = camera->getRayDirection(mouse.x, mouse.y, g->window_width, g->window_height);
+	Vector3 ray_direction = camera->getRayDirection(mouse.x, mouse.y, game->window_width, game->window_height);
 	Vector3 ray_origin = camera->eye;
 
 	//Search for the object with a Ray Collision in the scene and then return it

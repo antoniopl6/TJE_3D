@@ -58,18 +58,12 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
-
-	//Debuggear esto
-	for (int i = 0; i < scene->objects.size(); ++i)
-	{
-		cout << scene->objects[i]->name << endl;		
-	}
 	
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 
 	//This class will be the one in charge of rendering the scene
-	renderer = new Renderer();
+	renderer = new Renderer(scene,main_camera);
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -95,13 +89,13 @@ void Game::render(void)
 	switch(entity_editor->current_camera)
 	{
 		case(Editor3D::MAIN):
-			entity_editor->camera->enable(); 
-			renderer->renderScene(scene, entity_editor->camera); 
+			main_camera->enable();
+			renderer->renderScene(scene, main_camera);
 			break;
 		case(Editor3D::ENTITY):
-			main_camera->enable(); 
-			renderer->renderScene(scene, main_camera);
-			break;	
+			entity_editor->camera->enable();
+			renderer->renderScene(scene, entity_editor->camera);
+			break;
 	}
 
 	//render the FPS, Draw Calls, etc
@@ -176,6 +170,7 @@ void Game::update(double seconds_elapsed)
 	//Render entity editor
 	if (render_editor)
 		entity_editor->render();
+		
 
 	//Save scene
 	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
