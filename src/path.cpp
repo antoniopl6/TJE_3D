@@ -21,8 +21,11 @@ void Point::SetPath(uint8* grid, int targetx, int targety, int W, int H) {
 	if (path_steps != -1)
 	{
 		for (int i = 0; i < path_steps; ++i)
-			path[i] = Vector2((output[i] % W), floor(output[i] / W)),
-			std::cout << "Nueva pos: x:" << path[i].x << ", y: " << path[i].y << std::endl;
+		{
+			path[i] = Vector2((output[i] % W), floor(output[i] / W));
+			//std::cout << "Nueva pos: x:" << path[i].x << ", y: " << path[i].y << std::endl;
+		}
+
 	}
 }
 

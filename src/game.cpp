@@ -52,18 +52,18 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	scene = new Scene();
 
 	//Create the main camera
-	camera = new Camera();
-	scene->main_camera = camera;
+	main_camera = new Camera();
+	scene->main_camera = main_camera;
 
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
-
+	
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 
 	//This class will be the one in charge of rendering the scene
-	renderer = new Renderer(scene);
+	renderer = new Renderer(scene,main_camera);
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -82,14 +82,21 @@ void Game::render(void)
 	//Check gl errors before starting
 	checkGLErrors();
 
-	//Enable view camera
-	camera->enable();
-
 	//Draw the floor grid
 	//drawGrid();
 
 	//Render the scene
-	renderer->renderScene();
+	switch(entity_editor->current_camera)
+	{
+		case(Editor3D::MAIN):
+			main_camera->enable();
+			renderer->renderScene(scene, main_camera);
+			break;
+		case(Editor3D::ENTITY):
+			entity_editor->camera->enable();
+			renderer->renderScene(scene, entity_editor->camera);
+			break;
+	}
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
@@ -149,12 +156,21 @@ void Game::update(double seconds_elapsed)
 		//TODO
 	}
 
-	//Update main character camera
-	scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+	//Update cameras
+	switch (entity_editor->current_camera)
+	{
+	case(Editor3D::MAIN):
+		scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		break;
+	case(Editor3D::ENTITY):
+		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		break;
+	}
 
 	//Render entity editor
 	if (render_editor)
 		entity_editor->render();
+		
 
 	//Save scene
 	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
@@ -165,9 +181,6 @@ void Game::update(double seconds_elapsed)
 			scene_saved = true;
 		}
 	}
-
-	if (Input::wasKeyPressed(SDL_BUTTON_LEFT))
-		cout << "Here" << endl;
 }
 
 
@@ -186,7 +199,7 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 	case SDLK_q:
 		if (!turn_around)
 		{
-			camera->center *= -1.f;
+			main_camera->center *= -1.f;
 			turn_around = true;
 		}
 		break;
@@ -194,6 +207,7 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		//Entity editor
 	case SDLK_h:
 		render_editor = !render_editor;
+		entity_editor->current_camera = Editor3D::MAIN;
 		if (render_editor)
 			entity_editor->reset();
 		break;
@@ -205,7 +219,7 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 		//Keep looking forward
-		case SDLK_q: camera->center *= -1.f;
+		case SDLK_q: main_camera->center *= -1.f;
 	}
 }
 
@@ -221,11 +235,11 @@ void Game::onGamepadButtonUp(SDL_JoyButtonEvent event)
 
 void Game::onMouseButtonDown( SDL_MouseButtonEvent event )
 {
-	if (event.button == SDL_BUTTON_MIDDLE) //middle mouse
-	{
-		mouse_locked = !mouse_locked;
-		SDL_ShowCursor(!mouse_locked);
-	}
+	//if (event.button == SDL_BUTTON_MIDDLE) //middle mouse
+	//{
+	//	mouse_locked = !mouse_locked;
+	//	SDL_ShowCursor(!mouse_locked);
+	//}
 }
 
 void Game::onMouseButtonUp(SDL_MouseButtonEvent event)
@@ -241,7 +255,7 @@ void Game::onResize(int width, int height)
 {
     std::cout << "window resized: " << width << "," << height << std::endl;
 	glViewport( 0,0, width, height );
-	camera->aspect =  width / (float)height;
+	main_camera->aspect =  width / (float)height;
 	window_width = width;
 	window_height = height;
 }

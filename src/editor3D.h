@@ -10,6 +10,12 @@ class Editor3D
 public:
 
 	//Enums
+	enum CameraType
+	{
+		MAIN,
+		ENTITY
+	};
+
 	enum EditorLayer {
 		LAYER1, //Select the menu option (add, remove or edit)
 		LAYER2, //Select entity
@@ -31,8 +37,18 @@ public:
 		SOUND
 	};
 
+	enum Actions {
+		TRANSLATE,
+		ROTATE,
+		SCALE
+	};
+
 	//Game variables
 	Scene* scene;
+
+	//Camera
+	Camera* camera;
+	CameraType current_camera; 
 
 	//Use vectors to store the available resources
 	vector<string> assets;
@@ -57,6 +73,12 @@ public:
 	int current_light;
 	int current_sound;
 
+	//Action variables
+	Actions current_action;
+	float translation_speed;
+	float rotation_speed;
+	float scale_speed;
+
 	//Constructor
 	Editor3D(Scene* scene);
 
@@ -66,10 +88,17 @@ public:
 	void work();
 	void render();
 
-	//Actions
+	//Actions methods
 	void addEntity();
 	void editEntity(Entity* entity);
 	void removeEntity(Entity* entity);
-	void addEntityInScene(Entity* entity);
-	ObjectEntity* selectEntityInScene();
+	ObjectEntity* selectEntity();
+	void placeEntity(Entity* entity);
+
+	//Camera methods
+	void switchCamera();
+	void focusCamera(Entity* entity);
+	void updateCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
+
+	
 };

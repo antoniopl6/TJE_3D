@@ -12,7 +12,7 @@ Scene::Scene()
 	//General features
 	filename = "";
 	ambient_light = Vector3(1.f, 1.f, 1.f);
-	main_camera = Game::instance->camera;
+	main_camera = Game::instance->main_camera;
 	shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/single.fs"); //Select shader to render the render calls
 
 	//Shadow Atlas
@@ -22,6 +22,7 @@ Scene::Scene()
 	//Counters
 	num_objects = 0;
 	num_lights = 0;
+	num_sounds = 0;
 	num_shadows = 0;
 
 	//Scene properties
@@ -85,12 +86,15 @@ void Scene::addEntity(Entity* entity)
 		break;
 	case(Entity::EntityType::OBJECT):
 		objects.push_back((ObjectEntity*)entity);
+		num_objects++;
 		break;
 	case(Entity::EntityType::LIGHT):
 		lights.push_back((LightEntity*)entity);
+		num_lights++;
 		break;
 	case(Entity::EntityType::SOUND):
 		sounds.push_back((SoundEntity*)entity);
+		num_sounds++;
 		break;
 	}
 }

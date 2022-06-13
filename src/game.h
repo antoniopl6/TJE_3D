@@ -32,7 +32,7 @@ public:
 	bool render_editor;
 
 	//some vars
-	Camera* camera; //our global camera
+	Camera* main_camera; //our global camera
 	Scene* scene; //game scene
 	Editor3D* entity_editor;
 	Renderer* renderer; //game render class

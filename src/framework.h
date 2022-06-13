@@ -335,6 +335,7 @@ public:
 	float& operator[] (unsigned int i) { return q[i]; }
 };
 
+Vector3 TransformQuaterion(const Vector3& a, const Quaternion& q);
 float DotProduct(const Quaternion &q1, const Quaternion &q2);
 Quaternion Qlerp(const Quaternion &q1, const Quaternion &q2, float t);
 Quaternion Qslerp(const Quaternion &q1, const Quaternion &q2, float t);

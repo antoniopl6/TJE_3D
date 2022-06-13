@@ -6,7 +6,6 @@ Audio* Audio::Get(const char* filename) {
 	if (sample == 0) {
 		std::cout << "ERROR loading file " << filename << std::endl;
 	}
-
 };
 
 HCHANNEL* Audio::Play(const char* filename) {

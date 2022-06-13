@@ -46,6 +46,7 @@ public:
 	//Counters
 	int num_objects;
 	int num_lights;
+	int num_sounds;
 	int num_shadows;
 
 	//Scene properties

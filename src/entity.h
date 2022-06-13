@@ -1,5 +1,3 @@
-#ifndef ENTITY_H
-#define ENTITY_H
 #pragma once
 #include "includes.h"
 #include "utils.h"
@@ -213,4 +211,3 @@ public:
 	void save(vector<cJSON*> json);
 	void updateJSON(vector<cJSON*> json);
 };
-#endif

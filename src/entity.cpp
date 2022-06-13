@@ -302,7 +302,7 @@ bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
 	//std::cout << "forward " << forward.x << std::endl;
 	Vector3 toTarget = model.getTranslation() - pos;
-	std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
+	//std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
 	float dist = toTarget.length();
 	toTarget.normalize();
 
@@ -312,7 +312,7 @@ bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true
 	float walkSpeed = 200.0f;
 	Vector3 translate = forward * -walkSpeed * elapsed_time;
 	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	std::cout << "Grados a rotar                  " << degrees << std::endl;
+	//std::cout << "Grados a rotar                  " << degrees << std::endl;
 	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 
 	model.translateGlobal(translate.x, 0, translate.z);
@@ -359,7 +359,7 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(object_json, "names", object_index);
-	if (name_json) name = name_json->valuestring;
+	if (name_json) name = name_json->valuestring;	
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
