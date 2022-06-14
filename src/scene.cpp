@@ -152,8 +152,11 @@ bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		ObjectEntity* object = objects[i];
-		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm))
+		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm)) {
+			std::cout << "jsdjas" << std::endl;
 			return true;
+		}
+			
 	}
 	return false;
 }
@@ -242,7 +245,9 @@ bool Scene::load(const char* scene_filepath)
 			for (int i = 0; i < units; ++i)
 			{
 				ObjectEntity* object = new ObjectEntity();
+		
 				object->load(object_json, i);
+
 				objects.push_back(object);
 			}
 		}

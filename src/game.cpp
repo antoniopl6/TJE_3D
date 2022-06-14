@@ -67,7 +67,14 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+	
+	for (size_t i = 0; i < scene->objects.size(); i++)
+	{
+		ObjectEntity* obj = scene->objects[i];
+		if (obj->name == "Tree"){
 
+		}
+	}
 }
 
 //what to do when the image has to be draw

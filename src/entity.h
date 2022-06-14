@@ -50,6 +50,9 @@ public:
 	Material* material;
 	BoundingBox world_bounding_box;
 
+	//Game values
+	int num_recolectables;
+
 	//Triggers
 	bool bounding_box_trigger;
 
