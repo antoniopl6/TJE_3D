@@ -37,16 +37,37 @@ Route::Route(int W, int H, std::vector<Vector3> &points) {
 	this->H = H;
 	grid = new uint8[W * H];
 
-	//Create grid of accesible points without colision
+	//To compute grid and save it in a file, when we change the scene recompute the grid to store in file gridRoute.txt
+	////Create grid of accesible points without colision
+	/*ofstream file("data/gridRoute.txt");
 	for (size_t i = 0; i < W; i++)
 	{
 		for (size_t j = 0; j < H; j++)
 		{
-			//bool value = !scene->hasCollision(getSceneVector(i, j), coll, collnorm);
-			//grid[i + j * W] = (int) value;
-			grid[i + j * W] = 1;
+			Vector3 sceneVec = getSceneVector(i, j);
+			//Test collision for every object
+			bool value = !scene->hasCollision(Vector3(sceneVec.x, 230, sceneVec.z), coll, collnorm);
+			grid[i + j * W] = (int) value;
+			file << (int)value << " ";
+		}
+		file << "\n";
+	}
+	file.close();*/
+	
+	//Grid file read and store it in grid[W*H]
+	ifstream file2("data/gridRoute.txt");
+	int idx = 0;
+	int number;
+
+	for (size_t i = 0; i < W; i++)
+	{
+		for (size_t j = 0; j < H; j++)
+		{
+			file2 >> number;
+			grid[i + j * W] = number;
 		}
 	}
+	file2.close();
 
 	//Adds points route to the vector route and initialize each point, setting his path from them to the next point
 	Vector3 nextPoint;

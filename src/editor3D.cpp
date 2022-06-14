@@ -572,6 +572,7 @@ ObjectEntity* Editor3D::selectEntity() {
 		//Ray collision test
 		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
 		{
+			cout << entity->name << endl;
 			return entity;
 		}
 

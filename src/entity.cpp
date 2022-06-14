@@ -134,6 +134,7 @@ MonsterEntity::MonsterEntity()
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 	
 	////////////////////////// route define
+
 	idx = 0;
 	isInPathRoute = false;
 	std::vector<Vector3> points;
@@ -207,7 +208,9 @@ void MonsterEntity::save(cJSON* monster_json)
 
 void MonsterEntity::update(float elapsed_time)
 {
-
+	if (route == NULL) {
+		
+	}
 }
 
 float sign(float num) {

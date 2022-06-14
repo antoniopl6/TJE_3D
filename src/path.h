@@ -4,6 +4,8 @@
 #include "includes.h"
 #include "utils.h"
 #include "pathfinders.h"
+#include <iostream>
+#include <fstream>
 
 #define MAX_STEPS 100
 
@@ -28,8 +30,8 @@ public:
 	int W;
 	int H;
 	int currPoint = 0;
-	const int tileSizeX = 200;
-	const int tileSizeY = 200;
+	const int tileSizeX = 100;
+	const int tileSizeY = 100;
 
 	Route(int W, int H, std::vector<Vector3> &points);
 	Point* getClosestPoint(Vector3 translation); //Gets the closest route point to start path

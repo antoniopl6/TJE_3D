@@ -142,18 +142,19 @@ Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_ti
 		//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
 	};
 
-	return nextPos;
+	return Vector3(nextPos.x, currPos.y, nextPos.z);
 
 }
 
 bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
-	if (monster->mesh->testSphereCollision(monster->model, pos, 20.0f, coll, collnorm))
-		return true;
+	/*if (monster->mesh->testSphereCollision(monster->model, pos, 20.0f, coll, collnorm))
+		return true;*/
+	//std::cout << objects.size() << std::endl;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		ObjectEntity* object = objects[i];
 		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm)) {
-			std::cout << "jsdjas" << std::endl;
+			//std::cout << "jsdjas" << std::endl;
 			return true;
 		}
 			
@@ -214,19 +215,7 @@ bool Scene::load(const char* scene_filepath)
 		return false;
 	}
 
-	//Monster JSON
-	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
-	if (monster_json)
-	{
-		MonsterEntity* monster = new MonsterEntity();
-		monster->load(monster_json);
-		this->monster = monster;
-	}
-	else
-	{
-		cout << "Monster object hasn't been found in the JSON" << endl;
-		return false;
-	}
+
 
 	//Objects JSON
 	cJSON* objects_json = cJSON_GetObjectItemCaseSensitive(scene_json, "objects");
@@ -251,6 +240,20 @@ bool Scene::load(const char* scene_filepath)
 				objects.push_back(object);
 			}
 		}
+	}
+
+	//Monster JSON
+	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
+	if (monster_json)
+	{
+		MonsterEntity* monster = new MonsterEntity();
+		monster->load(monster_json);
+		this->monster = monster;
+	}
+	else
+	{
+		cout << "Monster object hasn't been found in the JSON" << endl;
+		return false;
 	}
 
 	//Lights JSON
