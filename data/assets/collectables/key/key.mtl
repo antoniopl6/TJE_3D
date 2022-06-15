@@ -2,12 +2,12 @@
 # Material Count: 1
 
 newmtl tt_key
-Ns 96.078431
-Ka 0.200000 0.200000 0.200000
+Ns 96.078421
+Ka 1.000000 1.000000 1.000000
 Kd 1.000000 1.000000 1.000000
 Ks 1.000000 1.000000 1.000000
 Ke 0.000000 0.000000 0.000000
 Ni 1.000000
 d 1.000000
 illum 2
-map_Kd C:\Users\Shaun Da Hackr\Desktop\tt_key.png
+map_Kd tt_key.png

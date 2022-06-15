@@ -52,6 +52,8 @@ public:
 
 	//Game values
 	int num_recolectables;
+	float flashlight_battery;
+
 
 	//Triggers
 	bool bounding_box_trigger;

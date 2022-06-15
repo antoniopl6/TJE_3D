@@ -113,16 +113,19 @@ void Scene::removeEntity(Entity* entity)
 	case(Entity::EntityType::OBJECT):
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			if (*it == entity) objects.erase(it);
+			num_objects--;
 		}
 		break;
 	case(Entity::EntityType::LIGHT):
 		for (auto it = lights.begin(); it != lights.end(); ++it) {
 			if (*it == entity) lights.erase(it);
+			num_lights--;
 		}
 		break;
 	case(Entity::EntityType::SOUND):
 		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
 			if (*it == entity) sounds.erase(it);
+			num_sounds--;
 		}
 		break;
 	}

@@ -548,6 +548,7 @@ void Editor3D::removeEntity(Entity* entity)
 ObjectEntity* Editor3D::selectEntity() {
 	
 	//Selected entity and maximum distance of selection
+	ObjectEntity* selected_entity = NULL;
 	float max_distance = 2000.f;
 	
 	//Get global variables
@@ -572,12 +573,17 @@ ObjectEntity* Editor3D::selectEntity() {
 		//Ray collision test
 		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
 		{
-			cout << entity->name << endl;
-			return entity;
+			float entity_distance = (entity_position - ray_origin).length();
+			if (entity_distance < max_distance)
+			{
+				cout << entity->name << " removed succesfully." << endl;
+				selected_entity = entity;
+			}
+			
 		}
 
 	}
-	return NULL;
+	return selected_entity;
 }
 
 void Editor3D::placeEntity(Entity* entity) {
