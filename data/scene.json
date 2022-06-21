@@ -5,21 +5,22 @@
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
 	"camera_far":	3000,
-	"main_character":	{
-		"name":	"Adventurer",
-		"visible":	true,
-		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
-		"mesh":	"",
-		"material":	{
-			"transparency":	"NO_ALPHA",
-			"alpha_cutoff":	0.5,
-			"two_sided":	0,
-			"occlusion_factor":	1,
-			"roughness_factor":	1,
-			"metallic_factor":	0,
-			"emissive_factor":	[1, 1, 1]
-		}
-	},
+  "main_character": {
+    "name": "Adventurer",
+    "visible": true,
+    "model": [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 5, 0, 1 ],
+    "mesh": "data/assets/mainCharacter/GrimmFoxy2.obj",
+    "material": {
+      "transparency": "NO_ALPHA",
+      "alpha_cutoff": 0.5,
+      "two_sided": 0,
+      "occlusion_factor": 1,
+      "roughness_factor": 1,
+      "metallic_factor": 0,
+      "emissive_factor": [ 1, 1, 1 ],
+      "color_texture": "data/assets/mainCharacter/GrimmFoxy_Shell.tga"
+    }
+  },
 	"monster":	{
 		"name":	"Wendigo",
 		"visible":	true,
@@ -539,8 +540,8 @@
       "units": 1,
       "names": [ "Battery" ],
       "visibilities": [ true ],
-      "models": [ [ 10, 0, 0, 0, 0, 10, 0, 0, 0, 0, 10, 0, 20, 100, 0, 1 ] ],
-      "mesh": "data/assets/collectables/battery/Battery.obj",
+      "models": [ [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 20, 100, 0, 1 ] ],
+      "mesh": "data/assets/collectables/battery/battery.obj",
       "material": {
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
@@ -549,23 +550,53 @@
         "roughness_factor": 0.90200001001358032,
         "metallic_factor": 0.34999999403953552,
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": ""
+        "color_texture": "data/assets/collectables/battery/battery_Material.tga"
       },
       "node_ID": [ 5 ],
+      "children_ID": []
+    },
+    {
+      "Object_ID": 8,
+      "units": 1,
+      "names": [ "Cottage" ],
+      "visibilities": [ true ],
+      "models": [ [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -100000, 0, -1000, 1 ] ],
+      "mesh": "data/assets/cottage/cottage_obj.obj",
+      "material": {
+        "transparency": "NO_ALPHA",
+        "alpha_cutoff": 0.5,
+        "two_sided": 0,
+        "occlusion_factor": 0.83600002527236938,
+        "roughness_factor": 0.90200001001358032,
+        "metallic_factor": 0.34999999403953552,
+        "emissive_factor": [ 1, 1, 1 ],
+        "color_texture": "data/assets/cottage/cottage_texture.tga"
+      },
+      "node_ID": [ 8 ],
+      "children_ID": []
+    },
+    {
+      "Object_ID": 9,
+      "units": 1,
+      "names": [ "flashlight" ],
+      "visibilities": [ true ],
+      "models": [ [ 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 150, 0, 1 ] ],
+      "mesh": "data/assets/flashlight/flashlight2.obj",
+      "material": {
+        "transparency": "NO_ALPHA",
+        "alpha_cutoff": 0.5,
+        "two_sided": 0,
+        "occlusion_factor": 1.000000,
+        "roughness_factor": 0.020379,
+        "metallic_factor": 0.500000,
+        "emissive_factor": [ 1, 1, 1 ],
+        "color_texture": ""
+      },
+      "node_ID": [ 9 ],
       "children_ID": []
     }
   ],
 	"lights":	[{
-			"Light ID":	1,
-			"units":	1,
-			"names":	["lamp light"],
-			"visibilities":	[true],
-			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 50.99102783203125, 300, 62.783000946044922, 1]],
-			"color":	[0.800000011920929, 0.10000000149011612, 0.20000000298023224],
-			"intensity":	10,
-			"max_distance":	1000,
-			"light_type":	"POINT_LIGHT"
-		}, {
 			"Light ID":	2,
 			"units":	1,
 			"names":	["flashlight"],

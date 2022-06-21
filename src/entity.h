@@ -1,3 +1,6 @@
+#ifndef ENTITY_H
+#define ENTITY_H
+
 #pragma once
 #include "includes.h"
 #include "utils.h"
@@ -11,6 +14,9 @@
 #include "path.h"
 
 using namespace std;
+
+class ObjectEntity;
+class LightEntity;
 
 class Entity {
 public:
@@ -51,9 +57,12 @@ public:
 	BoundingBox world_bounding_box;
 
 	//Game values
-	int num_recolectables;
-	float flashlight_battery;
-
+	int num_apples;
+	float battery;
+	bool flashIsOn;
+	ObjectEntity* flashlight;
+	LightEntity* light;
+	int num_keys;
 
 	//Triggers
 	bool bounding_box_trigger;
@@ -116,45 +125,19 @@ public:
 	virtual void update(float elapsed_time) override;
 };
 
-class ObjectEntity : public Entity {
-public:
-	//Object enum
-	enum ObjectType {
-		PICK_OBJECT = 1,
-		RENDER_OBJECT = 2,
-	};
+//class FlashLight : public ObjectEntity {
+//public:
+//
+//	//Game values
+//	bool is_on;
+//	float battery;
+//
+//	//Constructor
+//	FlashLight();
+//
+//};
 
-	//Object features
-	int object_id;
-	Mesh* mesh;
-	Material* material;
-	BoundingBox world_bounding_box;
 
-	//Object tree
-	int node_id;
-	ObjectEntity* parent;
-	vector<ObjectEntity*> children;
-	vector<int> children_ids; //Just for JSON support
-
-	//Triggers
-	bool bounding_box_trigger;
-
-	//Constructor
-	ObjectEntity();
-
-	//Children methods
-	Matrix44 computeGlobalMatrix();
-
-	//JSON methods
-	void load(cJSON* object_json, int object_index);
-	void save(vector<cJSON*> json);
-	void updateJSON(vector<cJSON*> json);
-
-	//Inherited methods
-	virtual void updateBoundingBox() override;
-	virtual void update(float elapsed_time) override;
-
-};
 
 class LightEntity : public Entity {
 public:
@@ -197,6 +180,49 @@ public:
 	virtual void update(float elapsed_time) override;
 };
 
+class ObjectEntity : public Entity {
+public:
+	//Object enum
+	enum ObjectType {
+		PICK_OBJECT_KEY = 1,
+		PICK_OBJECT_APPLE = 2,
+		PICK_OBJECT_BATTERY = 3,
+		RENDER_OBJECT = 4,
+	};
+
+	//Object features
+	int object_id;
+	Mesh* mesh;
+	Material* material;
+	BoundingBox world_bounding_box;
+	ObjectType type;
+
+	//Object tree
+	int node_id;
+	ObjectEntity* parent;
+	vector<ObjectEntity*> children;
+	vector<int> children_ids; //Just for JSON support
+
+	//Triggers
+	bool bounding_box_trigger;
+
+	//Constructor
+	ObjectEntity();
+
+	//Children methods
+	Matrix44 computeGlobalMatrix();
+
+	//JSON methods
+	void load(cJSON* object_json, int object_index);
+	void save(vector<cJSON*> json);
+	void updateJSON(vector<cJSON*> json);
+
+	//Inherited methods
+	virtual void updateBoundingBox() override;
+	virtual void update(float elapsed_time) override;
+
+};
+
 class SoundEntity : public Entity {
 public:
 
@@ -216,3 +242,5 @@ public:
 	void save(vector<cJSON*> json);
 	void updateJSON(vector<cJSON*> json);
 };
+
+#endif

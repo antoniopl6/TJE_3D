@@ -357,26 +357,40 @@ void Editor3D::work()
 			}
 		}
 
-		if (entity_option == EntityOption::OBJECT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+		if (entity_option == EntityOption::OBJECT)
 		{			
 			//Pick an entity with a ray cast
-			ObjectEntity* selected_entity = selectEntity();
+			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+				selected_entity = selectEntity();
 
-			//Change camera view
-			switchCamera();
-			focusCamera(selected_entity);
-
+				//Change camera view
+				switchCamera();
+				focusCamera(selected_entity);
+			}
+			
 			//Send that entity to editEntity method
-			if(selected_entity)
+			if(selected_entity != NULL)
 				editEntity(selected_entity);
 		}
-		else if (entity_option == EntityOption::LIGHT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
+		else if (entity_option == EntityOption::LIGHT)//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
 		{
-			editEntity(scene->lights[current_light]);
+			
+
+			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+				selected_light = scene->lights[current_light];
+
+			if (selected_light != NULL)
+				editEntity(scene->lights[current_light]);
 		}
-		else if (entity_option == EntityOption::SOUND && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+		else if (entity_option == EntityOption::SOUND)
 		{
-			editEntity(scene->sounds[current_sound]);
+			
+
+			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+				selected_sound = scene->sounds[current_sound];
+
+			if (selected_sound != NULL)
+				editEntity(selected_sound);
 		}
 	}
 
@@ -484,11 +498,14 @@ void Editor3D::addEntity()
 void Editor3D::editEntity(Entity* entity)
 {	
 	//Show the selected entity in the screen
-	cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
+	//cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
 
 	//Scale entity WASDQE and +/-
-	if(Input::wasKeyPressed(SDL_SCANCODE_D))
-		entity->model.scale(scale_speed,0,0);
+	if (Input::wasKeyPressed(SDL_SCANCODE_D)) {
+		entity->model.scale(scale_speed, 0, 0);
+		cout << "dkspaskdo" << endl;
+	}
+		
 	if(Input::wasKeyPressed(SDL_SCANCODE_A))
 		entity->model.scale(-scale_speed,0,0);
 	if(Input::wasKeyPressed(SDL_SCANCODE_E))
@@ -499,11 +516,15 @@ void Editor3D::editEntity(Entity* entity)
 		entity->model.scale(0,0,scale_speed);
 	if(Input::wasKeyPressed(SDL_SCANCODE_S))
 		entity->model.scale(0,0,-scale_speed);
-	if (Input::wasKeyPressed(SDLK_PLUS)) 	
+	if (Input::wasKeyPressed(SDL_SCANCODE_KP_PLUS)) {
 		entity->model.scale(scale_speed, scale_speed, scale_speed);
-	if (Input::wasKeyPressed(SDLK_MINUS)) 
+		cout << "dkspaskdo" << endl;
+	}
+		
+	if (Input::wasKeyPressed(SDL_SCANCODE_MINUS)) {
 		entity->model.scale(-scale_speed, -scale_speed, -scale_speed);
-
+		cout << "dkspaskdo" << endl;
+	}
 	//Rotate entity WASDQE
 	if (Input::wasKeyPressed(SDL_SCANCODE_D))
 		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 1, 0));
@@ -576,7 +597,7 @@ ObjectEntity* Editor3D::selectEntity() {
 			float entity_distance = (entity_position - ray_origin).length();
 			if (entity_distance < max_distance)
 			{
-				cout << entity->name << " removed succesfully." << endl;
+				//cout << entity->name << " removed succesfully." << endl;
 				selected_entity = entity;
 			}
 			

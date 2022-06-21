@@ -1,6 +1,33 @@
 #include "entity.h"
 #include "scene.h"
 #include <limits>
+
+float computeDeg(Vector2 a, Vector2 b) {
+	float modA = sqrt(a.x * a.x + a.y * a.y);
+	float modB = sqrt(b.x * b.x + b.y * b.y);
+	float dot = a.x * b.x + a.y * b.y;
+	float degrees = acos(a.dot(b) / (modA * modB));
+	float smallest = 1.17549e-38;
+	//std::cout << "Grados a rotar" << degrees << std::endl;
+	if (degrees > smallest)
+		return degrees;
+	return 0;
+}
+float computeDeg(Vector3 a, Vector3 b) {
+	float modA = sqrt(a.x * a.x + a.y * a.y + a.z * b.z);
+	float modB = sqrt(b.x * b.x + b.y * b.y + a.z * b.z);
+	float dot = a.x * b.x + a.y * b.y;
+	float degrees = acos(a.dot(b) / (modA * modB));
+	float smallest = 1.17549e-38;
+	//std::cout << "Grados a rotar" << degrees << std::endl;
+	if (degrees > smallest)
+		return degrees;
+	return 0;
+}
+float sign(float num) {
+	return num >= 0.0f ? 1.0f : -1.0f;
+}
+
 //Entity
 Entity::Entity() {
 	name = "";
@@ -23,6 +50,10 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
+	this->battery = 70.f;
+	this->flashIsOn = true;
+	this->num_apples = 0;
+	this->num_keys = 0;
 }
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
@@ -61,7 +92,21 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
+	
+	//this->model.translateGlobal(nextPos.x, nextPos.y, nextPos.z);
+	//this->updateBoundingBox();
 	//To navigate with the mouse fixed in the middle
+	if (Input::isKeyPressed(SDL_SCANCODE_X)) {
+		ObjectEntity::ObjectType type;
+		type = Scene::instance->getCollectable();
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
+			num_keys++;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
+			this->battery += 35.f;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
+			num_apples++;
+	}
+
 	if (mouse_locked)
 		Input::centerMouse();
 }
@@ -120,8 +165,60 @@ void MainCharacterEntity::save(cJSON* main_json)
 }
 
 void MainCharacterEntity::update(float elapsed_time)
-{
+{//model.translateGlobal(posCam.x - this->model.getTranslation().x, 0, posCam.z - this->model.getTranslation().z);
+	////cout << model.getTranslation().x << ", " << model.getTranslation().z << endl;
+	//float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+//model.rotateGlobal(degrees * sign(sideDot), Vector3(0, 1, 0));
+//this->updateBoundingBox();
 
+
+
+	////Vector3 toTarget = (camera->center - camera->eye).normalize();
+	//Vector3 toTarget = (camera->center - camera->eye).normalize();
+	//Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
+	//Vector3 posCam = this->camera->eye;
+	//float forwardDot = forward.dot(toTarget);
+	////
+	//Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
+	////
+	//float sideDot = side.dot(toTarget);
+
+	////flashlight->model.translateGlobal(posCam.x - flashlight->model.getTranslation().x + toTarget.x*200, 0, posCam.z - flashlight->model.getTranslation().z + toTarget.z * 200);
+	//
+	//float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+	///*flashlight->model.setTranslation(posCam.x, 150, posCam.z);
+	//light->model.setTranslation(posCam.x + 40, 150, posCam.z + 40);*/
+	//Vector3 up = camera->up.normalize();
+	//Vector3 eye_flashlight = Vector3(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z * 80 - up.z * 35);
+	////flashlight->model.setTranslation(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z* 80 - up.z * 35);
+	//float degrees2 = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+
+
+
+
+
+
+		//Vector3 toTarget = (camera->center - camera->eye).normalize();
+	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
+	//
+	Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
+	//
+	Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
+	float sideDot = side.dot(toTarget);
+
+	float forwardDot = forward.dot(toTarget);
+	//flashlight->model.lookAt(eye_flashlight, camera->center, up);
+	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+
+	float degrees2 = computeDeg(Vector2(forward.y, forward.z), Vector2(toTarget.y, toTarget.z));	
+	/*if (forwardDot < 0.98f) {
+
+	/*if (forwardDot < 0.98f) {
+		flashlight->model.rotate(elapsed_time * 80.0f * DEG2RAD * sign(sideDot), Vector3(1, 0, 0));
+	}*/
+	flashlight->model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
+	//flashlight->model.rotate(degrees2 * sign(sideDot), Vector3(1, 0, 0));
+	flashlight->updateBoundingBox();
 }
 
 //Monster
@@ -213,10 +310,6 @@ void MonsterEntity::update(float elapsed_time)
 	}
 }
 
-float sign(float num) {
-	return num >= 0.0f ? 1.0f : -1.0f;
-}
-
 bool MonsterEntity::isInFollowRange(Camera* camera)
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
@@ -286,18 +379,6 @@ void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 
 }
 
-float computeDeg(Vector2 a, Vector2 b) {
-	float modA = sqrt(a.x * a.x + a.y * a.y);
-	float modB = sqrt(b.x * b.x + b.y * b.y);
-	float dot = a.x * b.x + a.y * b.y;
-	float degrees = acos(a.dot(b) / (modA * modB));
-	float smallest = 1.17549e-38;
-	//std::cout << "Grados a rotar" << degrees << std::endl;
-	if (degrees > smallest)
-		return degrees;
-	return 0;
-}
-
 bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true if has arrived to pos target, false otherwise
 {
 	
@@ -305,7 +386,6 @@ bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
 	//std::cout << "forward " << forward.x << std::endl;
 	Vector3 toTarget = model.getTranslation() - pos;
-	//std::cout << "current: " << model.getTranslation().x << ", " << model.getTranslation().z << "   toMove: " << pos.x << ", " << pos.z << std::endl;
 	float dist = toTarget.length();
 	toTarget.normalize();
 
@@ -340,6 +420,7 @@ ObjectEntity::ObjectEntity() {
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 	this->node_id = -1;
+	this->type = RENDER_OBJECT;
 }
 
 Matrix44 ObjectEntity::computeGlobalMatrix()
@@ -400,6 +481,9 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 	//Children IDs
 	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
 	if (children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
+
+	//flashlight
+	if (name == "flashlight") Scene::instance->main_character->flashlight = this;
 }
 
 void ObjectEntity::save(vector<cJSON*> json)
@@ -556,6 +640,9 @@ void LightEntity::load(cJSON* light_json, int light_index)
 	//Shadow features
 	cast_shadows = readJSONBoolean(light_json, "cast_shadows", cast_shadows);
 	shadow_bias = readJSONNumber(light_json, "shadow_bias", shadow_bias);
+
+	//flashlight
+	if (name == "flashlight") Scene::instance->main_character->light = this;
 }
 
 void LightEntity::save(vector<cJSON*> json)

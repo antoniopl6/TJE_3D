@@ -12,6 +12,7 @@
 #include "scene.h"
 #include "editor3D.h"
 #include "renderer.h"
+#include "stage.h"
 
 class Game
 {

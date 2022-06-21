@@ -109,7 +109,9 @@ void Game::render(void)
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-
+	drawText(2, 20, "Current battery", Vector3(1, 1, 1), 2);
+	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
+	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
 }
@@ -118,10 +120,15 @@ void Game::update(double seconds_elapsed)
 {
 	//Update Main Character
 	MainCharacterEntity* character = scene->main_character;
+	
 	if (character->bounding_box_trigger)
 	{
+		/*character->model.print();
+		character->model.rotateGlobal(180 * DEG2RAD, Vector3(0, 1, 0));
+		character->model.print();*/
 		character->updateBoundingBox();
 		character->bounding_box_trigger = false;
+		
 	}
 
 	//Update Monster
@@ -170,7 +177,9 @@ void Game::update(double seconds_elapsed)
 	switch (entity_editor->current_camera)
 	{
 	case(Editor3D::MAIN):
-		scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		character->update(seconds_elapsed);
+		character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		
 		break;
 	case(Editor3D::ENTITY):
 		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);

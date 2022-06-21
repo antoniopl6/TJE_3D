@@ -66,6 +66,8 @@ public:
 	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
 
 	bool hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm);
+	ObjectEntity::ObjectType getCollectable();
+	bool collectableInRange();
 
 	//JSON methods
 	bool load(const char* scene_filepath);
