@@ -168,7 +168,7 @@ bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
 //Given a current camera position, returns the object type of the object entity that has in front
 ObjectEntity::ObjectType Scene::getCollectable() { 
 	//Selected entity and maximum distance of selection
-	ObjectEntity::ObjectType type = (ObjectEntity::ObjectType) 0;
+	ObjectEntity::ObjectType type = ObjectEntity::ObjectType::RENDER_OBJECT;
 	ObjectEntity* entity = NULL;
 	float max_distance = 500.f;
 
@@ -204,7 +204,7 @@ ObjectEntity::ObjectType Scene::getCollectable() {
 		}
 
 	}
-	if (entity != NULL)
+	if (entity && type != ObjectEntity::ObjectType::RENDER_OBJECT)
 		removeEntity(entity);
 	
 	return type;

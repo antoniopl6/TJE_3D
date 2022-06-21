@@ -187,7 +187,7 @@ public:
 		PICK_OBJECT_KEY = 1,
 		PICK_OBJECT_APPLE = 2,
 		PICK_OBJECT_BATTERY = 3,
-		RENDER_OBJECT = 4,
+		RENDER_OBJECT = 0,
 	};
 
 	//Object features

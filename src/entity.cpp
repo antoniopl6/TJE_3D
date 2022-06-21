@@ -99,6 +99,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	if (Input::isKeyPressed(SDL_SCANCODE_X)) {
 		ObjectEntity::ObjectType type;
 		type = Scene::instance->getCollectable();
+		cout << (int) type << endl;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
 			num_keys++;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
@@ -482,6 +483,9 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
 	if (children_IDs_json) populateJSONIntArray(children_IDs_json, children_ids);
 
+	//Type
+	type = (ObjectType)readJSONNumber(object_json, "Object_type", type);
+
 	//flashlight
 	if (name == "flashlight") Scene::instance->main_character->flashlight = this;
 }
@@ -528,6 +532,9 @@ void ObjectEntity::save(vector<cJSON*> json)
 	//Children IDs
 	cJSON_AddItemToObject(object_json, "children_ID", children_IDs_array);
 	cJSON_AddIntVectorToArray(object_json, &children_ids[0], children_ids.size());
+
+	//Type
+	writeJSONNumber(object_json, "Object_type", type);
 }
 
 void ObjectEntity::updateJSON(vector<cJSON*> json)

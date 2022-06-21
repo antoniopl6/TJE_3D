@@ -503,7 +503,6 @@ void Editor3D::editEntity(Entity* entity)
 	//Scale entity WASDQE and +/-
 	if (Input::wasKeyPressed(SDL_SCANCODE_D)) {
 		entity->model.scale(scale_speed, 0, 0);
-		cout << "dkspaskdo" << endl;
 	}
 		
 	if(Input::wasKeyPressed(SDL_SCANCODE_A))
@@ -516,15 +515,10 @@ void Editor3D::editEntity(Entity* entity)
 		entity->model.scale(0,0,scale_speed);
 	if(Input::wasKeyPressed(SDL_SCANCODE_S))
 		entity->model.scale(0,0,-scale_speed);
-	if (Input::wasKeyPressed(SDL_SCANCODE_KP_PLUS)) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_KP_PLUS)) 
 		entity->model.scale(scale_speed, scale_speed, scale_speed);
-		cout << "dkspaskdo" << endl;
-	}
-		
-	if (Input::wasKeyPressed(SDL_SCANCODE_MINUS)) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_MINUS)) 
 		entity->model.scale(-scale_speed, -scale_speed, -scale_speed);
-		cout << "dkspaskdo" << endl;
-	}
 	//Rotate entity WASDQE
 	if (Input::wasKeyPressed(SDL_SCANCODE_D))
 		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 1, 0));

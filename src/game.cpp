@@ -112,6 +112,7 @@ void Game::render(void)
 	drawText(2, 20, "Current battery", Vector3(1, 1, 1), 2);
 	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
 	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
+	drawText(this->window_width / 2, this->window_height / 2, "o",Vector3(1, 1, 1),2);
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
 }
