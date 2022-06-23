@@ -86,9 +86,6 @@
     <ClCompile Include="..\..\src\renderer.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\editor3D.cpp">
-      <Filter>gfx</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\path.cpp">
       <Filter>elements</Filter>
     </ClCompile>
@@ -97,6 +94,12 @@
     </ClCompile>
     <ClCompile Include="..\..\src\audio.cpp">
       <Filter>gfx</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\editor3D.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
+    <ClCompile Include="..\..\src\cMTL.cpp">
+      <Filter>utils</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
@@ -181,9 +184,6 @@
     <ClInclude Include="..\..\src\renderer.h">
       <Filter>gfx</Filter>
     </ClInclude>
-    <ClInclude Include="..\..\src\editor3D.h">
-      <Filter>gfx</Filter>
-    </ClInclude>
     <ClInclude Include="..\..\src\pathfinders.h">
       <Filter>elements</Filter>
     </ClInclude>
@@ -195,6 +195,12 @@
     </ClInclude>
     <ClInclude Include="..\..\src\audio.h">
       <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\editor3D.h">
+      <Filter>utils</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cMTL.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

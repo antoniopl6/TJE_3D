@@ -39,9 +39,9 @@ public:
 	float _zMin, _zMax;       // Z-Range
 
 	//Material factors
-	float occlusion_factor; //how occluded is the surface
-	float roughness_factor;	//how smooth or rough is the surface
-	float metallic_factor;	//how metallic is the surface
+	Vector3 occlusion_factor; //how occluded is the surface
+	Vector3 roughness_factor;	//how smooth or rough is the surface
+	Vector3 metallic_factor;	//how metallic is the surface
 	Vector3 emissive_factor;//does this object emit light?
 
 	//Material textures

@@ -82,6 +82,11 @@ public:
 	//Constructor
 	Editor3D(Scene* scene);
 
+	//Edit
+	ObjectEntity* selected_entity = NULL;
+	LightEntity* selected_light = NULL;
+	SoundEntity* selected_sound = NULL;
+
 	//General Methods
 	void reset(); //Resets class flowtime
 	void show(); //

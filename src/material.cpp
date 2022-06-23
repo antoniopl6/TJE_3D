@@ -110,9 +110,9 @@ void Material::load(cJSON* material_json)
 	two_sided = readJSONBoolean(material_json, "two_sided", two_sided);
 
 	//Material factors
-	occlusion_factor = readJSONNumber(material_json, "occlusion_factor", occlusion_factor);
-	roughness_factor = readJSONNumber(material_json, "roughness_factor", roughness_factor);
-	metallic_factor = readJSONNumber(material_json, "metallic_factor", metallic_factor);
+	occlusion_factor = readJSONVector3(material_json, "occlusion_factor", occlusion_factor);
+	roughness_factor = readJSONVector3(material_json, "roughness_factor", roughness_factor);
+	metallic_factor = readJSONVector3(material_json, "metallic_factor", metallic_factor);
 	emissive_factor = readJSONVector3(material_json, "emissive_factor", emissive_factor);
 
 	//Textures filenames

@@ -335,7 +335,7 @@ void Editor3D::show()
 void Editor3D::work()
 {
 	//Add entity
-	if (menu_option == MenuOption::ADD && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+	if (menu_option == MenuOption::ADD && (Input::mouse_state == SDL_BUTTON_MIDDLE))
 	{
 		addEntity();
 	}
@@ -357,33 +357,47 @@ void Editor3D::work()
 			}
 		}
 
-		if (entity_option == EntityOption::OBJECT && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+		if (entity_option == EntityOption::OBJECT)
 		{			
 			//Pick an entity with a ray cast
-			ObjectEntity* selected_entity = selectEntity();
+			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+				selected_entity = selectEntity();
 
-			//Change camera view
-			switchCamera();
-			focusCamera(selected_entity);
-
+				//Change camera view
+				switchCamera();
+				focusCamera(selected_entity);
+			}
+			
 			//Send that entity to editEntity method
-			if(selected_entity)
+			if(selected_entity != NULL)
 				editEntity(selected_entity);
 		}
-		else if (entity_option == EntityOption::LIGHT && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+		else if (entity_option == EntityOption::LIGHT)//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
 		{
-			editEntity(scene->lights[current_light]);
+			
+
+			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+				selected_light = scene->lights[current_light];
+
+			if (selected_light != NULL)
+				editEntity(scene->lights[current_light]);
 		}
-		else if (entity_option == EntityOption::SOUND && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+		else if (entity_option == EntityOption::SOUND)
 		{
-			editEntity(scene->sounds[current_sound]);
+			
+
+			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+				selected_sound = scene->sounds[current_sound];
+
+			if (selected_sound != NULL)
+				editEntity(selected_sound);
 		}
 	}
 
 	//Remove entity
 	else if (menu_option == MenuOption::REMOVE)
 	{
-		if (entity_option == EntityOption::OBJECT && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+		if (entity_option == EntityOption::OBJECT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 		{
 			//Pick an entity with a ray cast
 			ObjectEntity* selected_entity = selectEntity();
@@ -392,11 +406,11 @@ void Editor3D::work()
 			if (selected_entity)
 				removeEntity(selected_entity);
 		}
-		else if (entity_option == EntityOption::LIGHT && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+		else if (entity_option == EntityOption::LIGHT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 		{
 			removeEntity(scene->lights[current_light]);
 		}
-		else if (entity_option == EntityOption::SOUND && Input::wasKeyPressed(SDL_BUTTON_MIDDLE))
+		else if (entity_option == EntityOption::SOUND && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 		{
 			removeEntity(scene->sounds[current_sound]);
 		}
@@ -484,11 +498,13 @@ void Editor3D::addEntity()
 void Editor3D::editEntity(Entity* entity)
 {	
 	//Show the selected entity in the screen
-	cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
+	//cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
 
 	//Scale entity WASDQE and +/-
-	if(Input::wasKeyPressed(SDL_SCANCODE_D))
-		entity->model.scale(scale_speed,0,0);
+	if (Input::wasKeyPressed(SDL_SCANCODE_D)) {
+		entity->model.scale(scale_speed, 0, 0);
+	}
+		
 	if(Input::wasKeyPressed(SDL_SCANCODE_A))
 		entity->model.scale(-scale_speed,0,0);
 	if(Input::wasKeyPressed(SDL_SCANCODE_E))
@@ -499,11 +515,10 @@ void Editor3D::editEntity(Entity* entity)
 		entity->model.scale(0,0,scale_speed);
 	if(Input::wasKeyPressed(SDL_SCANCODE_S))
 		entity->model.scale(0,0,-scale_speed);
-	if (Input::wasKeyPressed(SDLK_PLUS)) 	
+	if (Input::wasKeyPressed(SDL_SCANCODE_KP_PLUS)) 
 		entity->model.scale(scale_speed, scale_speed, scale_speed);
-	if (Input::wasKeyPressed(SDLK_MINUS)) 
+	if (Input::wasKeyPressed(SDL_SCANCODE_MINUS)) 
 		entity->model.scale(-scale_speed, -scale_speed, -scale_speed);
-
 	//Rotate entity WASDQE
 	if (Input::wasKeyPressed(SDL_SCANCODE_D))
 		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 1, 0));
@@ -559,9 +574,9 @@ ObjectEntity* Editor3D::selectEntity() {
 	//Compute the direction form mouse to window
 	Vector3 ray_direction = camera->getRayDirection(mouse.x, mouse.y, game->window_width, game->window_height);
 	Vector3 ray_origin = camera->eye;
-
+	
 	//Search for the object with a Ray Collision in the scene and then return it
-	for (size_t i = 0; i < scene->num_objects; i++)
+	for (size_t i = 0; i < scene->objects.size(); i++)
 	{
 		//Current object entity
 		ObjectEntity* entity = scene->objects[i];
@@ -571,14 +586,15 @@ ObjectEntity* Editor3D::selectEntity() {
 		Vector3 entity_normal;
 
 		//Ray collision test
-		if (entity->mesh->testRayCollision(entity->model, ray_direction, ray_origin, entity_position, entity_normal))
+		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
 		{
 			float entity_distance = (entity_position - ray_origin).length();
 			if (entity_distance < max_distance)
 			{
-				max_distance = entity_distance;
+				//cout << entity->name << " removed succesfully." << endl;
 				selected_entity = entity;
 			}
+			
 		}
 
 	}

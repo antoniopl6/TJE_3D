@@ -67,7 +67,16 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+	
 
+	/////
+	for (size_t i = 0; i < scene->objects.size(); i++)
+	{
+		ObjectEntity* obj = scene->objects[i];
+		if (obj->name == "Tree"){
+			cout << obj->model.getTranslation().x << " " << obj->model.getTranslation().z << " " << endl;
+		}
+	}
 }
 
 //what to do when the image has to be draw
@@ -100,7 +109,10 @@ void Game::render(void)
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-
+	drawText(2, 20, "Current battery", Vector3(1, 1, 1), 2);
+	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
+	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
+	drawText(this->window_width / 2, this->window_height / 2, "o",Vector3(1, 1, 1),2);
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
 }
@@ -109,14 +121,20 @@ void Game::update(double seconds_elapsed)
 {
 	//Update Main Character
 	MainCharacterEntity* character = scene->main_character;
+	
 	if (character->bounding_box_trigger)
 	{
+		/*character->model.print();
+		character->model.rotateGlobal(180 * DEG2RAD, Vector3(0, 1, 0));
+		character->model.print();*/
 		character->updateBoundingBox();
 		character->bounding_box_trigger = false;
+		
 	}
 
 	//Update Monster
 	MonsterEntity* monster = scene->monster;
+	monster->update(elapsed_time);
 	if (monster->bounding_box_trigger)
 	{
 		monster->updateBoundingBox();
@@ -160,7 +178,9 @@ void Game::update(double seconds_elapsed)
 	switch (entity_editor->current_camera)
 	{
 	case(Editor3D::MAIN):
-		scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		character->update(seconds_elapsed);
+		character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		
 		break;
 	case(Editor3D::ENTITY):
 		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
@@ -235,11 +255,11 @@ void Game::onGamepadButtonUp(SDL_JoyButtonEvent event)
 
 void Game::onMouseButtonDown( SDL_MouseButtonEvent event )
 {
-	if (event.button == SDL_BUTTON_MIDDLE) //middle mouse
-	{
-		mouse_locked = !mouse_locked;
-		SDL_ShowCursor(!mouse_locked);
-	}
+	//if (event.button == SDL_BUTTON_MIDDLE) //middle mouse
+	//{
+	//	mouse_locked = !mouse_locked;
+	//	SDL_ShowCursor(!mouse_locked);
+	//}
 }
 
 void Game::onMouseButtonUp(SDL_MouseButtonEvent event)

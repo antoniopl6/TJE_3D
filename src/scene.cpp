@@ -22,6 +22,7 @@ Scene::Scene()
 	//Counters
 	num_objects = 0;
 	num_lights = 0;
+	num_sounds = 0;
 	num_shadows = 0;
 
 	//Scene properties
@@ -85,12 +86,15 @@ void Scene::addEntity(Entity* entity)
 		break;
 	case(Entity::EntityType::OBJECT):
 		objects.push_back((ObjectEntity*)entity);
+		num_objects++;
 		break;
 	case(Entity::EntityType::LIGHT):
 		lights.push_back((LightEntity*)entity);
+		num_lights++;
 		break;
 	case(Entity::EntityType::SOUND):
 		sounds.push_back((SoundEntity*)entity);
+		num_sounds++;
 		break;
 	}
 }
@@ -109,16 +113,19 @@ void Scene::removeEntity(Entity* entity)
 	case(Entity::EntityType::OBJECT):
 		for (auto it = objects.begin(); it != objects.end(); ++it) {
 			if (*it == entity) objects.erase(it);
+			num_objects--;
 		}
 		break;
 	case(Entity::EntityType::LIGHT):
 		for (auto it = lights.begin(); it != lights.end(); ++it) {
 			if (*it == entity) lights.erase(it);
+			num_lights--;
 		}
 		break;
 	case(Entity::EntityType::SOUND):
 		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
 			if (*it == entity) sounds.erase(it);
+			num_sounds--;
 		}
 		break;
 	}
@@ -138,20 +145,105 @@ Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_ti
 		//Vector3 velocity = reflect(Vector3(1,0,1), collnorm) * 0.95;
 	};
 
-	return nextPos;
+	return Vector3(nextPos.x, currPos.y, nextPos.z);
 
 }
 
 bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
-	if (monster->mesh->testSphereCollision(monster->model, pos, 20.0f, coll, collnorm))
-		return true;
+	/*if (monster->mesh->testSphereCollision(monster->model, pos, 20.0f, coll, collnorm))
+		return true;*/
+	//std::cout << objects.size() << std::endl;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		ObjectEntity* object = objects[i];
-		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm))
+		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm)) {
+			//std::cout << "jsdjas" << std::endl;
 			return true;
+		}
+			
 	}
 	return false;
+}
+
+//Given a current camera position, returns the object type of the object entity that has in front
+ObjectEntity::ObjectType Scene::getCollectable() { 
+	//Selected entity and maximum distance of selection
+	ObjectEntity::ObjectType type = ObjectEntity::ObjectType::RENDER_OBJECT;
+	ObjectEntity* entity = NULL;
+	float max_distance = 500.f;
+
+	//Get global variables
+	Camera* camera = main_character->camera;
+	Game* game = Game::instance;
+	Vector2 mouse_pos = Vector2(game->window_width / 2, game->window_height / 2);
+	
+	//Compute the direction form mouse to window
+	Vector3 ray_direction = camera->getRayDirection(mouse_pos.x, mouse_pos.y, game->window_width, game->window_height);
+	Vector3 ray_origin = camera->eye;
+
+	//Search for the object with a Ray Collision in the scene and then return it
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		//Current object entity
+		entity = objects[i];
+
+		//Entity properties
+		Vector3 entity_position;
+		Vector3 entity_normal;
+
+		//Ray collision test
+		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance) && entity->type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		{
+			float entity_distance = (entity_position - ray_origin).length();
+			if (entity_distance < max_distance)
+			{
+				//cout << entity->name << " removed succesfully." << endl;
+				type = entity->type;
+			}
+
+		}
+
+	}
+	if (entity && type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		removeEntity(entity);
+	
+	return type;
+}
+
+//True if a collectable can be grabbed
+bool Scene::collectableInRange() {
+	//Selected entity and maximum distance of selection
+	float max_distance = 500.f;
+
+	//Get global variables
+	Camera* camera = main_character->camera;
+	Game* game = Game::instance;
+	Vector2 mouse_pos = Vector2(game->window_width / 2, game->window_height / 2);
+
+	//Compute the direction form mouse to window
+	Vector3 ray_direction = camera->getRayDirection(mouse_pos.x, mouse_pos.y, game->window_width, game->window_height);
+	Vector3 ray_origin = camera->eye;
+
+	//Search for the object with a Ray Collision in the scene and then return it
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		//Current object entity
+		ObjectEntity* entity = objects[i];
+
+		//Entity properties
+		Vector3 entity_position;
+		Vector3 entity_normal;
+
+		//Ray collision test
+		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance) && entity->type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		{
+			return true;
+
+		}
+
+	}
+	return false;
+
 }
 
 //JSON Methods
@@ -207,19 +299,7 @@ bool Scene::load(const char* scene_filepath)
 		return false;
 	}
 
-	//Monster JSON
-	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
-	if (monster_json)
-	{
-		MonsterEntity* monster = new MonsterEntity();
-		monster->load(monster_json);
-		this->monster = monster;
-	}
-	else
-	{
-		cout << "Monster object hasn't been found in the JSON" << endl;
-		return false;
-	}
+
 
 	//Objects JSON
 	cJSON* objects_json = cJSON_GetObjectItemCaseSensitive(scene_json, "objects");
@@ -238,10 +318,26 @@ bool Scene::load(const char* scene_filepath)
 			for (int i = 0; i < units; ++i)
 			{
 				ObjectEntity* object = new ObjectEntity();
+		
 				object->load(object_json, i);
+
 				objects.push_back(object);
 			}
 		}
+	}
+
+	//Monster JSON
+	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
+	if (monster_json)
+	{
+		MonsterEntity* monster = new MonsterEntity();
+		monster->load(monster_json);
+		this->monster = monster;
+	}
+	else
+	{
+		cout << "Monster object hasn't been found in the JSON" << endl;
+		return false;
 	}
 
 	//Lights JSON
