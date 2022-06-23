@@ -4,11 +4,19 @@
 #include <sstream>
 #include <string.h>
 
+//Constructor
+cMTL::cMTL(Scene* scene)
+{
+	this->scene = scene;
+}
+
 //Parser
 vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 {
 	//Reader
 	ifstream reader;
+
+	//Open the file
 	reader.open(root + "\\" + asset + ".mtl", ios::out);
 
 	if (reader)
@@ -23,6 +31,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 		vector<ObjectEntity*> objects;
 		ObjectEntity* current_object = NULL;
 
+		//Parse the file
 		while (!reader.eof())
 		{
 			//Get a new line and fill the buffer
@@ -38,6 +47,9 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Get & assign name
 				current_object->name = GetString(buffer);
+
+				//Assign ID
+				scene->assignID(current_object);
 
 			}
 			else if (buffer.substr(0, 2) == "Ka")
@@ -56,7 +68,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Assign components
-				current_object->material->roughness_factor = GetVector3(buffer);
+				current_object->material->albedo_factor = GetVector3(buffer);
 			}
 			else if (buffer.substr(0, 2) == "Ks")
 			{
@@ -65,7 +77,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Assign components
-				current_object->material->metallic_factor = GetVector3(buffer);
+				current_object->material->specular_factor = GetVector3(buffer);
 			}
 			else if (buffer.substr(0, 2) == "Ke")
 			{
@@ -138,7 +150,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->albedo_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("map_Ks") != string::npos)
 			{
@@ -157,7 +169,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->specular_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("map_Ke") != string::npos)
 			{
@@ -176,7 +188,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->emissive_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("map_normal") != string::npos)
 			{
@@ -195,7 +207,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->normal_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("map_occlusion") != string::npos)
 			{
@@ -233,7 +245,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->roughness_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("map_metalness") != string::npos)
 			{
@@ -252,7 +264,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->metalness_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("map_omr") != string::npos)
 			{
@@ -271,7 +283,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				string path = root + "\\" + texture;
 
 				//Get Texture
-				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
+				current_object->material->omr_texture.texture = Texture::Get(path.c_str());
 			}
 			else if (buffer.find("local_model") != string::npos)
 			{
@@ -291,19 +303,48 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 			}
 
 		}
+
+		//Close the file
 		reader.close();
+
+		//Set parent
+		if (objects.size() > 1)
+		{
+			//Create the parent object
+			ObjectEntity* parent_object = new ObjectEntity();
+			parent_object->parent = NULL;
+
+			//Assign ID
+			scene->assignID(parent_object);
+
+			//Iterate over the children objects
+			for (auto i = objects.begin(); i != objects.end(); ++i)
+			{
+				//Current object
+				ObjectEntity* object = *i;
+
+				//Assign children to parent and parent to children
+				parent_object->children.push_back(object);
+				object->parent = parent_object;
+
+				//Assign children ID to parent (JSON support)
+				parent_object->children_ids.push_back(object->node_id);
+				
+			}
+		}
+
+		return objects;
 	}
 	else
 	{
 		//Notify the user the file hasn't been opened	
 		cout << "Issue in opening" << endl;
+		return vector<ObjectEntity*>();
 	}
-
-	return 0;
 }
 
 //Support methods
-boolean cMTL::GetBoolean(string buffer)
+bool cMTL::GetBoolean(string buffer)
 {
 	return buffer.substr(buffer.find_first_of(' ') + 1, buffer.length()) == "true" ? true : false;
 }

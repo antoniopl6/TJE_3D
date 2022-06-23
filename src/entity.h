@@ -137,8 +137,6 @@ public:
 //
 //};
 
-
-
 class LightEntity : public Entity {
 public:
 	//Light enum
@@ -198,7 +196,7 @@ public:
 	ObjectType type;
 
 	//Object tree
-	int node_id;
+	int node_id; //Just for JSON support
 	ObjectEntity* parent;
 	vector<ObjectEntity*> children;
 	vector<int> children_ids; //Just for JSON support

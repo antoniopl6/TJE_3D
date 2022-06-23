@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "mesh.h"
 #include "texture.h"
+#include "cMTL.h"
 
 using namespace std;
 
@@ -49,6 +50,9 @@ public:
 	//Camera
 	Camera* camera;
 	CameraType current_camera; 
+
+	//MTL Parser
+	cMTL* Parser;
 
 	//Use vectors to store the available resources
 	vector<string> assets;

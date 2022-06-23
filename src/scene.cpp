@@ -133,6 +133,85 @@ void Scene::removeEntity(Entity* entity)
 	delete entity;
 }
 
+void Scene::assignID(Entity* entity) 
+{
+	//Support variables
+	bool available_ID = false;
+	int new_entity_ID = 0;
+	int new_node_ID = 0;
+
+	//Entities
+	ObjectEntity* object;
+	LightEntity* light;
+	SoundEntity* sound;
+
+	switch (entity->entity_type)
+	{
+		case(Entity::EntityType::OBJECT):
+
+			//Downcast
+			object =  (ObjectEntity*)entity;
+
+			//Iterate over the objects
+			for (auto i = objects.begin(); i != objects.end(); ++i)
+			{
+				//Current Object
+				ObjectEntity* current_object = *i;
+
+				//Add one for getting a unique ID
+				if (current_object->object_id == new_entity_ID)
+					new_entity_ID++;
+				if (current_object->node_id == new_entity_ID)
+					new_node_ID++;
+			}
+
+			//Assign the new IDs
+			object->object_id = new_entity_ID;
+			object->node_id = new_node_ID;
+
+			break;
+		case(Entity::EntityType::LIGHT):
+		
+			//Downcast
+			light = (LightEntity*)entity;
+		
+			//Iterate over the lights
+			for (auto i = lights.begin(); i != lights.end(); ++i)
+			{
+				//Current Light
+				LightEntity* current_light = *i;
+
+				//Add one for getting a unique ID
+				if (current_light->light_id == new_entity_ID)
+					new_entity_ID++;
+			}
+
+			//Assign the new ID
+			light->light_id = new_entity_ID;
+
+			break;
+		case(Entity::EntityType::SOUND):
+		
+			//Downcast
+			sound = (SoundEntity*)entity;
+
+			//Iterate over the sounds
+			for (auto i = sounds.begin(); i != sounds.end(); ++i)
+			{
+				//Current Sound
+				SoundEntity* current_sound = *i;
+
+				//Add one for getting a unique ID
+				if (current_sound->sound_id == new_entity_ID)
+					new_entity_ID++;
+			}
+
+			//Assign the new ID
+			sound->sound_id = new_entity_ID;
+			break;
+	}
+}
+
 Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
 {
 	Vector3 coll;
@@ -299,7 +378,19 @@ bool Scene::load(const char* scene_filepath)
 		return false;
 	}
 
-
+	//Monster JSON
+	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
+	if (monster_json)
+	{
+		MonsterEntity* monster = new MonsterEntity();
+		monster->load(monster_json);
+		this->monster = monster;
+	}
+	else
+	{
+		cout << "Monster object hasn't been found in the JSON" << endl;
+		return false;
+	}
 
 	//Objects JSON
 	cJSON* objects_json = cJSON_GetObjectItemCaseSensitive(scene_json, "objects");
@@ -324,20 +415,6 @@ bool Scene::load(const char* scene_filepath)
 				objects.push_back(object);
 			}
 		}
-	}
-
-	//Monster JSON
-	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
-	if (monster_json)
-	{
-		MonsterEntity* monster = new MonsterEntity();
-		monster->load(monster_json);
-		this->monster = monster;
-	}
-	else
-	{
-		cout << "Monster object hasn't been found in the JSON" << endl;
-		return false;
 	}
 
 	//Lights JSON
@@ -393,7 +470,7 @@ bool Scene::load(const char* scene_filepath)
 		ObjectEntity* object = *i;
 		vector<int> children_ids = object->children_ids;
 
-		if (!object->children_ids.empty())
+		if (!children_ids.empty())
 			for (auto j = children_ids.begin(); j != children_ids.end(); ++j)
 			{
 				for (auto k = objects.begin(); k != objects.end(); ++k)

@@ -190,6 +190,7 @@ void Game::update(double seconds_elapsed)
 	//Render entity editor
 	if (render_editor)
 		entity_editor->render();
+
 		
 
 	//Save scene

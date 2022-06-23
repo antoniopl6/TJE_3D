@@ -12,6 +12,9 @@ Editor3D::Editor3D(Scene* scene)
 	camera = new Camera();
 	current_camera = MAIN;
 
+	//MTL Parser
+	Parser = new cMTL(scene);
+
 	//Intializate vectors
 	string assets_path = filesystem::current_path().string() + "\\data\\assets";
 	string sounds_path = filesystem::current_path().string() + "\\data\\sounds";
@@ -92,7 +95,7 @@ void Editor3D::reset()
 void Editor3D::show()
 {
 	//Support variable
-	bool menu_change = (start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE)) && !(current_layer == LAYER3);
+	bool menu_change = (start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE)) && current_layer != LAYER3;
 
 	//Select Menu Option
 	if (current_layer == EditorLayer::LAYER1) {
@@ -431,17 +434,38 @@ void Editor3D::addEntity()
 
 	if (entity_option == EntityOption::OBJECT) {
 		
-		//Parse mtl
-		//TODO
-		
-		//New object
-		ObjectEntity* new_object = new ObjectEntity();
+		//List of objects
+		vector<ObjectEntity*> objects;
 
-		//Cast a ray and place the entity in the ray direction
-		placeEntity(new_object);
+		//Parse MTL
+		string root = "\\data\\assets\\";
+		string asset_name = assets[current_asset];
+		objects = Parser->Parse(root, asset_name);
 
-		//Add the new object to the scene
-		scene->addEntity(new_object);
+		//Check objects list
+		if (objects.empty())
+		{
+			cout << "ERROR: The object list is empty" << endl;
+			return;
+		}
+
+		//Iterate over the objects list
+		for (auto i = objects.begin(); i != objects.end(); i++)
+		{
+			//Current object
+			ObjectEntity* object = *i;
+
+			//Place parent object
+			if (!object->parent)
+			{
+				//Cast a ray and place the parent in the ray direction
+				placeEntity(object);
+			}
+
+			//Add new objects to the scene
+			scene->addEntity(object);
+
+		}
 
 		//Feedback
 		cout << "Object succesfully created" << endl << endl;
@@ -466,6 +490,9 @@ void Editor3D::addEntity()
 			new_light->light_type = LightEntity::LightType::DIRECTIONAL_LIGHT;
 		}
 
+		//Assign ID
+		scene->assignID(new_light);
+
 		//Cast a ray and place the entity in the ray direction
 		placeEntity(new_light);
 
@@ -483,6 +510,9 @@ void Editor3D::addEntity()
 		//Sound filename
 		string sound_name = sounds[current_sound];
 		new_sound->filename = "\\data\\assets\\" + sound_name;
+
+		//Assign ID
+		scene->assignID(new_sound);
 
 		//Cast a ray and place the entity in the ray direction
 		placeEntity(new_sound);

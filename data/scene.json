@@ -14,11 +14,11 @@
       "transparency": "NO_ALPHA",
       "alpha_cutoff": 0.5,
       "two_sided": 0,
-      "occlusion_factor": 1,
-      "roughness_factor": 1,
-      "metallic_factor": 0,
+      "occlusion_factor": [ 1, 1, 1 ],
+      "albedo_factor": [ 1, 1, 1 ],
+      "specular_factor": [ 1, 1, 1 ],
       "emissive_factor": [ 1, 1, 1 ],
-      "color_texture": "data/assets/mainCharacter/GrimmFoxy_Shell.tga"
+      "albedo_texture": "data/assets/mainCharacter/GrimmFoxy_Shell.tga"
     }
   },
 	"monster":	{
@@ -30,13 +30,13 @@
 			"transparency":	"NO_ALPHA",
 			"alpha_cutoff":	0.5,
 			"two_sided":	0,
-			"occlusion_factor":	1,
-			"roughness_factor":	1,
-			"metallic_factor":	0,
+			"occlusion_factor":	[1, 1, 1],
+			"albedo_factor":	[1, 1, 1],
+			"specular_factor":	[1, 1, 1],
 			"emissive_factor":	[1, 1, 1],
-			"color_texture":	"data/assets/monster/_MaleHeroStanding_v1_albedo.png",
+			"albedo_texture":	"data/assets/monster/_MaleHeroStanding_v1_albedo.png",
 			"normal_texture":	"data/assets/monster/_MaleHeroStanding_v1_normal.png",
-			"metallic_roughness_texture":	"data/assets/monster/_MaleHeroStanding_v1_specular.png"
+			"specular_texture":	"data/assets/monster/_MaleHeroStanding_v1_specular.png"
 		}
 	},
   "objects": [
@@ -447,11 +447,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 1,
-        "roughness_factor": 1,
-        "metallic_factor": 0,
+        "occlusion_factor": [ 1, 1, 1 ],
+        "albedo_factor": [ 1, 1, 1 ],
+        "specular_factor": [ 1, 1, 1 ],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": "data/assets/floor/grass.tga"
+        "albedo_texture": "data/assets/floor/grass.tga"
       },
       "node_ID": [ -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1 ],
       "children_ID": [],
@@ -468,11 +468,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 0.83600002527236938,
-        "roughness_factor": 0.90200001001358032,
-        "metallic_factor": 0.34999999403953552,
+        "occlusion_factor": [0.83600002527236938,0.83600002527236938,0.83600002527236938],
+        "albedo_factor": [0.90200001001358032,0.90200001001358032,0.90200001001358032],
+        "specular_factor": [0.34999999403953552,0.34999999403953552,0.34999999403953552],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": "data/assets/treeWithoutLeaf/tree_00_d.tga"
+        "albedo_texture": "data/assets/treeWithoutLeaf/tree_00_d.tga"
       },
       "node_ID": [ 1 ],
       "children_ID": [],
@@ -489,11 +489,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 0.83600002527236938,
-        "roughness_factor": 0.90200001001358032,
-        "metallic_factor": 0.34999999403953552,
+        "occlusion_factor": [0.83600002527236938,0.83600002527236938,0.83600002527236938],
+        "albedo_factor": [0.90200001001358032,0.90200001001358032,0.90200001001358032],
+        "specular_factor": [0.34999999403953552,0.34999999403953552,0.34999999403953552],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": ""
+        "albedo_texture": ""
       },
       "node_ID": [ 4 ],
       "children_ID": [],
@@ -510,9 +510,9 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 0.83600002527236938,
-        "roughness_factor": 0.90200001001358032,
-        "metallic_factor": 0.34999999403953552,
+        "occlusion_factor": [0.83600002527236938,0.83600002527236938,0.83600002527236938],
+        "albedo_factor": [0.90200001001358032,0.90200001001358032,0.90200001001358032],
+        "specular_factor": [0.34999999403953552,0.34999999403953552,0.34999999403953552],
         "emissive_factor": [ 1, 1, 1 ]
       },
       "node_ID": [ 2 ],
@@ -530,11 +530,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 0.83600002527236938,
-        "roughness_factor": 0.90200001001358032,
-        "metallic_factor": 0.34999999403953552,
+        "occlusion_factor": [0.83600002527236938,0.83600002527236938,0.83600002527236938],
+        "albedo_factor": [0.90200001001358032,0.90200001001358032,0.90200001001358032],
+        "specular_factor": [0.34999999403953552,0.34999999403953552,0.34999999403953552],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": "data/assets/collectables/key/tt_key.tga"
+        "albedo_texture": "data/assets/collectables/key/tt_key.tga"
       },
       "node_ID": [ 3 ],
       "children_ID": [],
@@ -551,11 +551,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 0.83600002527236938,
-        "roughness_factor": 0.90200001001358032,
-        "metallic_factor": 0.34999999403953552,
+        "occlusion_factor": [0.83600002527236938,0.83600002527236938,0.83600002527236938],
+        "albedo_factor": [0.90200001001358032,0.90200001001358032,0.90200001001358032],
+        "specular_factor": [0.34999999403953552,0.34999999403953552,0.34999999403953552],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": "data/assets/collectables/battery/battery_Material.tga"
+        "albedo_texture": "data/assets/collectables/battery/battery_Material.tga"
       },
       "node_ID": [ 5 ],
       "children_ID": [],
@@ -572,11 +572,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 0.83600002527236938,
-        "roughness_factor": 0.90200001001358032,
-        "metallic_factor": 0.34999999403953552,
+        "occlusion_factor": [0.83600002527236938,0.83600002527236938,0.83600002527236938],
+        "albedo_factor": [0.90200001001358032,0.90200001001358032,0.90200001001358032],
+        "specular_factor": [0.34999999403953552,0.34999999403953552,0.34999999403953552],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": "data/assets/cottage/cottage_texture.tga"
+        "albedo_texture": "data/assets/cottage/cottage_texture.tga"
       },
       "node_ID": [ 8 ],
       "children_ID": [],
@@ -593,11 +593,11 @@
         "transparency": "NO_ALPHA",
         "alpha_cutoff": 0.5,
         "two_sided": 0,
-        "occlusion_factor": 1.000000,
-        "roughness_factor": 0.020379,
-        "metallic_factor": 0.500000,
+        "occlusion_factor": [ 1, 1, 1 ],
+        "albedo_factor": [ 0.020379, 0.020379, 0.020379 ],
+        "specular_factor": [ 0.5, 0.5, 0.5 ],
         "emissive_factor": [ 1, 1, 1 ],
-        "color_texture": ""
+        "albedo_texture": ""
       },
       "node_ID": [ 9 ],
       "children_ID": [],

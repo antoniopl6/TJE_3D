@@ -139,9 +139,9 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	//Texture* occlusion_texture = NULL;
 
 	//Texture loading
-	color_texture = rc->material->color_texture.texture;
+	color_texture = rc->material->albedo_texture.texture;
 	emissive_texture = rc->material->emissive_texture.texture;
-	omr_texture = rc->material->metallic_roughness_texture.texture;
+	omr_texture = rc->material->omr_texture.texture;
 	normal_texture = rc->material->normal_texture.texture;
 	//occlusion_texture = rc->material->occlusion_texture.texture;
 
