@@ -136,9 +136,10 @@ void Scene::removeEntity(Entity* entity)
 void Scene::assignID(Entity* entity) 
 {
 	//Support variables
-	bool available_ID = false;
 	int new_entity_ID = 0;
 	int new_node_ID = 0;
+	vector<int> entity_IDs;
+	vector<int> node_IDs;
 
 	//Entities
 	ObjectEntity* object;
@@ -152,18 +153,19 @@ void Scene::assignID(Entity* entity)
 			//Downcast
 			object =  (ObjectEntity*)entity;
 
-			//Iterate over the objects
-			for (auto i = objects.begin(); i != objects.end(); ++i)
+			//Fill ID lists
+			for (auto i = objects.begin(); i != objects.end(); i++)
 			{
 				//Current Object
 				ObjectEntity* current_object = *i;
 
-				//Add one for getting a unique ID
-				if (current_object->object_id == new_entity_ID)
-					new_entity_ID++;
-				if (current_object->node_id == new_entity_ID)
-					new_node_ID++;
+				entity_IDs.push_back(current_object->object_id);
+				node_IDs.push_back(current_object->node_id);
 			}
+
+			//Find available IDs
+			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+			while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
 
 			//Assign the new IDs
 			object->object_id = new_entity_ID;
@@ -175,16 +177,17 @@ void Scene::assignID(Entity* entity)
 			//Downcast
 			light = (LightEntity*)entity;
 		
-			//Iterate over the lights
+			//Fill ID list
 			for (auto i = lights.begin(); i != lights.end(); ++i)
 			{
 				//Current Light
 				LightEntity* current_light = *i;
 
-				//Add one for getting a unique ID
-				if (current_light->light_id == new_entity_ID)
-					new_entity_ID++;
+				entity_IDs.push_back(current_light->light_id);
 			}
+
+			//Find available IDs
+			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
 
 			//Assign the new ID
 			light->light_id = new_entity_ID;
@@ -195,16 +198,17 @@ void Scene::assignID(Entity* entity)
 			//Downcast
 			sound = (SoundEntity*)entity;
 
-			//Iterate over the sounds
+			//Fill ID list
 			for (auto i = sounds.begin(); i != sounds.end(); ++i)
 			{
 				//Current Sound
 				SoundEntity* current_sound = *i;
 
-				//Add one for getting a unique ID
-				if (current_sound->sound_id == new_entity_ID)
-					new_entity_ID++;
+				entity_IDs.push_back(current_sound->sound_id);
 			}
+
+			//Find available IDs
+			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
 
 			//Assign the new ID
 			sound->sound_id = new_entity_ID;

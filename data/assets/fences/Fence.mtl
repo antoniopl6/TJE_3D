@@ -2,6 +2,7 @@
 # Material Count: 1
 
 newmtl No_Name
+obj fence.obj
 Ns 199.999995
 Ka 1.000000 1.000000 1.000000
 Kd 1.000000 1.000000 1.000000

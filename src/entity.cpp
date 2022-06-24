@@ -193,13 +193,8 @@ void MainCharacterEntity::update(float elapsed_time)
 	//Vector3 eye_flashlight = Vector3(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z * 80 - up.z * 35);
 	////flashlight->model.setTranslation(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z* 80 - up.z * 35);
 	//float degrees2 = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+	//Vector3 toTarget = (camera->center - camera->eye).normalize();
 
-
-
-
-
-
-		//Vector3 toTarget = (camera->center - camera->eye).normalize();
 	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
 	//
 	Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();

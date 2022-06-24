@@ -67,16 +67,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
-	
-
-	/////
-	for (size_t i = 0; i < scene->objects.size(); i++)
-	{
-		ObjectEntity* obj = scene->objects[i];
-		if (obj->name == "Tree"){
-			cout << obj->model.getTranslation().x << " " << obj->model.getTranslation().z << " " << endl;
-		}
-	}
 }
 
 //what to do when the image has to be draw
@@ -190,8 +180,6 @@ void Game::update(double seconds_elapsed)
 	//Render entity editor
 	if (render_editor)
 		entity_editor->render();
-
-		
 
 	//Save scene
 	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))

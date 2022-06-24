@@ -1,0 +1,3 @@
+newmtl Tree
+mesh terrain_trees.ASE
+map_Kd tree.tga

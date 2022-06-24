@@ -23,7 +23,8 @@ Editor3D::Editor3D(Scene* scene)
 	{
 		string str_path = entry.path().string();
 		string asset = str_path.substr(assets_path.size() + 1, str_path.size());
-		assets.push_back(asset);
+		if(asset != "monster" && asset != "main_character")
+			assets.push_back(asset);
 	};
 
 	for (const auto& entry : filesystem::directory_iterator(sounds_path))
@@ -95,7 +96,7 @@ void Editor3D::reset()
 void Editor3D::show()
 {
 	//Support variable
-	bool menu_change = (start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE)) && current_layer != LAYER3;
+	bool menu_change = start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE) || Input::wasKeyPressed(SDL_SCANCODE_TAB);
 
 	//Select Menu Option
 	if (current_layer == EditorLayer::LAYER1) {
@@ -125,6 +126,24 @@ void Editor3D::show()
 			if (menu_option != MenuOption::ADD) switchCamera();
 		}
 			
+	}
+
+	//Exit options
+	if (Input::wasKeyPressed(SDL_SCANCODE_ESCAPE))
+	{
+		if (current_layer == EditorLayer::LAYER2)
+		{
+			menu_option = MenuOption::NO_MENU;
+			current_layer = EditorLayer::LAYER1;
+			start_menu = true;
+		}
+		else if (current_layer == EditorLayer::LAYER3)
+		{
+			entity_option == EntityOption::NO_ENTITY;
+			current_layer = EditorLayer::LAYER2;
+			if (current_camera == ENTITY) switchCamera();
+		}
+
 	}
 
 	//Selectors
@@ -169,24 +188,6 @@ void Editor3D::show()
 
 		}
 
-
-	}
-
-	//Exit options
-	if (Input::wasKeyPressed(SDL_SCANCODE_ESCAPE))
-	{
-		if (current_layer == EditorLayer::LAYER2)
-		{
-			menu_option = MenuOption::NO_MENU;
-			current_layer = EditorLayer::LAYER1;
-			start_menu = true;
-		}
-		else if (current_layer == EditorLayer::LAYER3)
-		{
-			entity_option == EntityOption::NO_ENTITY;
-			current_layer = EditorLayer::LAYER2;
-			if (current_camera == ENTITY) switchCamera();
-		}
 
 	}
 
@@ -338,11 +339,11 @@ void Editor3D::show()
 void Editor3D::work()
 {
 	//Add entity
-	if (menu_option == MenuOption::ADD && (Input::mouse_state == SDL_BUTTON_MIDDLE))
+	if (menu_option == MenuOption::ADD && Input::wasMousePressed(SDL_BUTTON_MIDDLE))
 	{
 		addEntity();
 	}
-
+	
 	//Edit entity
 	else if (menu_option == MenuOption::EDIT)
 	{
@@ -363,7 +364,7 @@ void Editor3D::work()
 		if (entity_option == EntityOption::OBJECT)
 		{			
 			//Pick an entity with a ray cast
-			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+			if (Input::wasMousePressed(SDL_BUTTON_MIDDLE)) {
 				selected_entity = selectEntity();
 
 				//Change camera view
@@ -377,8 +378,6 @@ void Editor3D::work()
 		}
 		else if (entity_option == EntityOption::LIGHT)//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
 		{
-			
-
 			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 				selected_light = scene->lights[current_light];
 
@@ -387,8 +386,6 @@ void Editor3D::work()
 		}
 		else if (entity_option == EntityOption::SOUND)
 		{
-			
-
 			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
 				selected_sound = scene->sounds[current_sound];
 
@@ -438,8 +435,8 @@ void Editor3D::addEntity()
 		vector<ObjectEntity*> objects;
 
 		//Parse MTL
-		string root = "\\data\\assets\\";
 		string asset_name = assets[current_asset];
+		string root = filesystem::current_path().string() + "\\data\\assets\\" + asset_name;
 		objects = Parser->Parse(root, asset_name);
 
 		//Check objects list
@@ -528,7 +525,7 @@ void Editor3D::addEntity()
 void Editor3D::editEntity(Entity* entity)
 {	
 	//Show the selected entity in the screen
-	//cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
+	cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
 
 	//Scale entity WASDQE and +/-
 	if (Input::wasKeyPressed(SDL_SCANCODE_D)) {

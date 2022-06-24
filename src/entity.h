@@ -125,18 +125,6 @@ public:
 	virtual void update(float elapsed_time) override;
 };
 
-//class FlashLight : public ObjectEntity {
-//public:
-//
-//	//Game values
-//	bool is_on;
-//	float battery;
-//
-//	//Constructor
-//	FlashLight();
-//
-//};
-
 class LightEntity : public Entity {
 public:
 	//Light enum

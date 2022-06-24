@@ -19,6 +19,8 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 	//Open the file
 	reader.open(root + "\\" + asset + ".mtl", ios::out);
 
+	cout << root + "\\" + asset + ".mtl" << endl;
+
 	if (reader)
 	{
 		//Notify the user the reader has succeded in opening the file	
@@ -40,7 +42,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 			if (buffer.find("newmtl") != string::npos)
 			{
 				//Create new object
-				ObjectEntity* current_object = new ObjectEntity();
+				current_object = new ObjectEntity();
 
 				//Push the object to the list
 				objects.push_back(current_object);
@@ -51,6 +53,26 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				//Assign ID
 				scene->assignID(current_object);
 
+			}
+			else if (buffer.find("mesh") != string::npos)
+			{
+				//Current object check
+				if (!current_object)
+					continue;
+
+				//Get OBJ name
+				string obj = GetString(buffer);
+
+				//OBJ name check
+				if (obj.empty())
+					continue;
+
+				//Set path
+				string path = root + "\\" + obj;
+
+				//Assign OBJ
+				current_object->mesh = Mesh::Get(path.c_str());
+				
 			}
 			else if (buffer.substr(0, 2) == "Ka")
 			{
@@ -139,7 +161,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get albedo texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -158,7 +180,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get specular texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -177,7 +199,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get emissive texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -196,7 +218,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get normal texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -215,7 +237,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get occlusion texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -234,7 +256,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get roughness texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -253,7 +275,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get metalness texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
@@ -272,7 +294,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				if (!current_object)
 					continue;
 
-				//Get ambient texture path
+				//Get omr texture path
 				string texture = GetString(buffer);
 
 				//Texture name check
