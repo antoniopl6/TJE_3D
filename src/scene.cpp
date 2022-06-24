@@ -169,7 +169,7 @@ bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
 ObjectEntity::ObjectType Scene::getCollectable() { 
 	//Selected entity and maximum distance of selection
 	ObjectEntity::ObjectType type = ObjectEntity::ObjectType::RENDER_OBJECT;
-	ObjectEntity* entity = NULL;
+	ObjectEntity* collectable = NULL;
 	float max_distance = 500.f;
 
 	//Get global variables
@@ -185,7 +185,7 @@ ObjectEntity::ObjectType Scene::getCollectable() {
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		//Current object entity
-		entity = objects[i];
+		ObjectEntity* entity = objects[i];
 
 		//Entity properties
 		Vector3 entity_position;
@@ -199,13 +199,14 @@ ObjectEntity::ObjectType Scene::getCollectable() {
 			{
 				//cout << entity->name << " removed succesfully." << endl;
 				type = entity->type;
+				collectable = entity;
 			}
 
 		}
 
 	}
-	if (entity && type != ObjectEntity::ObjectType::RENDER_OBJECT)
-		removeEntity(entity);
+	if (collectable && type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		removeEntity(collectable);
 	
 	return type;
 }

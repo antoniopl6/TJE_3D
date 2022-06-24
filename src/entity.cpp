@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "scene.h"
+#include "game.h"
 #include <limits>
 
 float computeDeg(Vector2 a, Vector2 b) {
@@ -50,7 +51,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-	this->battery = 70.f;
+	this->battery = 8.f;
 	this->flashIsOn = true;
 	this->num_apples = 0;
 	this->num_keys = 0;
@@ -93,19 +94,24 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
 	
-	//this->model.translateGlobal(nextPos.x, nextPos.y, nextPos.z);
-	//this->updateBoundingBox();
 	//To navigate with the mouse fixed in the middle
-	if (Input::isKeyPressed(SDL_SCANCODE_X)) {
+
+	//Pick object collectable
+	if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
 		ObjectEntity::ObjectType type;
 		type = Scene::instance->getCollectable();
 		cout << (int) type << endl;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
 			num_keys++;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
-			this->battery += 35.f;
+			this->battery = min(100.f, this->battery + 35.f);
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
 			num_apples++;
+	}
+
+	if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
+		this->flashIsOn = !this->flashIsOn; //Activate / Desactivate flashlight
+
 	}
 
 	if (mouse_locked)
@@ -165,6 +171,12 @@ void MainCharacterEntity::save(cJSON* main_json)
 	if (material)material->save(main_json);
 }
 
+//Handles battery consumption
+float battery_time = 0.0f;
+float battery_life = 5.0f;
+float battery_reduction = 4.0f;
+//Time the battery is on off state
+float battery_off = 0.0f;
 void MainCharacterEntity::update(float elapsed_time)
 {//model.translateGlobal(posCam.x - this->model.getTranslation().x, 0, posCam.z - this->model.getTranslation().z);
 	////cout << model.getTranslation().x << ", " << model.getTranslation().z << endl;
@@ -203,10 +215,11 @@ void MainCharacterEntity::update(float elapsed_time)
 	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
 	//
 	Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 up = flashlight->model.rotateVector(Vector3(0, -1, 0)).normalize();
 	//
 	Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
 	float sideDot = side.dot(toTarget);
-
+	float upDot = up.dot(toTarget);
 	float forwardDot = forward.dot(toTarget);
 	//flashlight->model.lookAt(eye_flashlight, camera->center, up);
 	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
@@ -217,8 +230,32 @@ void MainCharacterEntity::update(float elapsed_time)
 	/*if (forwardDot < 0.98f) {
 		flashlight->model.rotate(elapsed_time * 80.0f * DEG2RAD * sign(sideDot), Vector3(1, 0, 0));
 	}*/
-	flashlight->model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
-	//flashlight->model.rotate(degrees2 * sign(sideDot), Vector3(1, 0, 0));
+	Vector3 posCam = camera->eye;
+	Vector3 camForward = (camera->center - camera->eye).normalize();
+	flashlight->model.setTranslation(posCam.x + camForward.x * 80 - camera->up.x * 35, posCam.y + camForward.y * 80 - camera->up.y * 35, posCam.z + camForward.z * 80 - camera->up.z * 35);
+	//flashlight->model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
+	
+	float currTime = Game::instance->time;
+	//In case the flash is off the time battery_off is recorded, in order to calculate the battery_time based on this one, that gives the rest
+	if (!this->flashIsOn || this->battery <= 0) {
+		battery_off = currTime - battery_time;;
+	}
+	else if (this->flashIsOn) {
+		battery_time = currTime - battery_off;
+		//Every 5 seconds that the light is on the battery is consumed 4 from 100
+		if (battery_time > battery_life) {
+			this->battery -= battery_reduction;
+			battery_time = 0;
+			battery_off = currTime;
+		}
+	}
+	cout << this->flashIsOn << ", " << battery_time << endl;
+	/*if (currTime - battery_time > 1.0f) {
+		battery_time = currTime;
+	}*/
+
+
+	//flashlight->model.rotate(degrees2 * sign(upDot), Vector3(1, 0, 0));
 	flashlight->updateBoundingBox();
 }
 

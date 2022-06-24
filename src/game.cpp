@@ -109,7 +109,8 @@ void Game::render(void)
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-	drawText(2, 20, "Current battery", Vector3(1, 1, 1), 2);
+	float z = scene->main_character->battery;
+	drawText(2, 20, "Current battery" + to_string(z), Vector3(1, 1, 1), 2);
 	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
 	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
 	drawText(this->window_width / 2, this->window_height / 2, "o",Vector3(1, 1, 1),2);
