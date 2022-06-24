@@ -80,6 +80,7 @@ public:
 	static Vector2 mouse_delta; //mouse movement in the last frame
 	static float mouse_wheel;
 	static float mouse_wheel_delta;
+	static bool mouse_wheel_trigger;
 
 	//keyboard
 	static bool isKeyPressed(int key_code) { return keystate[key_code] != 0; }

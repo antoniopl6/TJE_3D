@@ -139,9 +139,12 @@ void Editor3D::show()
 		}
 		else if (current_layer == EditorLayer::LAYER3)
 		{
-			entity_option == EntityOption::NO_ENTITY;
+			entity_option = EntityOption::NO_ENTITY;
 			current_layer = EditorLayer::LAYER2;
 			if (current_camera == ENTITY) switchCamera();
+			selected_object = NULL;
+			selected_light = NULL;
+			selected_sound = NULL;
 		}
 
 	}
@@ -200,7 +203,7 @@ void Editor3D::show()
 			switch (entity_option)
 			{
 			case(EntityOption::OBJECT):
-				cout << "Select an asset type from the list" << endl << endl;
+				cout << "Select an asset from the list" << endl << endl;
 				for (int i = 0; i < assets_size; ++i)
 				{
 					if (i == current_asset)
@@ -211,7 +214,7 @@ void Editor3D::show()
 				cout << endl;
 				break;
 			case(EntityOption::LIGHT):
-				cout << "Select a light type from the list" << endl << endl;
+				cout << "Select a light from the list" << endl << endl;
 				for (int i = 0; i < lights_size; ++i)
 				{
 					if (i == current_light)
@@ -222,7 +225,7 @@ void Editor3D::show()
 				cout << endl;
 				break;
 			case(EntityOption::SOUND):
-				cout << "Select a sound type from the list" << endl << endl;
+				cout << "Select a sound from the list" << endl << endl;
 				for (int i = 0; i < sounds_size; ++i)
 				{
 					if (i == current_sound)
@@ -334,12 +337,32 @@ void Editor3D::show()
 		}
 	}
 
+	//Action mode
+	if (selected_object || selected_light || selected_sound)
+	{
+		if (Input::wasKeyPressed(SDL_SCANCODE_T))
+		{
+			current_action = Actions::TRANSLATE;
+			cout << "Action changed to TRANSLATE" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_R))
+		{
+			current_action = Actions::ROTATE;
+			cout << "Action changed to ROTATE" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_F))
+		{
+			current_action = Actions::SCALE;
+			cout << "Action changed to SCALE" << endl << endl;
+		}
+	}
+
 }
 
 void Editor3D::work()
 {
 	//Add entity
-	if (menu_option == MenuOption::ADD && Input::wasMousePressed(SDL_BUTTON_MIDDLE))
+	if (menu_option == MenuOption::ADD && Input::wasMousePressed(SDL_BUTTON_RIGHT))
 	{
 		addEntity();
 	}
@@ -348,33 +371,36 @@ void Editor3D::work()
 	else if (menu_option == MenuOption::EDIT)
 	{
 		//Update speed
-		if (current_layer == LAYER3 && Input::wasKeyPressed(SDL_MOUSEWHEEL))
+		if (current_layer == LAYER3 && Input::mouse_wheel_trigger)
 		{
 			switch (current_action)
 			{
 			case(Actions::TRANSLATE):
 				translation_speed += Input::mouse_wheel_delta;
+				break;
 			case(Actions::ROTATE):
 				rotation_speed += Input::mouse_wheel_delta;
+				break;
 			case(Actions::SCALE):
 				scale_speed += Input::mouse_wheel_delta;
+				break;
 			}
 		}
 
 		if (entity_option == EntityOption::OBJECT)
 		{			
 			//Pick an entity with a ray cast
-			if (Input::wasMousePressed(SDL_BUTTON_MIDDLE)) {
-				selected_entity = selectEntity();
+			if (Input::wasMousePressed(SDL_BUTTON_RIGHT)) {
+				selected_object = selectEntity();
 
 				//Change camera view
 				switchCamera();
-				focusCamera(selected_entity);
+				focusCamera(selected_object);
 			}
 			
 			//Send that entity to editEntity method
-			if(selected_entity != NULL)
-				editEntity(selected_entity);
+			if(selected_object != NULL)
+				editEntity(selected_object);
 		}
 		else if (entity_option == EntityOption::LIGHT)//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
 		{
@@ -397,7 +423,7 @@ void Editor3D::work()
 	//Remove entity
 	else if (menu_option == MenuOption::REMOVE)
 	{
-		if (entity_option == EntityOption::OBJECT && Input::wasKeyPressed(SDL_SCANCODE_SPACE))
+		if (entity_option == EntityOption::OBJECT && Input::wasMousePressed(SDL_BUTTON_RIGHT))
 		{
 			//Pick an entity with a ray cast
 			ObjectEntity* selected_entity = selectEntity();
@@ -532,6 +558,7 @@ void Editor3D::editEntity(Entity* entity)
 		entity->model.scale(scale_speed, 0, 0);
 	}
 		
+	//Scale entity WASDQE
 	if(Input::wasKeyPressed(SDL_SCANCODE_A))
 		entity->model.scale(-scale_speed,0,0);
 	if(Input::wasKeyPressed(SDL_SCANCODE_E))
@@ -546,6 +573,7 @@ void Editor3D::editEntity(Entity* entity)
 		entity->model.scale(scale_speed, scale_speed, scale_speed);
 	if (Input::wasKeyPressed(SDL_SCANCODE_MINUS)) 
 		entity->model.scale(-scale_speed, -scale_speed, -scale_speed);
+	
 	//Rotate entity WASDQE
 	if (Input::wasKeyPressed(SDL_SCANCODE_D))
 		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 1, 0));

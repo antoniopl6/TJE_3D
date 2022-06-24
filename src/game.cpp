@@ -218,7 +218,13 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		render_editor = !render_editor;
 		entity_editor->current_camera = Editor3D::MAIN;
 		if (render_editor)
+		{
 			entity_editor->reset();
+		}
+		else
+		{
+			cout << "Exiting the editor" << endl << endl;
+		}
 		break;
 	}
 }

@@ -116,6 +116,7 @@ void mainLoop()
 			case SDL_MOUSEWHEEL:
 				Input::mouse_wheel += sdlEvent.wheel.y;
 				Input::mouse_wheel_delta = sdlEvent.wheel.y;
+				Input::mouse_wheel_trigger = true;
 				game->onMouseWheel(sdlEvent.wheel);
 				break;
 			case SDL_KEYDOWN:
@@ -139,7 +140,7 @@ void mainLoop()
 					game->onResize(sdlEvent.window.data1, sdlEvent.window.data2);
 					break;
 				}
-			}
+			}				
 		}
 
         
@@ -165,6 +166,9 @@ void mainLoop()
 		#ifdef _DEBUG
 			checkGLErrors();
 		#endif
+
+		//Reset triggers
+		Input::mouse_wheel_trigger = false;
 	}
 
 	SDL_GL_DeleteContext(glcontext);
