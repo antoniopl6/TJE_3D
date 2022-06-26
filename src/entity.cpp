@@ -179,40 +179,7 @@ float battery_reduction = 4.0f;
 //Time the battery is on off state
 float battery_off = 0.0f;
 void MainCharacterEntity::update(float elapsed_time)
-{//model.translateGlobal(posCam.x - this->model.getTranslation().x, 0, posCam.z - this->model.getTranslation().z);
-	////cout << model.getTranslation().x << ", " << model.getTranslation().z << endl;
-	//float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-//model.rotateGlobal(degrees * sign(sideDot), Vector3(0, 1, 0));
-//this->updateBoundingBox();
-
-
-
-	////Vector3 toTarget = (camera->center - camera->eye).normalize();
-	//Vector3 toTarget = (camera->center - camera->eye).normalize();
-	//Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
-	//Vector3 posCam = this->camera->eye;
-	//float forwardDot = forward.dot(toTarget);
-	////
-	//Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
-	////
-	//float sideDot = side.dot(toTarget);
-
-	////flashlight->model.translateGlobal(posCam.x - flashlight->model.getTranslation().x + toTarget.x*200, 0, posCam.z - flashlight->model.getTranslation().z + toTarget.z * 200);
-	//
-	//float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	///*flashlight->model.setTranslation(posCam.x, 150, posCam.z);
-	//light->model.setTranslation(posCam.x + 40, 150, posCam.z + 40);*/
-	//Vector3 up = camera->up.normalize();
-	//Vector3 eye_flashlight = Vector3(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z * 80 - up.z * 35);
-	////flashlight->model.setTranslation(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z* 80 - up.z * 35);
-	//float degrees2 = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-
-
-
-
-
-
-		//Vector3 toTarget = (camera->center - camera->eye).normalize();
+{
 	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
 	//
 	Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
@@ -222,41 +189,33 @@ void MainCharacterEntity::update(float elapsed_time)
 	float sideDot = side.dot(toTarget);
 	float upDot = up.dot(toTarget);
 	float forwardDot = forward.dot(toTarget);
-	//flashlight->model.lookAt(eye_flashlight, camera->center, up);
 	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
 
 	float degrees2 = computeDeg(Vector2(forward.y, forward.z), Vector2(toTarget.y, toTarget.z));	
-	/*if (forwardDot < 0.98f) {
 
-	/*if (forwardDot < 0.98f) {
-		flashlight->model.rotate(elapsed_time * 80.0f * DEG2RAD * sign(sideDot), Vector3(1, 0, 0));
-	}*/
 	Vector3 posCam = camera->eye;
 	Vector3 camForward = (camera->center - camera->eye).normalize();
 	flashlight->model.setTranslation(posCam.x + camForward.x * 80 - camera->up.x * 35, posCam.y + camForward.y * 80 - camera->up.y * 35, posCam.z + camForward.z * 80 - camera->up.z * 35);
-	//flashlight->model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 	
 	float currTime = Game::instance->time;
-	//In case the flash is off the time battery_off is recorded, in order to calculate the battery_time based on this one, that gives the rest
 	if (!this->flashIsOn || this->battery == 0) {
 		battery_off = currTime - battery_time;;
 	}
 	else if (this->flashIsOn) {
 		battery_time = currTime - battery_off;
-		//Every 5 seconds that the light is on the battery is consumed 4 from 100
 		if (battery_time > battery_life) {
 			this->battery = max(this->battery - battery_reduction, 0);
 			battery_time = 0;
 			battery_off = currTime;
 		}
 	}
-	cout << this->flashIsOn << ", " << battery_time << endl;
-	/*if (currTime - battery_time > 1.0f) {
-		battery_time = currTime;
-	}*/
 
+	if (isHitted) {
+		if (currTime - playerHittedTime > 3.0f) {
+			isHitted = false;
+		}
+	}
 
-	//flashlight->model.rotate(degrees2 * sign(upDot), Vector3(1, 0, 0));
 	flashlight->updateBoundingBox();
 }
 
@@ -362,8 +321,16 @@ bool MonsterEntity::isInFollowRange(MainCharacterEntity* mainCharacter)
 
 	//If the player is in vision range of the monster then should start following
 	if (1900.0f > dist && forwardDot > 0.30f) {
-		if (300 >= dist) {
+		if (300.0f >= dist && !mainCharacter->isHitted) {
+			/*float currTime = Game::instance->time;
+			if ((currTime - mainCharacter->playerHittedTime) <= 0.0f || (currTime - mainCharacter->playerHittedTime) >= 1.5f) {
+				mainCharacter->health = max(0, mainCharacter->health - 25);
+				mainCharacter->playerHittedTime = currTime;
+				mainCharacter->isHitted = true;
+			}*/
 			mainCharacter->health = max(0, mainCharacter->health - 25);
+			mainCharacter->isHitted = true;
+			mainCharacter->playerHittedTime = Game::instance->time;
 		}
 		return true;
 	}

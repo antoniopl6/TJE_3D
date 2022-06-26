@@ -64,6 +64,8 @@ public:
 	ObjectEntity* flashlight;
 	LightEntity* light;
 	int num_keys;
+	bool isHitted = false;
+	float playerHittedTime = 0.0f;
 
 	//Triggers
 	bool bounding_box_trigger;
