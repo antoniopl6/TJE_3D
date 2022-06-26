@@ -109,11 +109,7 @@ void Game::render(void)
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-	float z = scene->main_character->battery;
-	drawText(2, 20, "Current battery" + to_string(z), Vector3(1, 1, 1), 2);
-	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
-	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
-	drawText(this->window_width / 2, this->window_height / 2, "o",Vector3(1, 1, 1),2);
+	
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
 }
@@ -141,14 +137,13 @@ void Game::update(double seconds_elapsed)
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
-	/*if (monster->isInFollowRange(camera)) {
-		monster->updateFollow(elapsed_time, camera);
-		MonsterIsInPathRoute = false;
-	}*/
+	if (monster->isInFollowRange(character)) {
+		monster->updateFollow(elapsed_time, character->camera);
+	}
 	//////////////////////////// path
-	//else {
+	else {
 		monster->followPath(elapsed_time);
-	//}
+	}
 	
 
 	//}

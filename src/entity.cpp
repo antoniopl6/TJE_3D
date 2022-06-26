@@ -52,6 +52,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 	this->battery = 8.f;
+	this->health = 100;
 	this->flashIsOn = true;
 	this->num_apples = 0;
 	this->num_keys = 0;
@@ -104,7 +105,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
 			num_keys++;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
-			this->battery = min(100.f, this->battery + 35.f);
+			this->battery = min(100.f, this->battery + 36.f);
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
 			num_apples++;
 	}
@@ -237,14 +238,14 @@ void MainCharacterEntity::update(float elapsed_time)
 	
 	float currTime = Game::instance->time;
 	//In case the flash is off the time battery_off is recorded, in order to calculate the battery_time based on this one, that gives the rest
-	if (!this->flashIsOn || this->battery <= 0) {
+	if (!this->flashIsOn || this->battery == 0) {
 		battery_off = currTime - battery_time;;
 	}
 	else if (this->flashIsOn) {
 		battery_time = currTime - battery_off;
 		//Every 5 seconds that the light is on the battery is consumed 4 from 100
 		if (battery_time > battery_life) {
-			this->battery -= battery_reduction;
+			this->battery = max(this->battery - battery_reduction, 0);
 			battery_time = 0;
 			battery_off = currTime;
 		}
@@ -348,11 +349,11 @@ void MonsterEntity::update(float elapsed_time)
 	}
 }
 
-bool MonsterEntity::isInFollowRange(Camera* camera)
+bool MonsterEntity::isInFollowRange(MainCharacterEntity* mainCharacter)
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
-	Vector3 toTarget = model.getTranslation() - camera->eye;
+	Vector3 toTarget = model.getTranslation() - mainCharacter->camera->eye;
 
 	float dist = toTarget.length();
 	toTarget.normalize();
@@ -360,7 +361,13 @@ bool MonsterEntity::isInFollowRange(Camera* camera)
 	float forwardDot = forward.dot(toTarget);
 
 	//If the player is in vision range of the monster then should start following
-	return (1900.0f > dist && forwardDot > 0.30f);
+	if (1900.0f > dist && forwardDot > 0.30f) {
+		if (300 >= dist) {
+			mainCharacter->health = max(0, mainCharacter->health - 25);
+		}
+		return true;
+	}
+	return false;
 }
 
 void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running animation
@@ -378,9 +385,12 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running a
 	float runSpeed = 400.0f;
 
 	//Translate the model of the monster to catch the player
-	if (dist > 400.0f) {
+	if (dist > 300) {
 		Vector3 translate = forward * -runSpeed * elapsed_time;
-		model.translateGlobal(translate.x, 0, translate.z);
+		Vector3 monsterPos = Vector3(model.getTranslation().x, 231, model.getTranslation().z);
+		Vector3 nextPos = Scene::instance->testCollisions(monsterPos, translate, elapsed_time);
+		Vector3 translation = nextPos - model.getTranslation();
+		model.translateGlobal(translation.x, 0, translation.z);
 	}
 	//Change the rotation based on main character pos
 	if (forwardDot < 0.98f) {

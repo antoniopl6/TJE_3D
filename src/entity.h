@@ -59,6 +59,7 @@ public:
 	//Game values
 	int num_apples;
 	float battery;
+	float health;
 	bool flashIsOn;
 	ObjectEntity* flashlight;
 	LightEntity* light;
@@ -111,7 +112,7 @@ public:
 	MonsterEntity();
 
 	//Methods
-	bool isInFollowRange(Camera* camera);
+	bool isInFollowRange(MainCharacterEntity* mainCharacter);
 	void updateFollow(float elapsed_time, Camera* camera);
 	void followPath(float elapsed_time);
 	bool moveToTarget(float elapsed_time, Vector3 pos);
