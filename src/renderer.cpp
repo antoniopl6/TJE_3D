@@ -111,6 +111,10 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
 	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
 
+	if (scene->collectableInRange()) {
+		drawText(Game::instance->window_width/2, Game::instance->window_height / 2 + 15, "press [X] to pick up the item", Vector3(1, 1, 1), 2);
+	}
+	drawText(Game::instance->window_width / 2, Game::instance->window_height / 2, "o", Vector3(1, 1, 1), 2);
 	Mesh quad;
 	quad.createQuad(25, 25, 1000, 1000, true);
 	Camera cam2d;
@@ -167,7 +171,7 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 	//glEnable(GL_CULL_FACE);
 	//glDisable(GL_BLEND);
 	
-	//drawText(Game::instance->window_width / 2, Game::instance->window_height / 2, "o", Vector3(1, 1, 1), 2);
+	
 
 
 	//Disable shader

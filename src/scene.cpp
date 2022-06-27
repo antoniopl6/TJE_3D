@@ -188,8 +188,7 @@ ObjectEntity::ObjectType Scene::getCollectable() {
 		Vector3 entity_normal;
 
 		//Ray collision test
-		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance) && entity->type != ObjectEntity::ObjectType::RENDER_OBJECT)
-		{
+		if (entity->type != ObjectEntity::ObjectType::RENDER_OBJECT && entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance)) {
 			float entity_distance = (entity_position - ray_origin).length();
 			if (entity_distance < max_distance)
 			{
@@ -197,8 +196,8 @@ ObjectEntity::ObjectType Scene::getCollectable() {
 				type = entity->type;
 				collectable = entity;
 			}
-
 		}
+		
 
 	}
 	if (collectable && type != ObjectEntity::ObjectType::RENDER_OBJECT)
@@ -232,7 +231,7 @@ bool Scene::collectableInRange() {
 		Vector3 entity_normal;
 
 		//Ray collision test
-		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance) && entity->type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		if (entity->type != ObjectEntity::ObjectType::RENDER_OBJECT && entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
 		{
 			return true;
 
