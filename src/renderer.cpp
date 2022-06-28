@@ -14,6 +14,10 @@ Renderer::Renderer(Scene* scene, Camera* camera)
 	this->scene = scene;
 	this->camera = camera;
 	
+	//Creates shader for GUI and loads all textures
+	shaderGUI = Shader::Get("data/shaders/image.vs", "data/shaders/image.fs");
+	loadGUIs();
+
 	//Create Shadow Atlas: We create a dynamic atlas to be resizable
 	createShadowAtlas();
 }
@@ -30,6 +34,56 @@ bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
 	else return true;
 }
 
+//loads GUIs textures
+void Renderer::loadGUIs() {
+	collectItem = Texture::Get("data/GUIs/collect.png");
+	battery = Texture::Get("data/GUIs/battery.png");
+	points[0] = Texture::Get("data/GUIs/circle.png");
+	points[1] = Texture::Get("data/GUIs/grey.png");
+	dmgScreen = Texture::Get("data/GUIs/dmg.png");
+}
+
+void Renderer::renderGUIs() {
+	Game* g = Game::instance;
+	int screenWidth = g->window_width;
+	int screenHeight = g->window_height;
+	//if a collectable is in range to pick notify the player
+	if (scene->collectableInRange()) {
+		renderImage(collectItem, 300, 40, screenWidth / 2, screenHeight / 2 + 150, Vector4(0, 0, 1, 1));
+		renderImage(points[1], 6, 6, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1));
+	}
+	else {
+		renderImage(points[0], 6, 6, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.7, 0.7, 0.7, 0.7));
+	}
+
+	//Renders battery GUIs indicators
+	float batteryPerc = scene->main_character->battery;
+	if (0.0f <= batteryPerc && batteryPerc < 25.0f) {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else if (25.0f <= batteryPerc && batteryPerc < 50.0f) {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0.25, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else if (50.0f <= batteryPerc && batteryPerc < 75.0f) {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0.5, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0.75, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+
+	//Renders health GUIs indicators
+	float health = scene->main_character->health;
+	if (0.0f <= health && health <= 25.0f) {
+		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else if (25.0f < health && health <= 50.0f) {
+		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.6, 0.6, 0.6, 0.6));
+	}
+	else if (50.0f < health && health <= 75.0f) {
+		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.3, 0.3, 0.3, 0.3));
+	}
+
+}
 //Intialize render calls vector
 void Renderer::createRenderCalls()
 {
@@ -110,7 +164,7 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 }
 
 //Renders an image
-void Renderer::renderImage(Texture* Image)
+void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range, Vector4 color)
 {
 	//Check if there is an image
 	if (!Image)
@@ -125,31 +179,29 @@ void Renderer::renderImage(Texture* Image)
 	//Local variables
 	Mesh quad;
 	Camera cam2d;
-	Shader* shader;
 	
 	//Intialize local variables
-	shader = Shader::Get("data/shaders/image.vs", "data/shaders/image.fs");
-	quad.createQuad(100, 100, 100, 100, false);
+	quad.createQuad(x, y, w, h, true);
 	cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
 
 	//Check if the shader exists
-	if (!shader)
+	if (!shaderGUI)
 		return;
 
 	//Set shader uniforms
-	shader->enable();
-	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	shader->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
-	shader->setUniform("u_texture", Image, 0);
-	shader->setUniform("u_time", time);
-	shader->setUniform("u_tex_range", Vector4(0, 0, 1, 1));
-	shader->setUniform("u_model", Matrix44());
+	shaderGUI->enable();
+	shaderGUI->setUniform("u_color", color);
+	shaderGUI->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
+	shaderGUI->setUniform("u_texture", Image, 0);
+	shaderGUI->setUniform("u_time", time);
+	shaderGUI->setUniform("u_tex_range", tex_range);
+	shaderGUI->setUniform("u_model", Matrix44());
 
 	//Render the quad	
 	quad.render(GL_TRIANGLES);
 
 	//Disable the shader
-	shader->disable();
+	shaderGUI->disable();
 
 	//Reset OpenGL flags
 	glEnable(GL_DEPTH_TEST);

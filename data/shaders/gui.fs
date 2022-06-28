@@ -8,7 +8,7 @@ varying vec4 v_color;
 uniform vec4 u_color;
 uniform sampler2D u_texture;
 uniform float u_time;
-uniform vec4 u_tex_range;
+uniform vec4 u_tex_range; //[startx, starty, w, h]
 
 void main()
 {

@@ -39,9 +39,6 @@ public:
 	Renderer* renderer; //game render class
 	bool mouse_locked; //tells if the mouse is locked (not seen)
 
-	//Images
-	Texture* prueba;
-
 	Game(int window_width, int window_height, SDL_Window* window);
 
 	void RenderTerrainExample();

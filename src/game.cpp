@@ -44,9 +44,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	elapsed_time = 0.0f;
 	mouse_locked = false;
 
-	//Images
-	prueba = Texture::Get("data/GUIs/prueba.png");
-
 	//OpenGL flags
 	glEnable(GL_CULL_FACE); //render both sides of every triangle
 	glEnable(GL_DEPTH_TEST); //check the occlusions using the Z buffer
@@ -101,9 +98,10 @@ void Game::render(void)
 			break;
 	}
 
-	//Render images
-	renderer->renderImage(prueba);
-
+	//Render GUIs
+	renderer->renderGUIs();
+	
+		
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
 

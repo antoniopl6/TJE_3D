@@ -36,9 +36,16 @@ public:
 	//Application variables
 	Scene* scene;
 	Camera* camera;
+	Shader* shaderGUI;
 
 	//Render variables
 	std::vector<RenderCall*> render_calls; // Here we store each RenderCall to be sent to the GPU.
+
+	//GUIs
+	Texture* collectItem;
+	Texture* points[2];
+	Texture* battery;
+	Texture* dmgScreen;
 
 	//Constructor
 	Renderer(Scene* scene, Camera* camera);
@@ -47,7 +54,13 @@ public:
 	void renderScene(Scene* scene, Camera* camera);
 
 	//Renders an image
-	void renderImage(Texture* Image);
+	void renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range = Vector4(1, 1, 1, 1), Vector4 color = Vector4(1, 1, 1, 1));
+
+	//loads GUIs textures
+	void loadGUIs();
+
+	//render GUIs
+	void renderGUIs();
 
 	//Intialize the render calls vector
 	void createRenderCalls();

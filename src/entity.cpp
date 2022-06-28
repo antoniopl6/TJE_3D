@@ -51,7 +51,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-	this->battery = 8.f;
+	this->battery = 75.f;
 	this->health = 100;
 	this->flashIsOn = true;
 	this->num_apples = 0;
@@ -174,7 +174,8 @@ void MainCharacterEntity::save(cJSON* main_json)
 
 //Handles battery consumption
 float battery_time = 0.0f;
-float battery_life = 5.0f;
+//Battery_life is the time that the battery_reduction has before is spent
+float battery_life = 2.5f;
 float battery_reduction = 4.0f;
 //Time the battery is on off state
 float battery_off = 0.0f;
@@ -210,10 +211,16 @@ void MainCharacterEntity::update(float elapsed_time)
 		}
 	}
 
+	//Time that the player is invulnerable
 	if (isHitted) {
 		if (currTime - playerHittedTime > 3.0f) {
 			isHitted = false;
 		}
+	}
+
+	//With time, the player recovers health
+	if (currTime - playerHittedTime > 9.0f) {
+		health = min(100, health + 25);
 	}
 
 	flashlight->updateBoundingBox();
