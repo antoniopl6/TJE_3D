@@ -46,6 +46,8 @@ public:
 	Texture* points[2];
 	Texture* battery;
 	Texture* dmgScreen;
+	Texture* apple;
+	Texture* key;
 
 	//Constructor
 	Renderer(Scene* scene, Camera* camera);

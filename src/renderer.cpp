@@ -41,6 +41,8 @@ void Renderer::loadGUIs() {
 	points[0] = Texture::Get("data/GUIs/circle.png");
 	points[1] = Texture::Get("data/GUIs/grey.png");
 	dmgScreen = Texture::Get("data/GUIs/dmg.png");
+	apple = Texture::Get("data/GUIs/shiny-apple.png");
+	key = Texture::Get("data/GUIs/key.png");
 }
 
 void Renderer::renderGUIs() {
@@ -83,6 +85,18 @@ void Renderer::renderGUIs() {
 		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.3, 0.3, 0.3, 0.3));
 	}
 
+
+	//Render GUI apple and key
+	int num_apples = scene->main_character->num_apples;
+	int num_keys = scene->main_character->num_keys;
+	for (size_t i = 0; i < num_apples; i++)
+	{
+		renderImage(apple, 35, 35, 100 + i * 8, 35, Vector4(0, 0, 1, 1));
+	}
+	for (size_t i = 0; i < num_keys; i++)
+	{
+		renderImage(key, 35, 35, 180 + i * 8, 35, Vector4(0, 0, 1, 1));
+	}
 }
 //Intialize render calls vector
 void Renderer::createRenderCalls()
