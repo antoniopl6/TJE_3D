@@ -158,6 +158,7 @@ void Renderer::renderImage(Texture* Image)
 	 
 }
 
+//Set scene uniforms
 void Renderer::setSceneUniforms(Shader* shader)
 {
 	//Shadow Atlas

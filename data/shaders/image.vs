@@ -1,4 +1,5 @@
 #version 330 core
+
 in vec3 a_vertex;
 in vec2 a_coord;
 
