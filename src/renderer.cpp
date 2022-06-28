@@ -60,6 +60,7 @@ void Renderer::createRenderCalls()
 	sort(render_calls.begin(), render_calls.end(), sortRenderCall);
 }
 
+//Renders several elements of the scene
 void Renderer::renderScene(Scene* scene, Camera* camera)
 {
 	//Set the scene and the camera with which to render
@@ -100,51 +101,61 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 		if (camera->testBoxInFrustum(rc->world_bounding_box->center, rc->world_bounding_box->halfsize))
 			renderDrawCall(scene->shader, rc, camera);
 	}
-	//GUI Render
-	//glDisable(GL_DEPTH_TEST);
-	//glDisable(GL_CULL_FACE);
-	//glEnable(GL_BLEND);
-	//glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	//float z = scene->main_character->battery;
-	//drawText(2, 20, "Current battery" + to_string(z), Vector3(1, 1, 1), 2);
-	//drawText(2, 50, "Current life" + to_string(scene->main_character->health), Vector3(1, 1, 1), 2);
-	//drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
-	//drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
 
-	//if (scene->collectableInRange()) {
-	//	drawText(Game::instance->window_width/2, Game::instance->window_height / 2 + 15, "press [X] to pick up the item", Vector3(1, 1, 1), 2);
-	//}
-	//drawText(Game::instance->window_width / 2, Game::instance->window_height / 2, "o", Vector3(1, 1, 1), 2);
-	//Mesh quad;
-	//quad.createQuad(25, 25, 1000, 1000, true);
-	//Camera cam2d;
-	//Matrix44 projection_matrix;
-	//projection_matrix.ortho(0, Game::instance->window_width / 2, Game::instance->window_height / 2, 0, -1, 1);
-	//cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
-
-	//scene->shader->enable();
-	//Texture* img = Texture::Get("data/GUIs/grey.jpg");
-	//scene->shader->setUniform("u_color_texture", img, 0);
-	//scene->shader->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
-	//scene->shader->setUniform("u_time", time);
-	////scene->shader->setUniform("u_tex_tiling", 1.0f);
-	//Matrix44 quadModel;
-	//quadModel.translate(sin(Game::instance->time) * 20, 0, 0);
-	//scene->shader->setUniform("u_model", quadModel);
-	//quad.render(GL_TRIANGLES);
-
-	//glEnable(GL_DEPTH_TEST);
-	//glEnable(GL_CULL_FACE);
-	//glDisable(GL_BLEND);
-	// 
 	//Disable shader
 	scene->shader->disable();
 
-	
 	//Debug shadow maps
-
 	if (scene->show_atlas) showShadowAtlas();
+}
 
+//Renders an image
+void Renderer::renderImage(Texture* Image)
+{
+	//Check if there is an image
+	if (!Image)
+		return;
+
+	//Disable and enable OpenGL flags
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+	
+	//Local variables
+	Mesh quad;
+	Camera cam2d;
+	Shader* shader;
+	
+	//Intialize local variables
+	shader = Shader::Get("data/shaders/image.vs", "data/shaders/image.fs");
+	quad.createQuad(100, 100, 100, 100, false);
+	cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
+
+	//Check if the shader exists
+	if (!shader)
+		return;
+
+	//Set shader uniforms
+	shader->enable();
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
+	shader->setUniform("u_texture", Image, 0);
+	shader->setUniform("u_time", time);
+	shader->setUniform("u_tex_range", Vector4(0, 0, 1, 1));
+	shader->setUniform("u_model", Matrix44());
+
+	//Render the quad	
+	quad.render(GL_TRIANGLES);
+
+	//Disable the shader
+	shader->disable();
+
+	//Reset OpenGL flags
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+	 
 }
 
 void Renderer::setSceneUniforms(Shader* shader)

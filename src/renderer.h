@@ -46,6 +46,9 @@ public:
 	//Renders several elements of the scene
 	void renderScene(Scene* scene, Camera* camera);
 
+	//Renders an image
+	void renderImage(Texture* Image);
+
 	//Intialize the render calls vector
 	void createRenderCalls();
 

@@ -44,6 +44,9 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	elapsed_time = 0.0f;
 	mouse_locked = false;
 
+	//Images
+	prueba = Texture::Get("data/GUIs/prueba.png");
+
 	//OpenGL flags
 	glEnable(GL_CULL_FACE); //render both sides of every triangle
 	glEnable(GL_DEPTH_TEST); //check the occlusions using the Z buffer
@@ -98,35 +101,12 @@ void Game::render(void)
 			break;
 	}
 
+	//Render images
+	renderer->renderImage(prueba);
+
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-	//GUI Render
-	glDisable(GL_DEPTH_TEST);
-	glDisable(GL_CULL_FACE);
-	glEnable(GL_BLEND);
-	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	Mesh quad;
-	quad.createQuad(100, 100, 100, 100, false);
-	Camera cam2d;
-	cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
-	Shader* a_shader = Shader::Get("data/basic.vs", "data/gui.fs");
 
-	a_shader->enable();
-	Texture* img = Texture::Get("data/GUIs/prueba.png");
-	a_shader->setUniform("u_color", Vector4(1, 1, 1, 1));
-	a_shader->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
-	a_shader->setUniform("u_texture", img, 0);
-	a_shader->setUniform("u_time", time);
-	a_shader->setUniform("u_tex_range", Vector4(0, 0, 1, 1));
-
-	//quadModel.translate(sin(Game::instance->time) * 20, 0, 0);
-	a_shader->setUniform("u_model", Matrix44());
-	quad.render(GL_TRIANGLES);
-	a_shader->disable();
-
-	glEnable(GL_DEPTH_TEST);
-	glEnable(GL_CULL_FACE);
-	glDisable(GL_BLEND);
 	//swap between front buffer and back buffer
 	SDL_GL_SwapWindow(this->window);
 }
