@@ -97,6 +97,25 @@ void Camera::orbit(float yaw, float pitch)
 	updateViewMatrix();
 }
 
+void Camera::changeDistance(float dt)
+{
+	if (type == ORTHOGRAPHIC)
+	{
+		float f = dt < 0 ? 1.1 : 0.9;
+		left *= f;
+		right *= f;
+		bottom *= f;
+		top *= f;
+		updateProjectionMatrix();
+		return;
+	}
+	vec3 dist = eye - center;
+	dist *= dt < 0 ? 1.1 : 0.9;
+	eye = dist + center;
+
+	updateViewMatrix();
+}
+
 void Camera::setOrthographic(float left, float right, float bottom, float top, float near_plane, float far_plane)
 {
 	type = ORTHOGRAPHIC;

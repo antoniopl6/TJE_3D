@@ -415,8 +415,11 @@ ObjectEntity::ObjectEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-	this->node_id = -1;
 	this->type = RENDER_OBJECT;
+
+	//Object tree
+	this->node_id = -1;
+	parent = NULL;
 }
 
 Matrix44 ObjectEntity::computeGlobalMatrix()

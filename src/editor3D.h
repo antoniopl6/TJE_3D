@@ -87,7 +87,7 @@ public:
 	Editor3D(Scene* scene);
 
 	//Edit
-	ObjectEntity* selected_entity = NULL;
+	ObjectEntity* selected_object = NULL;
 	LightEntity* selected_light = NULL;
 	SoundEntity* selected_sound = NULL;
 

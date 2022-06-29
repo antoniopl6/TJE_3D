@@ -19,12 +19,10 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 	//Open the file
 	reader.open(root + "\\" + asset + ".mtl", ios::out);
 
-	cout << root + "\\" + asset + ".mtl" << endl;
-
 	if (reader)
 	{
 		//Notify the user the reader has succeded in opening the file	
-		cout << "Success in opening" << endl;
+		cout << "Success in opening" << endl << endl;
 
 		//Create string buffer for storing file lines
 		string buffer;
@@ -360,7 +358,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 	else
 	{
 		//Notify the user the file hasn't been opened	
-		cout << "Issue in opening" << endl;
+		cout << "Issue in opening" << endl << endl;
 		return vector<ObjectEntity*>();
 	}
 }

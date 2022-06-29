@@ -75,7 +75,7 @@ public:
 
 	//mouse state
 	static int mouse_state; //tells which buttons are pressed
-	static int prev_mouse_state[3]; //tells if some mouse button was pressed
+	static int prev_mouse_state[5]; //tells if some mouse button was pressed
 	static Vector2 mouse_position; //last mouse position
 	static Vector2 mouse_delta; //mouse movement in the last frame
 	static float mouse_wheel;

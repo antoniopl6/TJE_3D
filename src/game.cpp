@@ -170,7 +170,6 @@ void Game::update(double seconds_elapsed)
 	case(Editor3D::MAIN):
 		character->update(seconds_elapsed);
 		character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
-		
 		break;
 	case(Editor3D::ENTITY):
 		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
@@ -204,7 +203,7 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		break;
 	case SDLK_F1: Shader::ReloadAll(); break;
 
-		//Turn around
+	//Turn around
 	case SDLK_q:
 		if (!turn_around)
 		{
@@ -213,7 +212,7 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		}
 		break;
 
-		//Entity editor
+	//Entity editor
 	case SDLK_h:
 		render_editor = !render_editor;
 		entity_editor->current_camera = Editor3D::MAIN;
@@ -263,14 +262,15 @@ void Game::onMouseButtonUp(SDL_MouseButtonEvent event)
 
 void Game::onMouseWheel(SDL_MouseWheelEvent event)
 {
-	mouse_speed *= event.y > 0 ? 1.1 : 0.9;
+	//mouse_speed *= event.y > 0 ? 1.1 : 0.9;
 }
 
 void Game::onResize(int width, int height)
 {
     std::cout << "window resized: " << width << "," << height << std::endl;
 	glViewport( 0,0, width, height );
-	main_camera->aspect =  width / (float)height;
+	main_camera->aspect = width / (float)height;
+	entity_editor->camera->aspect = width / (float)height;
 	window_width = width;
 	window_height = height;
 }

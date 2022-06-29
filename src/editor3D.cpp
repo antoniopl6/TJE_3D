@@ -5,11 +5,15 @@
 //Constructor
 Editor3D::Editor3D(Scene* scene)
 {
+	//Game instance
+	Game* game = Game::instance;
+
 	//Game Scene
 	this->scene = scene;
 	
 	//Camera
 	camera = new Camera();
+	camera->setPerspective(45.f, game->window_width / (float)game->window_height, 1.0f, camera->far_plane + 10000.f);
 	current_camera = MAIN;
 
 	//MTL Parser
@@ -62,9 +66,9 @@ Editor3D::Editor3D(Scene* scene)
 
 	//Action variables
 	current_action = Actions::TRANSLATE;
-	translation_speed = 10.f;
-	rotation_speed = 10.f;
-	scale_speed = 10.f;
+	translation_speed = 1.f;
+	rotation_speed = 1.f;
+	scale_speed = 1.001;
 }
 
 //General methods
@@ -88,15 +92,15 @@ void Editor3D::reset()
 
 	//Action variables
 	current_action = Actions::TRANSLATE;
-	translation_speed = 10.f;
-	rotation_speed = 10.f;
-	scale_speed = 10.f;
 }
 
 void Editor3D::show()
 {
-	//Support variable
-	bool menu_change = start_menu || Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_ESCAPE) || Input::wasKeyPressed(SDL_SCANCODE_TAB);
+	//Support boolean variables
+	bool keyboard_interaction = Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB);
+	bool exit_interaction = Input::wasKeyPressed(SDL_SCANCODE_ESCAPE);
+	bool selection_status = (!selected_object && !selected_light && !selected_sound);
+	bool menu_change = ((start_menu || keyboard_interaction) && selection_status) || exit_interaction;
 
 	//Select Menu Option
 	if (current_layer == EditorLayer::LAYER1) {
@@ -139,12 +143,19 @@ void Editor3D::show()
 		}
 		else if (current_layer == EditorLayer::LAYER3)
 		{
-			entity_option = EntityOption::NO_ENTITY;
-			current_layer = EditorLayer::LAYER2;
+			if(selected_object)
+				selected_object = NULL;
+			else if(selected_light)
+				selected_light = NULL;
+			else if(selected_sound)
+				selected_sound = NULL;
+			else
+			{
+				entity_option = EntityOption::NO_ENTITY;
+				current_layer = EditorLayer::LAYER2;
+			}
 			if (current_camera == ENTITY) switchCamera();
-			selected_object = NULL;
-			selected_light = NULL;
-			selected_sound = NULL;
+
 		}
 
 	}
@@ -239,7 +250,7 @@ void Editor3D::show()
 				cout << "Select an entity type" << endl << endl;
 				cout << "1. Object" << endl;
 				cout << "2. Light" << endl;
-				cout << "3. Sound" << endl;
+				cout << "3. Sound" << endl << endl;
 				break;
 			}
 			break;
@@ -281,7 +292,7 @@ void Editor3D::show()
 				cout << "Select an entity type" << endl << endl;
 				cout << "1. Object" << endl;
 				cout << "2. Light" << endl;
-				cout << "3. Sound" << endl;
+				cout << "3. Sound" << endl << endl;
 				break;
 			}
 			break;
@@ -323,12 +334,12 @@ void Editor3D::show()
 				cout << "Select an entity type" << endl << endl;
 				cout << "1. Object" << endl;
 				cout << "2. Light" << endl;
-				cout << "3. Sound" << endl;
+				cout << "3. Sound" << endl << endl;
 				break;
 			}
 			break;
 		case(MenuOption::NO_MENU):
-			cout << "Welcome to the editor mode" << endl << endl;
+			cout << endl << "Welcome to the editor mode" << endl << endl;
 			cout << "1. Add entity" << endl;
 			cout << "2. Edit entity" << endl;
 			cout << "3. Remove entity" << endl << endl;
@@ -340,17 +351,17 @@ void Editor3D::show()
 	//Action mode
 	if (selected_object || selected_light || selected_sound)
 	{
-		if (Input::wasKeyPressed(SDL_SCANCODE_T))
+		if (Input::wasKeyPressed(SDL_SCANCODE_1))
 		{
 			current_action = Actions::TRANSLATE;
 			cout << "Action changed to TRANSLATE" << endl << endl;
 		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_R))
+		else if (Input::wasKeyPressed(SDL_SCANCODE_2))
 		{
 			current_action = Actions::ROTATE;
 			cout << "Action changed to ROTATE" << endl << endl;
 		}
-		else if (Input::wasKeyPressed(SDL_SCANCODE_F))
+		else if (Input::wasKeyPressed(SDL_SCANCODE_3))
 		{
 			current_action = Actions::SCALE;
 			cout << "Action changed to SCALE" << endl << endl;
@@ -370,37 +381,29 @@ void Editor3D::work()
 	//Edit entity
 	else if (menu_option == MenuOption::EDIT)
 	{
-		//Update speed
-		if (current_layer == LAYER3 && Input::mouse_wheel_trigger)
-		{
-			switch (current_action)
-			{
-			case(Actions::TRANSLATE):
-				translation_speed += Input::mouse_wheel_delta;
-				break;
-			case(Actions::ROTATE):
-				rotation_speed += Input::mouse_wheel_delta;
-				break;
-			case(Actions::SCALE):
-				scale_speed += Input::mouse_wheel_delta;
-				break;
-			}
-		}
 
 		if (entity_option == EntityOption::OBJECT)
 		{			
 			//Pick an entity with a ray cast
-			if (Input::wasMousePressed(SDL_BUTTON_RIGHT)) {
+			if (!selected_object && Input::wasMousePressed(SDL_BUTTON_RIGHT))
+			{
 				selected_object = selectEntity();
 
-				//Change camera view
-				switchCamera();
-				focusCamera(selected_object);
+				if (selected_object)
+				{
+					//Show the selected entity in the screen
+					cout << "Selected Entity: " << endl << "\tName: " << selected_object->name << endl << "\tID: " << selected_object->object_id << endl << endl;
+
+					//Change camera view
+					switchCamera();
+					focusCamera(selected_object);
+				}
 			}
 			
 			//Send that entity to editEntity method
-			if(selected_object != NULL)
+			if (selected_object)
 				editEntity(selected_object);
+				
 		}
 		else if (entity_option == EntityOption::LIGHT)//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
 		{
@@ -442,7 +445,6 @@ void Editor3D::work()
 		}
 	}
 
-
 }
 
 void Editor3D::render()
@@ -468,7 +470,7 @@ void Editor3D::addEntity()
 		//Check objects list
 		if (objects.empty())
 		{
-			cout << "ERROR: The object list is empty" << endl;
+			cout << "ERROR: The object list is empty" << endl << endl;
 			return;
 		}
 
@@ -483,11 +485,20 @@ void Editor3D::addEntity()
 			{
 				//Cast a ray and place the parent in the ray direction
 				placeEntity(object);
+
+				//Check if the object is too far away
+				Vector3 object_position = object->model.getTranslation();
+				Vector3 main_position = scene->main_camera->eye;
+				float distance = (object_position - main_position).length();
+				if (distance > 800.f)
+				{
+					cout << "ERROR: The spawn position is too far away, try a closer position" << endl << endl;
+					return;
+				}
 			}
 
 			//Add new objects to the scene
 			scene->addEntity(object);
-
 		}
 
 		//Feedback
@@ -550,59 +561,96 @@ void Editor3D::addEntity()
 
 void Editor3D::editEntity(Entity* entity)
 {	
-	//Show the selected entity in the screen
-	cout << "Selected Entity: " << endl << "\tName: " << entity->name << endl << "\tID: " << entity->ID << endl << endl;
+	//Change speed
+	switch (current_action)
+	{
+	case(Actions::TRANSLATE):
 
-	//Scale entity WASDQE and +/-
-	if (Input::wasKeyPressed(SDL_SCANCODE_D)) {
-		entity->model.scale(scale_speed, 0, 0);
-	}
+		if (Input::isMousePressed(SDL_BUTTON_X1))
+			translation_speed = max(translation_speed - 0.1, 0.f);
+		else if (Input::isMousePressed(SDL_BUTTON_X2))
+			translation_speed += 0.1;
+		break;
+
+	case(Actions::ROTATE):
+
+		if (Input::isMousePressed(SDL_BUTTON_X1))
+			rotation_speed = max(rotation_speed - 0.1, 0.f);
+		else if (Input::isMousePressed(SDL_BUTTON_X2))
+			rotation_speed += 0.1;
+		break;
+
+	case(Actions::SCALE):
 		
-	//Scale entity WASDQE
-	if(Input::wasKeyPressed(SDL_SCANCODE_A))
-		entity->model.scale(-scale_speed,0,0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_E))
-		entity->model.scale(0,scale_speed,0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_Q))
-		entity->model.scale(0,scale_speed,0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_W))
-		entity->model.scale(0,0,scale_speed);
-	if(Input::wasKeyPressed(SDL_SCANCODE_S))
-		entity->model.scale(0,0,-scale_speed);
-	if (Input::wasKeyPressed(SDL_SCANCODE_KP_PLUS)) 
-		entity->model.scale(scale_speed, scale_speed, scale_speed);
-	if (Input::wasKeyPressed(SDL_SCANCODE_MINUS)) 
-		entity->model.scale(-scale_speed, -scale_speed, -scale_speed);
-	
-	//Rotate entity WASDQE
-	if (Input::wasKeyPressed(SDL_SCANCODE_D))
-		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 1, 0));
-	if (Input::wasKeyPressed(SDL_SCANCODE_A))
-		entity->model.rotate(-rotation_speed * DEG2RAD, Vector3(0, 1, 0));
-	if (Input::wasKeyPressed(SDL_SCANCODE_E))
-		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 0, 1));
-	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
-		entity->model.rotate(-rotation_speed * DEG2RAD, Vector3(0, 0, 1));
-	if (Input::wasKeyPressed(SDL_SCANCODE_W))
-		entity->model.rotate(rotation_speed * DEG2RAD, Vector3(1, 0, 0));
-	if (Input::wasKeyPressed(SDL_SCANCODE_S))
-		entity->model.rotate(-rotation_speed * DEG2RAD, Vector3(1, 0, 0));
+		if (Input::isMousePressed(SDL_BUTTON_X1))
+			scale_speed = max(scale_speed - 0.0001, 1.001);
+		else if (Input::isMousePressed(SDL_BUTTON_X2))
+			scale_speed = min(scale_speed + 0.0001, 1.999);
+		break;
+	}
 
-	//Translate entity WASDQE
-	if(Input::wasKeyPressed(SDL_SCANCODE_D))
-		entity->model.translate(translation_speed, 0, 0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_A))
-		entity->model.translate(-translation_speed, 0, 0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_E))
-		entity->model.translate(0, translation_speed, 0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_Q))
-		entity->model.translate(0, -translation_speed, 0);
-	if(Input::wasKeyPressed(SDL_SCANCODE_W))
-		entity->model.translate(0, 0, translation_speed);
-	if(Input::wasKeyPressed(SDL_SCANCODE_S))
-		entity->model.translate(0, 0, -translation_speed);
-	
+	//Edit
+	switch (current_action)
+	{
+	case(Actions::TRANSLATE):
+		
+		//Translate entity with WASDQE
+		if (Input::isKeyPressed(SDL_SCANCODE_D))
+			entity->model.translate(-translation_speed, 0, 0);
+		if (Input::isKeyPressed(SDL_SCANCODE_A))
+			entity->model.translate(translation_speed, 0, 0);
+		if (Input::isKeyPressed(SDL_SCANCODE_E))
+			entity->model.translate(0, translation_speed, 0);
+		if (Input::isKeyPressed(SDL_SCANCODE_Q))
+			entity->model.translate(0, -translation_speed, 0);
+		if (Input::isKeyPressed(SDL_SCANCODE_W))
+			entity->model.translate(0, 0, translation_speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_S))
+			entity->model.translate(0, 0, -translation_speed);
+		break;
 
+	case(Actions::ROTATE):
+		
+		//Rotate entity with WASDQE
+		if (Input::isKeyPressed(SDL_SCANCODE_D))
+			entity->model.rotate(-rotation_speed * DEG2RAD, Vector3(0, 1, 0));
+		if (Input::isKeyPressed(SDL_SCANCODE_A))
+			entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 1, 0));
+		if (Input::isKeyPressed(SDL_SCANCODE_E))
+			entity->model.rotate(-rotation_speed * DEG2RAD, Vector3(0, 0, 1));
+		if (Input::isKeyPressed(SDL_SCANCODE_Q))
+			entity->model.rotate(rotation_speed * DEG2RAD, Vector3(0, 0, 1));
+		if (Input::isKeyPressed(SDL_SCANCODE_W))
+			entity->model.rotate(-rotation_speed * DEG2RAD, Vector3(1, 0, 0));
+		if (Input::isKeyPressed(SDL_SCANCODE_S))
+			entity->model.rotate(rotation_speed * DEG2RAD, Vector3(1, 0, 0));
+		break;
+
+	case(Actions::SCALE):
+
+		float deescalate_speed = 1.f - (scale_speed - 1.f);
+		
+		//Scale entity with WASDQE and +/-
+		if (Input::isKeyPressed(SDL_SCANCODE_D))
+			entity->model.scale(scale_speed, 1.f, 1.f);
+		if (Input::isKeyPressed(SDL_SCANCODE_A))
+			entity->model.scale(deescalate_speed, 1.f, 1.f);
+		if (Input::isKeyPressed(SDL_SCANCODE_E))
+			entity->model.scale(1.f, scale_speed, 1.f);
+		if (Input::isKeyPressed(SDL_SCANCODE_Q))
+			entity->model.scale(1.f, deescalate_speed, 1.f);
+		if (Input::isKeyPressed(SDL_SCANCODE_W))
+			entity->model.scale(1.f, 1.f, scale_speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_S))
+			entity->model.scale(1.f, 1.f, deescalate_speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_RIGHTBRACKET))
+			entity->model.scale(scale_speed, scale_speed, scale_speed);
+		if (Input::isKeyPressed(SDL_SCANCODE_SLASH)) //May be SDL_SCANCODE_LEFTBRACKET
+			entity->model.scale(deescalate_speed, deescalate_speed, deescalate_speed);
+			
+		break;
+	}
+	
 	entity->updateBoundingBox();
 }
 
@@ -618,8 +666,9 @@ void Editor3D::removeEntity(Entity* entity)
 ObjectEntity* Editor3D::selectEntity() {
 	
 	//Selected entity and maximum distance of selection
-	ObjectEntity* selected_entity = NULL;
-	float max_distance = 2000.f;
+	ObjectEntity* selected_object = NULL;
+	float ray_max_distance = 2000.f;
+	float object_min_distance = 2000.f;
 	
 	//Get global variables
 	Vector2 mouse = Input::mouse_position;
@@ -634,26 +683,25 @@ ObjectEntity* Editor3D::selectEntity() {
 	for (size_t i = 0; i < scene->objects.size(); i++)
 	{
 		//Current object entity
-		ObjectEntity* entity = scene->objects[i];
+		ObjectEntity* object = scene->objects[i];
 
 		//Entity properties
-		Vector3 entity_position;
-		Vector3 entity_normal;
+		Vector3 object_position;
+		Vector3 object_normal;
 
 		//Ray collision test
-		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
+		if (object->mesh->testRayCollision(object->model, ray_origin, ray_direction, object_position, object_normal, ray_max_distance))
 		{
-			float entity_distance = (entity_position - ray_origin).length();
-			if (entity_distance < max_distance)
+			float object_distance = (object_position - ray_origin).length();
+			if (object_distance < object_min_distance)
 			{
-				//cout << entity->name << " removed succesfully." << endl;
-				selected_entity = entity;
+				object_min_distance = object_distance;
+				selected_object = object;
 			}
-			
+			return selected_object;
 		}
-
 	}
-	return selected_entity;
+	return selected_object;
 }
 
 void Editor3D::placeEntity(Entity* entity) {
@@ -683,10 +731,43 @@ void Editor3D::switchCamera()
 
 void Editor3D::focusCamera(Entity* entity)
 {
-	//Support variables
-	Vector3 camera_center = entity->model.getTranslation();
-	Vector3 camera_eye = 10 * entity->model.frontVector() + camera_center;
+	//Entities
+	ObjectEntity* object;
+	LightEntity* light;
+	SoundEntity* sound;
+
+	//Camera variables
+	Vector3 camera_center = Vector3(0.f, 0.f, 0.f);
+	Vector3 camera_eye = Vector3(200.f, 200.f, 200.f);
 	Vector3 camera_up = Vector3(0.f, 1.f, 0.f);
+
+	switch (entity->entity_type)
+	{
+	case(Entity::EntityType::OBJECT):
+		//Downcast
+		object = (ObjectEntity*)entity;
+
+		//Camera variables
+		camera_center = object->world_bounding_box.center;
+		camera_eye = 200 * object->model.frontVector() + camera_center;
+		break;
+	case(Entity::EntityType::LIGHT):
+		//Downcast
+		light = (LightEntity*)entity;
+
+		//Camera variables
+		camera_center = light->model.getTranslation();
+		camera_eye = 200 * light->model.frontVector() + camera_center;
+		break;
+	case(Entity::EntityType::SOUND):
+		//Downcast
+		sound = (SoundEntity*)entity;
+
+		//Camera variables
+		camera_center = sound->model.getTranslation();
+		camera_eye = 200 * sound->model.frontVector() + camera_center;
+		break;
+	}
 
 	//Focus camera
 	camera->lookAt(camera_eye, camera_center, camera_up);
@@ -696,10 +777,23 @@ void Editor3D::updateCamera(double seconds_elapsed, float mouse_speed, bool mous
 {
 	float orbit_speed = seconds_elapsed * 0.5;
 
-	//Mouse input to orbit the camera over the center (selected entity)
-	if (((Input::mouse_state) || mouse_locked)) 
+	//Mouse input to rotate the cam
+	if (Input::mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) //move in first person view
+	{
+		camera->rotate(-Input::mouse_delta.x * orbit_speed * 0.5, Vector3(0, 1, 0));
+		Vector3 right = camera->getLocalVector(Vector3(1, 0, 0));
+		camera->rotate(-Input::mouse_delta.y * orbit_speed * 0.5, right);
+	}
+
+	//Mouse input to orbit the camera around the center
+	if (Input::mouse_state & SDL_BUTTON(SDL_BUTTON_LEFT))
 	{
 		camera->orbit(-Input::mouse_delta.x * orbit_speed, Input::mouse_delta.y * orbit_speed);
+	}
+
+	if (Input::mouse_wheel_trigger)
+	{
+		camera->changeDistance(Input::mouse_wheel_delta * 0.5);
 	}
 
 	//To navigate with the mouse fixed in the middle

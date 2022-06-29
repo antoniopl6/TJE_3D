@@ -33,7 +33,6 @@ public:
 	virtual ~Entity() {}; //destructor
 
 	//Entity features
-	int ID;
 	string name;
 	bool visible;
 	Matrix44 model;
