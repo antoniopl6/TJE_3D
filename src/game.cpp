@@ -58,7 +58,10 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
-	
+
+	//Set flashlight starting position
+	//TODO
+
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 
@@ -205,12 +208,10 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		break;
 	case SDLK_F1: Shader::ReloadAll(); break;
 
-	//Turn around
+	
 	case SDLK_q:
-		main_camera->center.print();
-		main_camera->center *= -1.f;
-		break;
 
+		break;
 	//Entity editor
 	case SDLK_h:
 		render_editor = !render_editor;
@@ -233,8 +234,12 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	{
 		//Keep looking forward
 		case SDLK_q: 
-			main_camera->center.print();
-			main_camera->center *= -1.f;
+			{
+				Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+				Vector3 inverse_front = camera_front * -1.f;
+				Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
+				main_camera->center = new_center;
+			}
 			break;
 	}
 }

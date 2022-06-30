@@ -18,10 +18,10 @@ Material::Material()
 	_zMax = 1.0f;
 
 	//Material factors
-	occlusion_factor.set(1.0f, 1.0f, 1.0f);
-	albedo_factor.set(1.0f, 1.0f, 1.0f);
-	specular_factor.set(1.0f, 1.0f, 1.0f);
-	emissive_factor.set(1.0f, 1.0f, 1.0f);
+	occlusion_factor.set(1.0f, 1.0f, 1.0f); //Ka
+	albedo_factor.set(1.0f, 1.0f, 1.0f); //Kd
+	specular_factor.set(1.0f, 1.0f, 1.0f); //Ks
+	emissive_factor.set(0.0f, 0.0f, 0.0f); //Ke
 
 }
 

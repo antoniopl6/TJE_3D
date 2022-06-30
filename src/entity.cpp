@@ -73,31 +73,27 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	Vector3 camera_front = Vector3();
 	Vector3 camera_side = Vector3();
 
-	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
+	if (Input::wasKeyPressed(SDL_SCANCODE_Q) || Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
 	{
 		camera_front = ((camera->center - camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
 		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
 	}
 
+	//Update camera position
 	Vector3 nextPos = Vector3();
-	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
-	if (!Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && !Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
 	
-	
-	if (Input::isKeyPressed(SDL_SCANCODE_X)) {
-		ObjectEntity::ObjectType type;
-		type = Scene::instance->getCollectable();
-		cout << (int) type << endl;
-		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
-			num_keys++;
-		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
-			this->battery += 35.f;
-		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
-			num_apples++;
+	//Turn around
+	if(Input::wasKeyPressed(SDL_SCANCODE_Q))
+	{
+		Vector3 inverse_front = camera_front * -1.f;
+		Vector3 new_center = Vector3(camera->eye.x + inverse_front.x, camera->eye.y, camera->eye.z + inverse_front.z);
+		camera->center = new_center;
 	}
 
 	//To navigate with the mouse fixed in the middle
@@ -159,55 +155,36 @@ void MainCharacterEntity::save(cJSON* main_json)
 }
 
 void MainCharacterEntity::update(float elapsed_time)
-{//model.translateGlobal(posCam.x - this->model.getTranslation().x, 0, posCam.z - this->model.getTranslation().z);
-	////cout << model.getTranslation().x << ", " << model.getTranslation().z << endl;
-	//float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-//model.rotateGlobal(degrees * sign(sideDot), Vector3(0, 1, 0));
-//this->updateBoundingBox();
-
-
-
-	////Vector3 toTarget = (camera->center - camera->eye).normalize();
-	//Vector3 toTarget = (camera->center - camera->eye).normalize();
-	//Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
-	//Vector3 posCam = this->camera->eye;
-	//float forwardDot = forward.dot(toTarget);
-	////
-	//Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
-	////
-	//float sideDot = side.dot(toTarget);
-
-	////flashlight->model.translateGlobal(posCam.x - flashlight->model.getTranslation().x + toTarget.x*200, 0, posCam.z - flashlight->model.getTranslation().z + toTarget.z * 200);
-	//
-	//float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	///*flashlight->model.setTranslation(posCam.x, 150, posCam.z);
-	//light->model.setTranslation(posCam.x + 40, 150, posCam.z + 40);*/
-	//Vector3 up = camera->up.normalize();
-	//Vector3 eye_flashlight = Vector3(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z * 80 - up.z * 35);
-	////flashlight->model.setTranslation(posCam.x + toTarget.x * 80 - up.x * 35, posCam.y + toTarget.y * 80 - up.y * 35, posCam.z + toTarget.z* 80 - up.z * 35);
-	//float degrees2 = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	//Vector3 toTarget = (camera->center - camera->eye).normalize();
-
-	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
-	//
-	Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
-	//
-	Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
-	float sideDot = side.dot(toTarget);
-
-	float forwardDot = forward.dot(toTarget);
-	//flashlight->model.lookAt(eye_flashlight, camera->center, up);
-	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-
-	float degrees2 = computeDeg(Vector2(forward.y, forward.z), Vector2(toTarget.y, toTarget.z));	
-	/*if (forwardDot < 0.98f) {
-
-	/*if (forwardDot < 0.98f) {
-		flashlight->model.rotate(elapsed_time * 80.0f * DEG2RAD * sign(sideDot), Vector3(1, 0, 0));
-	}*/
-	flashlight->model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
-	//flashlight->model.rotate(degrees2 * sign(sideDot), Vector3(1, 0, 0));
+{
+	Vector3 camera_position = camera->eye;
+	Vector3 camera_front = (camera->center - camera->eye).normalize();
+	
+	//Update flashlight position and rotate based on camera vectors
+	flashlight->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 35, camera_position.y + camera_front.y * 80 - camera->up.y * 35, camera_position.z + camera_front.z * 80 - camera->up.z * 35);
+	flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
 	flashlight->updateBoundingBox();
+
+	//Update light position
+	light->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 50, camera_position.y + camera_front.y * 100 - camera->up.y * 50, camera_position.z + camera_front.z * 80 - camera->up.z * 50);
+	light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
+
+	if (Input::isKeyPressed(SDL_SCANCODE_X)) {
+		ObjectEntity::ObjectType type;
+		type = Scene::instance->getCollectable();
+		cout << (int)type << endl;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
+			num_keys++;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
+			this->battery += 35.f;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
+			num_apples++;
+	}
+
+	//Turn on or off the flashlight
+	if (Input::wasKeyPressed(SDL_SCANCODE_F))
+		light->visible = !light->visible;
+		
+
 }
 
 //Monster

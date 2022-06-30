@@ -698,7 +698,6 @@ ObjectEntity* Editor3D::selectEntity() {
 				object_min_distance = object_distance;
 				selected_object = object;
 			}
-			return selected_object;
 		}
 	}
 	return selected_object;
