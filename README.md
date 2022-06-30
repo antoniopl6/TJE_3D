@@ -1,39 +1,11 @@
-# TJE Framework #
+PractFINAL_230709_230362.zip
+Javier Serrano Palazón 230709 - Antonio Pintado Lineros 230362
 
-TJE Framework is a C++ layer on top of SDL and OpenGL to help create games or visual applications.
-It only provides the basic GPU abstraction (Meshes, Textures, Shaders, Application).
-It has been used for many years in the Videogame's development courses I give at the Universitat Pompeu Fabra.
+# 
 
-It contains the basics to do something nice:
-- Mesh, Texture, Shader and FBO classes
-- Vector2,Vector3,Vector4,Matrix44 and Quaternion classes
-- Meshes have a ray-mesh and sphere-mesh collision method (thanks to library Coldet)
-- Parser to load OBJ, PNG and TGA. Re-stores meshes in binary for faster load.
-- Supports skinned animated meshes using own format (you must use a web tool to convert them).
-
-Enough to make gamejam games pretty easily.
-
-
-## Installation ##
-
-It comes with a Visual Studio solution, but the code should compile in any platform that supports SDL.
-
-
-## Compiling in Linux
-
-Remember to install the libraries:
-
-sudo apt-get install libsdl2-dev freeglut3 freeglut3-dev
-
-and then just use the makefile:
-
-make
-
-## Feedback
---------
-
-You can write any feedback to javi.agenjo@gmail.com
-
-
-
-
+Juego de genero terror, que se basa en recolectar una serie de elementos por el escenario a la vez que intentar huir de un mounstruo,
+para ello el usuario debe tener cuidado de no quedarse sin bateria en su linterna y no sufrir daño para terminar el juego.
+Para el desarrollo del juego, se han implementado varias funcionalidades adicionales:
+ - Para el pathfinding del monstruo, se ha creado un fichero gridRoute.txt donde se guardará si se tiene colision o no en diversas casillas, y así no se calculará
+   en tiempo de ejecución del videojuego.
+ - 

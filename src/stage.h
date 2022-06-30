@@ -11,6 +11,11 @@ enum class STAGE_ID {
 	FINAL
 };
 
+class LoadStage {
+public:
+	static void render();
+};
+
 class IntroStage {
 public:
 	static void render();

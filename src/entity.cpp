@@ -109,7 +109,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	light->updateBoundingBox();
 
 	//Pick object collectable
-	if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_E)) {
 		ObjectEntity::ObjectType type;
 		type = Scene::instance->getCollectable();
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
@@ -122,7 +122,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	}
 
 	//Activate / Desactivate flashlight
-	if (Input::wasKeyPressed(SDL_SCANCODE_C) && battery > 0) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_F) && battery > 0) {
 		this->flashIsOn = !this->flashIsOn; 
 
 	}
@@ -188,11 +188,12 @@ void MainCharacterEntity::save(cJSON* main_json)
 float battery_time = 0.0f;
 //Battery_life is the time that the battery_reduction has, before is spent
 float battery_life = 2.5f;
-float battery_reduction = 15.0f;
+float battery_reduction = 7.5f;
 //Time the battery is on off state
 float battery_off = 0.0f;
 //Handles recovery of health by time
 float last_recovery_health = 0.0f;
+
 void MainCharacterEntity::update(float elapsed_time)
 {
 

@@ -44,6 +44,22 @@ void Renderer::loadGUIs() {
 	apple = Texture::Get("data/GUIs/shiny-apple.png");
 	key = Texture::Get("data/GUIs/key.png");
 	enter = Texture::Get("data/GUIs/enter.png");
+
+	//Scenes
+	introScene = Texture::Get("data/screens/Intro-wallpaper.jpg");
+	title = Texture::Get("data/screens/title.png");
+	tutorialScene = Texture::Get("data/screens/4165805.jpg");
+	diedScene = Texture::Get("data/screens/died.jpg");
+	finalScene = Texture::Get("data/screens/died.jpg");
+
+	keyboard = Texture::Get("data/screens/tutorial_GUIs/5650714.png");
+	keyboard_fe = Texture::Get("data/screens/tutorial_GUIs/FE.png");
+	mouseTutorial = Texture::Get("data/screens/tutorial_GUIs/mouse.png");
+	continueX = Texture::Get("data/GUIs/continue2.png");
+	diedTitle = Texture::Get("data/GUIs/diedTitle.png");
+	exitX = Texture::Get("data/GUIs/exit.png");
+	restartX = Texture::Get("data/GUIs/restart.png");
+	note = Texture::Get("data/screens/tutorial_GUIs/note.png");
 }
 
 void Renderer::renderGUIs() {
@@ -184,7 +200,7 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 }
 
 //Renders an image
-void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range, Vector4 color)
+void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range, Vector4 color, bool flipuv)
 {
 	//Check if there is an image
 	if (!Image)
@@ -201,7 +217,7 @@ void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 t
 	Camera cam2d;
 	
 	//Intialize local variables
-	quad.createQuad(x, y, w, h, true);
+	quad.createQuad(x, y, w, h, flipuv);
 	cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
 
 	//Check if the shader exists

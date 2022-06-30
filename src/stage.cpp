@@ -1,23 +1,55 @@
 #include "stage.h"
 #include "game.h"
 
-void IntroStage::render() {
-	Game* g = Game::instance;
-
+void LoadStage::render() {
 
 }
+
+void IntroStage::render() {
+	Game* g = Game::instance;
+	Renderer* r = g->renderer;
+
+	r->renderImage(r->introScene, g->window_width, g->window_height, g->window_width / 2, g->window_height / 2, Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1), false);
+	r->renderImage(r->title, 475, 150, g->window_width / 2, g->window_height / 2 - 100, Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1));
+	r->renderImage(r->continueX, 250, 40, g->window_width / 2, g->window_height - 50, Vector4(0, 0, 1, 1));
+
+}
+STAGE_ID IntroStage::update(double seconds_elapsed) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+		return STAGE_ID::TUTORIAL;
+	}
+	return STAGE_ID::INTRO;
+}
+
+void TutorialStage::render() {
+	Game* g = Game::instance;
+	Renderer* r = g->renderer;
+
+	r->renderImage(r->tutorialScene, g->window_width, g->window_height, g->window_width / 2, g->window_height / 2, Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1), false);
+	r->renderImage(r->note, 740, 400, g->window_width / 2, g->window_height / 2, Vector4(0, 0, 1, 1));
+	r->renderImage(r->keyboard, 250, 250, g->window_width / 2 - 212, g->window_height / 2, Vector4(0, 0, 1, 1));
+	r->renderImage(r->mouseTutorial, 100, 100, g->window_width / 2 - 42, g->window_height / 2, Vector4(0, 0, 1, 1));
+	drawText(g->window_width / 2 - 212, g->window_height / 2 + 90, "Move the player", Vector3(0, 0, 0), 2);
+
+	r->renderImage(r->keyboard_fe, 250, 250, g->window_width / 2 + 220, g->window_height / 2, Vector4(0, 0, 1, 1));
+	drawText(g->window_width / 2 + 45, g->window_height / 2 + 90, "Turn on/off flashlight", Vector3(0, 0, 0), 2);
+	drawText(g->window_width / 2 + 75, g->window_height / 2 - 40, "Collect Items", Vector3(0, 0, 0), 2);
+
+
+	r->renderImage(r->continueX, 250, 40, g->window_width / 2, g->window_height - 50, Vector4(0, 0, 1, 1));
+
+}
+STAGE_ID TutorialStage::update(double seconds_elapsed) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+		return STAGE_ID::PLAY;
+	}
+	return STAGE_ID::TUTORIAL;
+}
+
 
 
 void PlayStage::render() {
 	Game* g = Game::instance;
-	//Set the clear color (the background color)
-	glClearColor(0.0, 0.0, 0.0, 1.0);
-
-	// Clear the window and the depth buffer
-	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
-
-	//Check gl errors before starting
-	checkGLErrors();
 
 	//Render the scene
 	switch (g->entity_editor->current_camera)
@@ -37,9 +69,6 @@ void PlayStage::render() {
 
 	//render the FPS, Draw Calls, etc
 	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-
-	//swap between front buffer and back buffer
-	SDL_GL_SwapWindow(g->window);
 }
 
 STAGE_ID PlayStage::update(double seconds_elapsed) {
@@ -122,8 +151,8 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 		}
 	}
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
-		if (character->num_keys >= 1 && g->scene->hasDoorInRange()) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+		if ((character->num_keys >= 1 && g->scene->hasDoorInRange()) || character->num_apples >= 10) {
 			return STAGE_ID::FINAL;
 		}
 	}
@@ -132,4 +161,38 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 	}
 	return STAGE_ID::PLAY;
 	
+}
+
+void DiedStage::render() {
+	Game* g = Game::instance;
+	Renderer* r = g->renderer;
+
+	r->renderImage(r->diedScene, g->window_width, g->window_height, g->window_width / 2, g->window_height / 2, Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1), false);
+	r->renderImage(r->diedTitle, 550, 150, g->window_width / 2, g->window_height / 2 - 100, Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1));
+	//r->renderImage(r->restartX, 250, 40, g->window_width / 2, g->window_height - 50, Vector4(0, 0, 1, 1));
+	r->renderImage(r->exitX, 250, 40, g->window_width / 2, g->window_height - 50, Vector4(0, 0, 1, 1));
+}
+STAGE_ID DiedStage::update(double seconds_elapsed) {
+	Game* g = Game::instance;
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+		//Game::instance = new Game(g->window_width, g->window_height, g->window);
+		//return STAGE_ID::TUTORIAL;
+		Game::instance->must_exit = true;
+	}
+	return STAGE_ID::DIED;
+}
+
+void FinalStage::render() {
+	Game* g = Game::instance;
+	Renderer* r = g->renderer;
+
+	r->renderImage(r->finalScene, g->window_width, g->window_height, g->window_width / 2, g->window_height / 2, Vector4(0, 0, 1, 1), Vector4(1, 1, 1, 1), false);
+	r->renderImage(r->exitX, 250, 40, g->window_width / 2, g->window_height - 50, Vector4(0, 0, 1, 1));
+
+}
+STAGE_ID FinalStage::update(double seconds_elapsed) {
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+		Game::instance->must_exit = true;
+	}
+	return STAGE_ID::FINAL;
 }

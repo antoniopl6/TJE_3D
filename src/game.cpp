@@ -42,6 +42,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	time = 0.0f;
 	elapsed_time = 0.0f;
 	mouse_locked = false;
+	current_stage = STAGE_ID::INTRO;
 
 	//OpenGL flags
 	glEnable(GL_CULL_FACE); //render both sides of every triangle
@@ -62,7 +63,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	entity_editor = new Editor3D(scene);
 
 	//This class will be the one in charge of rendering the scene
-	renderer = new Renderer(scene,main_camera);
+	renderer = new Renderer(scene, main_camera);
 
 	curr_stage = STAGE_ID::INTRO;
 
@@ -83,111 +84,42 @@ void Game::render(void)
 	//Check gl errors before starting
 	checkGLErrors();
 
-	//Draw the floor grid
-	//drawGrid();
-
-	//Render the scene
-	switch(entity_editor->current_camera)
-	{
-		case(Editor3D::MAIN):
-			main_camera->enable();
-			renderer->renderScene(scene, main_camera);
-			break;
-		case(Editor3D::ENTITY):
-			entity_editor->camera->enable();
-			renderer->renderScene(scene, entity_editor->camera);
-			break;
+	switch (current_stage) {
+	case(STAGE_ID::INTRO):
+		IntroStage::render();
+		break;
+	case(STAGE_ID::TUTORIAL):
+		TutorialStage::render();
+		break;
+	case(STAGE_ID::PLAY):
+		PlayStage::render();
+		break;
+	case(STAGE_ID::DIED):
+		DiedStage::render();
+		break;
 	}
 
-	//Render GUIs
-	renderer->renderGUIs();
-	
-		
-	//render the FPS, Draw Calls, etc
-	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-
 	//swap between front buffer and back buffer
-	SDL_GL_SwapWindow(this->window);
+	SDL_GL_SwapWindow(window);
 }
 
 void Game::update(double seconds_elapsed)
 {
-	//Update Main Character
-	MainCharacterEntity* character = scene->main_character;
-	
-	if (character->bounding_box_trigger)
-	{
-		character->updateBoundingBox();
-		character->bounding_box_trigger = false;
-		
-	}
-
-	//Update Monster
-	MonsterEntity* monster = scene->monster;
-	monster->update(elapsed_time);
-	if (monster->bounding_box_trigger)
-	{
-		monster->updateBoundingBox();
-		monster->bounding_box_trigger = false;
-	}
-	if (monster->isInFollowRange(character)) {
-		monster->updateFollow(elapsed_time, character->camera);
-	}
-	//Path finding IA
-	else {
-		monster->followPath(elapsed_time);
-	}
-
-	
-	//Update Objects
-	for (int i = 0; i < scene->objects.size(); ++i)
-	{
-		ObjectEntity* object = scene->objects[i];
-		if (object->bounding_box_trigger) {
-			object->updateBoundingBox();
-			object->bounding_box_trigger = false;
-		}
-	}
-
-	//Update Lights
-	for (int i = 0; i < scene->lights.size(); i++)
-	{
-		//TODO
-	}
-
-	//Update Sounds
-	for (int i = 0; i < scene->sounds.size(); i++)
-	{
-		//TODO
-	}
-
-	//Update cameras
-	switch (entity_editor->current_camera)
-	{
-	case(Editor3D::MAIN):
-		character->update(seconds_elapsed);
-		character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
-		
+	switch(current_stage) {
+	case(STAGE_ID::INTRO):
+		current_stage = IntroStage::update(seconds_elapsed);
 		break;
-	case(Editor3D::ENTITY):
-		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
+	case(STAGE_ID::TUTORIAL):
+		current_stage = TutorialStage::update(seconds_elapsed);
+		break;
+	case(STAGE_ID::PLAY):
+		current_stage = PlayStage::update(seconds_elapsed);
+		break;
+	case(STAGE_ID::DIED):
+		current_stage = DiedStage::update(seconds_elapsed);
 		break;
 	}
 
-	//Render entity editor
-	if (render_editor)
-		entity_editor->render();
-		
-
-	//Save scene
-	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
-	{
-		if (!scene_saved)
-		{
-			scene->save();
-			scene_saved = true;
-		}
-	}
 }
 
 

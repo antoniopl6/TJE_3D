@@ -174,6 +174,60 @@ void mainLoop()
 	return;
 }
 
+void renderLoadingScreen(SDL_Window* window, int window_width, int window_height) {
+	Shader* shader = Shader::Get("data/shaders/image.vs", "data/shaders/image.fs");
+	Texture* loading = Texture::Get("data/GUIs/loading.png");
+	//Set the clear color (the background color)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	// Clear the window and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Check gl errors before starting
+	checkGLErrors();
+
+	//Disable and enable OpenGL flags
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Local variables
+	Mesh quad;
+	Camera cam2d;
+
+	//Intialize local variables
+	quad.createQuad(window_width - 100, window_height - 30, 150, 45, true);
+	cam2d.setOrthographic(0, window_width, window_height, 0, -1, 1);
+
+	//Check if the shader exists
+	if (!shader)
+		return;
+
+	//Set shader uniforms
+	shader->enable();
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
+	shader->setUniform("u_texture", loading, 0);
+	shader->setUniform("u_time", time);
+	shader->setUniform("u_tex_range", Vector4(0, 0, 1, 1));
+	shader->setUniform("u_model", Matrix44());
+
+	//Render the quad	
+	quad.render(GL_TRIANGLES);
+
+	//Disable the shader
+	shader->disable();
+
+	//Reset OpenGL flags
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+
+	//swap between front buffer and back buffer
+	SDL_GL_SwapWindow(window);
+}
+
 int main(int argc, char** argv)
 {
 	std::cout << "Initiating game..." << std::endl;
@@ -196,6 +250,8 @@ int main(int argc, char** argv)
 
 	Input::init(window);
 
+	renderLoadingScreen(window, window_width, window_height);
+	
 	//launch the game (game is a global variable)
 	game = new Game(window_width, window_height, window);
 

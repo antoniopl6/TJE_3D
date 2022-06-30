@@ -19,6 +19,8 @@ class Game
 public:
 	static Game* instance;
 
+	STAGE_ID current_stage;
+
 	//window
 	SDL_Window* window;
 	int window_width;
