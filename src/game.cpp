@@ -113,69 +113,73 @@ void Game::render(void)
 
 void Game::update(double seconds_elapsed)
 {
-	//Update Main Character
-	MainCharacterEntity* character = scene->main_character;
-
-	//Update
-	character->update(seconds_elapsed);
-	
-	//Bounding box
-	if (character->bounding_box_trigger)
+	//Updates
+	if (!render_editor)
 	{
-		character->updateBoundingBox();
-		character->bounding_box_trigger = false;
-		
-	}
+		//Update Main Character
+		MainCharacterEntity* character = scene->main_character;
 
-	//Update Monster
-	MonsterEntity* monster = scene->monster;
+		//Update
+		character->update(seconds_elapsed);
 
-	//Update
-	monster->update(elapsed_time);
+		//Bounding box
+		if (character->bounding_box_trigger)
+		{
+			character->updateBoundingBox();
+			character->bounding_box_trigger = false;
 
-	//Bounding box
-	if (monster->bounding_box_trigger)
-	{
-		monster->updateBoundingBox();
-		monster->bounding_box_trigger = false;
-	}
-	
-	//Path AI
-	/*if (monster->isInFollowRange(camera)) {
-		monster->updateFollow(elapsed_time, camera);
-		MonsterIsInPathRoute = false;
-	} else {
+		}
+
+		//Update Monster
+		MonsterEntity* monster = scene->monster;
+
+		//Update
+		monster->update(elapsed_time);
+
+		//Bounding box
+		if (monster->bounding_box_trigger)
+		{
+			monster->updateBoundingBox();
+			monster->bounding_box_trigger = false;
+		}
+
+		//Path AI
+		/*if (monster->isInFollowRange(camera)) {
+			monster->updateFollow(elapsed_time, camera);
+			MonsterIsInPathRoute = false;
+		} else {
+			monster->followPath(elapsed_time);
+		}*/
 		monster->followPath(elapsed_time);
-	}*/
-	monster->followPath(elapsed_time);
-	
-	//Update Objects
-	for (int i = 0; i < scene->objects.size(); ++i)
-	{
-		ObjectEntity* object = scene->objects[i];
-		if (object->bounding_box_trigger) {
-			object->updateBoundingBox();
-			object->bounding_box_trigger = false;
+
+		//Update Objects
+		for (int i = 0; i < scene->objects.size(); ++i)
+		{
+			ObjectEntity* object = scene->objects[i];
+			if (object->bounding_box_trigger) {
+				object->updateBoundingBox();
+				object->bounding_box_trigger = false;
+			}
+		}
+
+		//Update Lights
+		for (int i = 0; i < scene->lights.size(); i++)
+		{
+			//TODO
+		}
+
+		//Update Sounds
+		for (int i = 0; i < scene->sounds.size(); i++)
+		{
+			//TODO
 		}
 	}
-
-	//Update Lights
-	for (int i = 0; i < scene->lights.size(); i++)
-	{
-		//TODO
-	}
-
-	//Update Sounds
-	for (int i = 0; i < scene->sounds.size(); i++)
-	{
-		//TODO
-	}
-
+	
 	//Update cameras
 	switch (entity_editor->current_camera)
 	{
 	case(Editor3D::MAIN):
-		character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+		scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
 		break;
 	case(Editor3D::ENTITY):
 		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
@@ -239,10 +243,13 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 		//Keep looking forward
 		case SDLK_q: 
 			{
-				Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
-				Vector3 inverse_front = camera_front * -1.f;
-				Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
-				main_camera->center = new_center;
+				if (entity_editor->current_camera == Editor3D::MAIN)
+				{
+					Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+					Vector3 inverse_front = camera_front * -1.f;
+					Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
+					main_camera->center = new_center;
+				}
 			}
 			break;
 	}

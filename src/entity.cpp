@@ -51,7 +51,6 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
 	this->battery = 70.f;
-	this->flashIsOn = true;
 	this->num_apples = 0;
 	this->num_keys = 0;
 }
@@ -156,6 +155,7 @@ void MainCharacterEntity::save(cJSON* main_json)
 
 void MainCharacterEntity::update(float elapsed_time)
 {
+
 	Vector3 camera_position = camera->eye;
 	Vector3 camera_front = (camera->center - camera->eye).normalize();
 	
@@ -454,7 +454,7 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 	//Type
 	type = (ObjectType)readJSONNumber(object_json, "Object_type", type);
 
-	//flashlight
+	//Flashlight
 	if (name == "flashlight") Scene::instance->main_character->flashlight = this;
 }
 
@@ -616,7 +616,7 @@ void LightEntity::load(cJSON* light_json, int light_index)
 	cast_shadows = readJSONBoolean(light_json, "cast_shadows", cast_shadows);
 	shadow_bias = readJSONNumber(light_json, "shadow_bias", shadow_bias);
 
-	//flashlight
+	//Flashlight
 	if (name == "flashlight") Scene::instance->main_character->light = this;
 }
 

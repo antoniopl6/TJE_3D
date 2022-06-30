@@ -58,7 +58,7 @@ public:
 	//Game values
 	int num_apples;
 	float battery;
-	bool flashIsOn;
+
 	ObjectEntity* flashlight;
 	LightEntity* light;
 	int num_keys;

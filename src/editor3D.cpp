@@ -90,6 +90,11 @@ void Editor3D::reset()
 	if (sounds_size)
 		current_sound = 0;
 
+	//Selected entities
+	selected_object = NULL;
+	selected_light = NULL;
+	selected_sound = NULL;
+
 	//Action variables
 	current_action = Actions::TRANSLATE;
 }
