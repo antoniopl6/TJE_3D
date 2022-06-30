@@ -63,6 +63,7 @@ public:
 	void clear();
 	void addEntity(Entity* entity);
 	void removeEntity(Entity* entity);
+	void assignID(Entity* entity);
 	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
 
 	bool hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm);

@@ -39,18 +39,20 @@ public:
 	float _zMin, _zMax;       // Z-Range
 
 	//Material factors
-	float occlusion_factor; //how occluded is the surface
-	float roughness_factor;	//how smooth or rough is the surface
-	float metallic_factor;	//how metallic is the surface
-	Vector3 emissive_factor;//does this object emit light?
+	Vector3 occlusion_factor;	//how occluded is the surface
+	Vector3 albedo_factor;		//color of the surface
+	Vector3 specular_factor;	//shinny points of the surface
+	Vector3 emissive_factor;	//does this object emit light?
 
 	//Material textures
-	Sampler color_texture;	//base texture for color (must be modulated by the color factor)
-	Sampler normal_texture;	//normalmap
-	Sampler opacity_texture;
-	Sampler metallic_roughness_texture;//occlusion, metallic and roughtness (in R, G and B)
+	Sampler albedo_texture;		//base texture for color (must be modulated by the color factor)
+	Sampler specular_texture;	// specular color
+	Sampler normal_texture;		//normalmap
 	Sampler occlusion_texture;	//which areas receive ambient light
-	Sampler emissive_texture;//emissive texture (must be modulated by the emissive factor)
+	Sampler metalness_texture;	//how metallic is the surface
+	Sampler roughness_texture;	//how smooth or rough is the surface
+	Sampler omr_texture;		//occlusion, metallic and roughtness (in R, G and B)
+	Sampler emissive_texture;	//emissive texture (must be modulated by the emissive factor)
 
 	//Constructor and destructors
 	Material();

@@ -42,7 +42,6 @@ public:
 	Editor3D* entity_editor;
 	Renderer* renderer; //game render class
 	bool mouse_locked; //tells if the mouse is locked (not seen)
-	STAGE_ID curr_stage;
 
 	Game(int window_width, int window_height, SDL_Window* window);
 

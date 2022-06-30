@@ -5,10 +5,12 @@ Uint8 Input::prev_keystate[SDL_NUM_SCANCODES]; //previous before
 
 //mouse state
 int Input::mouse_state; //tells which buttons are pressed
+int Input::prev_mouse_state[5];
 Vector2 Input::mouse_position; //last mouse position
 Vector2 Input::mouse_delta; //mouse movement in the last frame
 float Input::mouse_wheel;
 float Input::mouse_wheel_delta;
+bool Input::mouse_wheel_trigger;
 
 //gamepad state
 GamepadState Input::gamepads[4];
@@ -19,7 +21,7 @@ SDL_Window* window = NULL;
 
 //************************************************
 
-void Input::init( SDL_Window* _window )
+void Input::init(SDL_Window* _window)
 {
 	int x, y;
 	window = _window;
@@ -43,6 +45,11 @@ void Input::update()
 	Input::keystate = SDL_GetKeyboardState(NULL);
 
 	//get mouse position and delta (do after pump events)
+	Input::prev_mouse_state[0] = Input::mouse_state == SDL_BUTTON_LMASK;
+	Input::prev_mouse_state[1] = Input::mouse_state == SDL_BUTTON_MMASK;
+	Input::prev_mouse_state[2] = Input::mouse_state == SDL_BUTTON_RMASK;
+	Input::prev_mouse_state[3] = Input::mouse_state == SDL_BUTTON_X1MASK;
+	Input::prev_mouse_state[4] = Input::mouse_state == SDL_BUTTON_X2MASK;
 	int x, y;
 	Input::mouse_state = SDL_GetMouseState(&x, &y);
 	Input::mouse_delta.set(Input::mouse_position.x - x, Input::mouse_position.y - y);
@@ -58,8 +65,8 @@ void Input::centerMouse()
 	int window_width, window_height;
 	SDL_GetWindowSize(window, &window_width, &window_height);
 
-	int center_x = (int)floor(window_width*0.5f);
-	int center_y = (int)floor(window_height*0.5f);
+	int center_x = (int)floor(window_width * 0.5f);
+	int center_y = (int)floor(window_height * 0.5f);
 	SDL_WarpMouseInWindow(window, center_x, center_y); //put the mouse back in the middle of the screen
 	Input::mouse_position.x = (float)center_x;
 	Input::mouse_position.y = (float)center_y;
@@ -93,11 +100,11 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 		return;
 
 	state.connected = true;
-	state.model = SDL_JoystickName((::SDL_Joystick*) joystick);
+	state.model = SDL_JoystickName((::SDL_Joystick*)joystick);
 
 	//state.axis_translator = strcmp(name, "XInput Controller #1") == 0 ? XInput : NULL;
 
-	state.num_axis = SDL_JoystickNumAxes((::SDL_Joystick*) joystick);
+	state.num_axis = SDL_JoystickNumAxes((::SDL_Joystick*)joystick);
 	state.num_buttons = SDL_JoystickNumButtons((::SDL_Joystick*)joystick);
 
 	if (state.num_axis > 8) state.num_axis = 8;
@@ -105,11 +112,11 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 
 	for (int i = 0; i < state.num_axis; ++i) //axis
 	{
-		float axis_value = SDL_JoystickGetAxis((::SDL_Joystick*) joystick, i) / 32768.0f; //range -32768 to 32768
+		float axis_value = SDL_JoystickGetAxis((::SDL_Joystick*)joystick, i) / 32768.0f; //range -32768 to 32768
 		Uint8 num = i;
 
 		//windows 7 maps axis different that windows 10
-		if (state.num_axis == 5) 
+		if (state.num_axis == 5)
 			num = axis5[i];
 		else if (state.num_axis == 6)
 			num = axis6[i];
@@ -125,7 +132,7 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 
 	for (int i = 0; i < state.num_buttons; ++i) //buttons
 	{
-		float value = SDL_JoystickGetButton((::SDL_Joystick*) joystick, i);
+		float value = SDL_JoystickGetButton((::SDL_Joystick*)joystick, i);
 		Uint8 num = i;
 		if (state.num_buttons == 15)
 		{
@@ -134,10 +141,10 @@ void Input::updateGamepadState(SDL_Joystick* joystick, GamepadState& state)
 			num = buttons_15[i];
 		}
 		//if(value) std::cout << "B: " << int(i) << "->" << int(num) << std::endl;
-		if(num >= 0)
+		if (num >= 0)
 			state.button[num] = value;
 	}
-	state.hat = (HATState)(SDL_JoystickGetHat((::SDL_Joystick*) joystick, 0) - SDL_HAT_CENTERED); //one hat is enough
+	state.hat = (HATState)(SDL_JoystickGetHat((::SDL_Joystick*)joystick, 0) - SDL_HAT_CENTERED); //one hat is enough
 	memcpy(state.prev_button, prev_button, 16); //copy prev buttons state
 
 	Vector2 axis_direction(state.axis[LEFT_ANALOG_X], state.axis[LEFT_ANALOG_Y]);

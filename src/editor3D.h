@@ -2,6 +2,7 @@
 #include "scene.h"
 #include "mesh.h"
 #include "texture.h"
+#include "cMTL.h"
 
 using namespace std;
 
@@ -48,7 +49,10 @@ public:
 
 	//Camera
 	Camera* camera;
-	CameraType current_camera; 
+	CameraType current_camera;
+
+	//MTL Parser
+	cMTL* Parser;
 
 	//Use vectors to store the available resources
 	vector<string> assets;
@@ -83,7 +87,7 @@ public:
 	Editor3D(Scene* scene);
 
 	//Edit
-	ObjectEntity* selected_entity = NULL;
+	ObjectEntity* selected_object = NULL;
 	LightEntity* selected_light = NULL;
 	SoundEntity* selected_sound = NULL;
 
@@ -105,5 +109,5 @@ public:
 	void focusCamera(Entity* entity);
 	void updateCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
 
-	
+
 };

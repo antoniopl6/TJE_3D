@@ -67,12 +67,6 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
 	}
 
-	//Turn around
-	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
-		camera->center *= -1.f;
-	if (Input::isKeyPressed(SDL_SCANCODE_Q))
-		return;
-
 	// Define and boost the speed
 	float speed = seconds_elapsed * mouse_speed * 4;
 	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 1.5; //move faster with left shift
@@ -87,7 +81,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
 	}
 
-	//Update position
+	//Update camera position
 	Vector3 nextPos = Vector3();
 	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
@@ -108,6 +102,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
 	light->updateBoundingBox();
 
+
 	//Pick object collectable
 	if (Input::wasKeyPressed(SDL_SCANCODE_E)) {
 		ObjectEntity::ObjectType type;
@@ -120,10 +115,17 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 			num_apples++;
 
 	}
-
-	//Activate / Desactivate flashlight
+	//Turn around
+	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
+	{
+		Vector3 inverse_front = camera_front * -1.f;
+		Vector3 new_center = Vector3(camera->eye.x + inverse_front.x, camera->eye.y, camera->eye.z + inverse_front.z);
+		camera->center = new_center;
+	}
+	////Activate / Desactivate flashlight
 	if (Input::wasKeyPressed(SDL_SCANCODE_F) && battery > 0) {
 		this->flashIsOn = !this->flashIsOn; 
+		light->visible = !light->visible;
 
 	}
 
@@ -196,7 +198,6 @@ float last_recovery_health = 0.0f;
 
 void MainCharacterEntity::update(float elapsed_time)
 {
-
 	float currTime = Game::instance->time;
 	if (!this->flashIsOn || this->battery == 0) {
 		battery_off = currTime - battery_time;;
@@ -436,8 +437,11 @@ ObjectEntity::ObjectEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-	this->node_id = -1;
 	this->type = RENDER_OBJECT;
+
+	//Object tree
+	this->node_id = -1;
+	parent = NULL;
 }
 
 Matrix44 ObjectEntity::computeGlobalMatrix()
@@ -456,11 +460,11 @@ void ObjectEntity::updateBoundingBox()
 void ObjectEntity::load(cJSON* object_json, int object_index)
 {
 	//Object ID
-	object_id = readJSONNumber(object_json, "Object ID", object_id);
+	object_id = readJSONNumber(object_json, "Object_ID", object_id);
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(object_json, "names", object_index);
-	if (name_json) name = name_json->valuestring;	
+	if (name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
@@ -493,7 +497,7 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 
 	//Node ID
 	cJSON* node_ID_json = readJSONArrayItem(object_json, "node_ID", object_index);
-	if (node_ID_json) object_id = node_ID_json->valueint;
+	if (node_ID_json) node_id = node_ID_json->valueint;
 
 	//Children IDs
 	cJSON* children_IDs_json = readJSONArrayItem(object_json, "children_ID", object_index);
@@ -622,7 +626,7 @@ LightEntity::LightEntity()
 void LightEntity::load(cJSON* light_json, int light_index)
 {
 	//Light ID
-	light_id = readJSONNumber(light_json, "Light ID", light_id);
+	light_id = readJSONNumber(light_json, "Light_ID", light_id);
 
 	//Name
 	cJSON* names_json = readJSONArrayItem(light_json, "names", light_index);
@@ -677,7 +681,7 @@ void LightEntity::save(vector<cJSON*> json)
 	cJSON* models_array = json[3];
 
 	//Light ID
-	writeJSONNumber(light_json, "Light ID", light_id);
+	writeJSONNumber(light_json, "Light_ID", light_id);
 
 	//Units
 	writeJSONNumber(light_json, "units", 1);
@@ -772,13 +776,13 @@ void SoundEntity::Stop()
 
 void SoundEntity::changeVolume(float volume)
 {
-	
+
 }
 
 void SoundEntity::load(cJSON* sound_json, int sound_index)
 {
 	//Light ID
-	sound_id = readJSONNumber(sound_json, "Sound ID", sound_id);
+	sound_id = readJSONNumber(sound_json, "Sound_ID", sound_id);
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(sound_json, "names", sound_index);
@@ -806,7 +810,7 @@ void SoundEntity::save(vector<cJSON*> json)
 	cJSON* models_array = json[3];
 
 	//Sound ID
-	writeJSONNumber(sound_json, "Sound ID", sound_id);
+	writeJSONNumber(sound_json, "Sound_ID", sound_id);
 
 	//Units
 	writeJSONNumber(sound_json, "units", 1);
@@ -848,4 +852,3 @@ void SoundEntity::updateJSON(vector<cJSON*> json)
 	//Add model
 	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
 }
-

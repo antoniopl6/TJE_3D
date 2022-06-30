@@ -25,7 +25,7 @@ FBO* fbo = NULL;
 using namespace std;
 
 Game* Game::instance = NULL;
-
+Vector3 scene_ambient_light;
 
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
@@ -64,8 +64,6 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//This class will be the one in charge of rendering the scene
 	renderer = new Renderer(scene, main_camera);
-
-	curr_stage = STAGE_ID::INTRO;
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -133,21 +131,26 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 			must_exit = true; //ESC key, kill the app
 		break;
 	case SDLK_F1: Shader::ReloadAll(); break;
-		//Turn around
-	case SDLK_q:
-		if (!turn_around)
-		{
-			main_camera->center *= -1.f;
-			turn_around = true;
-		}
-		break;
 
+
+	case SDLK_q:
+
+		break;
 		//Entity editor
 	case SDLK_h:
 		render_editor = !render_editor;
-		//entity_editor->current_camera = Editor3D::MAIN;
+		entity_editor->current_camera = Editor3D::MAIN;
 		if (render_editor)
+		{
+			scene_ambient_light = scene->ambient_light;
+			scene->ambient_light = Vector3(5.f, 5.f, 5.f);
 			entity_editor->reset();
+		}
+		else
+		{
+			scene->ambient_light = scene_ambient_light;
+			cout << "Exiting the editor" << endl << endl;
+		}
 		break;
 	}
 }
@@ -157,7 +160,14 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 		//Keep looking forward
-		case SDLK_q: main_camera->center *= -1.f;
+	case SDLK_q:
+	{
+		Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+		Vector3 inverse_front = camera_front * -1.f;
+		Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
+		main_camera->center = new_center;
+	}
+	break;
 	}
 }
 
@@ -173,11 +183,11 @@ void Game::onGamepadButtonUp(SDL_JoyButtonEvent event)
 
 void Game::onMouseButtonDown( SDL_MouseButtonEvent event )
 {
-	if (event.button == SDL_BUTTON_MIDDLE) //middle mouse
-	{
-		mouse_locked = !mouse_locked;
-		SDL_ShowCursor(!mouse_locked);
-	}
+	//if (event.button == SDL_BUTTON_MIDDLE) //middle mouse
+	//{
+	//	mouse_locked = !mouse_locked;
+	//	SDL_ShowCursor(!mouse_locked);
+	//}
 }
 
 void Game::onMouseButtonUp(SDL_MouseButtonEvent event)
@@ -186,7 +196,7 @@ void Game::onMouseButtonUp(SDL_MouseButtonEvent event)
 
 void Game::onMouseWheel(SDL_MouseWheelEvent event)
 {
-	mouse_speed *= event.y > 0 ? 1.1 : 0.9;
+	//mouse_speed *= event.y > 0 ? 1.1 : 0.9;
 }
 
 void Game::onResize(int width, int height)

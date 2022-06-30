@@ -74,6 +74,89 @@ void Scene::clear()
 	sounds.resize(0);
 }
 
+void Scene::assignID(Entity* entity)
+{
+	//Support variables
+	int new_entity_ID = 0;
+	int new_node_ID = 0;
+	vector<int> entity_IDs;
+	vector<int> node_IDs;
+
+	//Entities
+	ObjectEntity* object;
+	LightEntity* light;
+	SoundEntity* sound;
+
+	switch (entity->entity_type)
+	{
+	case(Entity::EntityType::OBJECT):
+
+		//Downcast
+		object = (ObjectEntity*)entity;
+
+		//Fill ID lists
+		for (auto i = objects.begin(); i != objects.end(); i++)
+		{
+			//Current Object
+			ObjectEntity* current_object = *i;
+
+			entity_IDs.push_back(current_object->object_id);
+			node_IDs.push_back(current_object->node_id);
+		}
+
+		//Find available IDs
+		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+		while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
+
+		//Assign the new IDs
+		object->object_id = new_entity_ID;
+		object->node_id = new_node_ID;
+
+		break;
+	case(Entity::EntityType::LIGHT):
+
+		//Downcast
+		light = (LightEntity*)entity;
+
+		//Fill ID list
+		for (auto i = lights.begin(); i != lights.end(); ++i)
+		{
+			//Current Light
+			LightEntity* current_light = *i;
+
+			entity_IDs.push_back(current_light->light_id);
+		}
+
+		//Find available IDs
+		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+
+		//Assign the new ID
+		light->light_id = new_entity_ID;
+
+		break;
+	case(Entity::EntityType::SOUND):
+
+		//Downcast
+		sound = (SoundEntity*)entity;
+
+		//Fill ID list
+		for (auto i = sounds.begin(); i != sounds.end(); ++i)
+		{
+			//Current Sound
+			SoundEntity* current_sound = *i;
+
+			entity_IDs.push_back(current_sound->sound_id);
+		}
+
+		//Find available IDs
+		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+
+		//Assign the new ID
+		sound->sound_id = new_entity_ID;
+		break;
+	}
+}
+
 void Scene::addEntity(Entity* entity)
 {
 	switch (entity->entity_type)
@@ -101,6 +184,9 @@ void Scene::addEntity(Entity* entity)
 
 void Scene::removeEntity(Entity* entity)
 {
+	if (entity == NULL)
+		return;
+
 	//Only for entity vectors
 	switch (entity->entity_type)
 	{
@@ -331,7 +417,19 @@ bool Scene::load(const char* scene_filepath)
 		return false;
 	}
 
-
+	//Monster JSON
+	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
+	if (monster_json)
+	{
+		MonsterEntity* monster = new MonsterEntity();
+		monster->load(monster_json);
+		this->monster = monster;
+	}
+	else
+	{
+		cout << "Monster object hasn't been found in the JSON" << endl;
+		return false;
+	}
 
 	//Objects JSON
 	cJSON* objects_json = cJSON_GetObjectItemCaseSensitive(scene_json, "objects");
@@ -350,26 +448,12 @@ bool Scene::load(const char* scene_filepath)
 			for (int i = 0; i < units; ++i)
 			{
 				ObjectEntity* object = new ObjectEntity();
-		
+
 				object->load(object_json, i);
 
 				objects.push_back(object);
 			}
 		}
-	}
-
-	//Monster JSON
-	cJSON* monster_json = cJSON_GetObjectItemCaseSensitive(scene_json, "monster");
-	if (monster_json)
-	{
-		MonsterEntity* monster = new MonsterEntity();
-		monster->load(monster_json);
-		this->monster = monster;
-	}
-	else
-	{
-		cout << "Monster object hasn't been found in the JSON" << endl;
-		return false;
 	}
 
 	//Lights JSON
@@ -425,7 +509,7 @@ bool Scene::load(const char* scene_filepath)
 		ObjectEntity* object = *i;
 		vector<int> children_ids = object->children_ids;
 
-		if (!object->children_ids.empty())
+		if (!children_ids.empty())
 			for (auto j = children_ids.begin(); j != children_ids.end(); ++j)
 			{
 				for (auto k = objects.begin(); k != objects.end(); ++k)
@@ -488,7 +572,8 @@ bool Scene::save()
 		//Check whether the object is registered or not
 		auto it = scene_objects.find(object->object_id);
 
-		if (it == scene_objects.end()) //Object hasn't been registered yet
+		//Object hasn't been registered yet
+		if (it == scene_objects.end())
 		{
 			//Create JSONs
 			cJSON* object_json = cJSON_CreateObject();
@@ -525,10 +610,11 @@ bool Scene::save()
 		//Current light
 		LightEntity* light = lights[i];
 
-		//Check whether the object is registered or not
+		//Check whether the light is registered or not
 		auto it = scene_lights.find(light->light_id);
 
-		if (it == scene_lights.end()) //Object hasn't been registered yet
+		//Light hasn't been registered yet
+		if (it == scene_lights.end())
 		{
 			//Create JSONs
 			cJSON* light_json = cJSON_CreateObject();
@@ -562,10 +648,11 @@ bool Scene::save()
 		//Current light
 		SoundEntity* sound = sounds[i];
 
-		//Check whether the object is registered or not
+		//Check whether the sound is registered or not
 		auto it = scene_sounds.find(sound->sound_id);
 
-		if (it == scene_sounds.end()) //Object hasn't been registered yet
+		//Sound hasn't been registered yet
+		if (it == scene_sounds.end())
 		{
 			//Create JSONs
 			cJSON* sound_json = cJSON_CreateObject();

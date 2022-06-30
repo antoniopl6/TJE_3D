@@ -8,8 +8,8 @@ Camera* Camera::current = NULL;
 
 Camera::Camera()
 {
-	lookAt( Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0) );
-	setOrthographic(-100,100,-100, 100,-100,100);
+	lookAt(Vector3(0, 0, 0), Vector3(0, 0, -1), Vector3(0, 1, 0));
+	setOrthographic(-100, 100, -100, 100, -100, 100);
 }
 
 void Camera::enable()
@@ -28,7 +28,7 @@ void Camera::enable()
 
 void Camera::updateViewMatrix()
 {
-	view_matrix.lookAt( eye, center, up );
+	view_matrix.lookAt(eye, center, up);
 	viewprojection_matrix = view_matrix * projection_matrix;
 	extractFrustum();
 }
@@ -39,7 +39,7 @@ void Camera::updateViewMatrix()
 void Camera::updateProjectionMatrix()
 {
 	if (type == ORTHOGRAPHIC)
-		projection_matrix.ortho(left,right,bottom,top,near_plane,far_plane);
+		projection_matrix.ortho(left, right, bottom, top, near_plane, far_plane);
 	else
 		projection_matrix.perspective(fov, aspect, near_plane, far_plane);
 
@@ -68,7 +68,7 @@ void Camera::move(Vector3 delta)
 void Camera::rotate(float angle, const Vector3& axis)
 {
 	Matrix44 R;
-	R.setRotation(angle,axis);
+	R.setRotation(angle, axis);
 	Vector3 new_front = R * (center - eye);
 	center = eye + new_front;
 	updateViewMatrix();
@@ -92,6 +92,25 @@ void Camera::orbit(float yaw, float pitch)
 
 	dist = TransformQuaterion(dist, R);
 
+	eye = dist + center;
+
+	updateViewMatrix();
+}
+
+void Camera::changeDistance(float dt)
+{
+	if (type == ORTHOGRAPHIC)
+	{
+		float f = dt < 0 ? 1.1 : 0.9;
+		left *= f;
+		right *= f;
+		bottom *= f;
+		top *= f;
+		updateProjectionMatrix();
+		return;
+	}
+	vec3 dist = eye - center;
+	dist *= dt < 0 ? 1.1 : 0.9;
 	eye = dist + center;
 
 	updateViewMatrix();
@@ -136,21 +155,21 @@ void Camera::lookAt(const Vector3& eye, const Vector3& center, const Vector3& up
 void Camera::lookAt(const Matrix44& m)
 {
 	this->eye = m * Vector3();
-	this->center = m * Vector3(0,0,-1);
+	this->center = m * Vector3(0, 0, -1);
 	this->up = m.rotateVector(Vector3(0, 1, 0));
 }
 
 void Camera::extractFrustum()
 {
-	float   proj[16]; 
+	float   proj[16];
 	float   modl[16];
 	float   clip[16];
 	float   t;
 
 	Matrix44 v = view_matrix;
 
-	memcpy( proj, projection_matrix.m, sizeof(Matrix44) );
-	memcpy( modl, v.m, sizeof(Matrix44));
+	memcpy(proj, projection_matrix.m, sizeof(Matrix44));
+	memcpy(modl, v.m, sizeof(Matrix44));
 
 	/* Combine the two matrices (multiply projection by modelview) */
 	clip[0] = modl[0] * proj[0] + modl[1] * proj[4] + modl[2] * proj[8] + modl[3] * proj[12];
@@ -252,7 +271,7 @@ void Camera::extractFrustum()
 	frustum[5][3] /= t;
 }
 
-bool Camera::testPointInFrustum( Vector3 v )
+bool Camera::testPointInFrustum(Vector3 v)
 {
 	for (int p = 0; p < 6; p++)
 		if (frustum[p][0] * v.x + frustum[p][1] * v.y + frustum[p][2] * v.z + frustum[p][3] <= 0)
@@ -260,7 +279,7 @@ bool Camera::testPointInFrustum( Vector3 v )
 	return true;
 }
 
-Vector3 Camera::project( Vector3 pos3d, float window_width, float window_height)
+Vector3 Camera::project(Vector3 pos3d, float window_width, float window_height)
 {
 	Vector3 norm = viewprojection_matrix.project(pos3d); //returns from 0 to 1
 	norm.x *= window_width;
@@ -275,24 +294,24 @@ Vector3 Camera::unproject(Vector3 coord2d, float window_width, float window_heig
 	coord2d.z = 2.0f * coord2d.z - 1.0f;
 	Matrix44 inv_vp = viewprojection_matrix;
 	inv_vp.inverse();
-	Vector4 r = inv_vp * Vector4(coord2d, 1.0f );
-	return Vector3(r.x / r.w, r.y / r.w, r.z / r.w );
+	Vector4 r = inv_vp * Vector4(coord2d, 1.0f);
+	return Vector3(r.x / r.w, r.y / r.w, r.z / r.w);
 }
 
-Vector3 Camera::getRayDirection( int mouse_x, int mouse_y, float window_width, float window_height )
+Vector3 Camera::getRayDirection(int mouse_x, int mouse_y, float window_width, float window_height)
 {
-	Vector3 mouse_pos( (float)mouse_x, window_height - mouse_y, 1.0f);
+	Vector3 mouse_pos((float)mouse_x, window_height - mouse_y, 1.0f);
 	Vector3 p = unproject(mouse_pos, window_width, window_height);
 	return (p - eye).normalize();
 }
 
 float Camera::getProjectedScale(Vector3 pos3D, float radius) {
 	float dist = eye.distance(pos3D);
-	return ((float)sin(fov*DEG2RAD) / dist) * radius * 200.0f; //100 is to compensate width in pixels
+	return ((float)sin(fov * DEG2RAD) / dist) * radius * 200.0f; //100 is to compensate width in pixels
 }
 
 
-char Camera::testSphereInFrustum( const Vector3& v, float radius)
+char Camera::testSphereInFrustum(const Vector3& v, float radius)
 {
 	int p;
 
@@ -309,7 +328,7 @@ char Camera::testBoxInFrustum(const Vector3& center, const Vector3& halfsize)
 {
 	int flag = 0, o = 0;
 
-	flag = planeBoxOverlap( (Vector4&)frustum[0], center,halfsize );
+	flag = planeBoxOverlap((Vector4&)frustum[0], center, halfsize);
 	if (flag == CLIP_OUTSIDE)
 		return CLIP_OUTSIDE;
 	o += flag;

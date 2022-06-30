@@ -150,7 +150,6 @@ void Renderer::createRenderCalls()
 	sort(render_calls.begin(), render_calls.end(), sortRenderCall);
 }
 
-//Renders several elements of the scene
 void Renderer::renderScene(Scene* scene, Camera* camera)
 {
 	//Set the scene and the camera with which to render
@@ -197,8 +196,8 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 
 	//Debug shadow maps
 	if (scene->show_atlas) showShadowAtlas();
-}
 
+}
 //Renders an image
 void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range, Vector4 color, bool flipuv)
 {
@@ -211,11 +210,11 @@ void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 t
 	glDisable(GL_CULL_FACE);
 	glEnable(GL_BLEND);
 	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
-	
+
 	//Local variables
 	Mesh quad;
 	Camera cam2d;
-	
+
 	//Intialize local variables
 	quad.createQuad(x, y, w, h, flipuv);
 	cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
@@ -243,10 +242,8 @@ void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 t
 	glEnable(GL_DEPTH_TEST);
 	glEnable(GL_CULL_FACE);
 	glDisable(GL_BLEND);
-	 
-}
 
-//Set scene uniforms
+}
 void Renderer::setSceneUniforms(Shader* shader)
 {
 	//Shadow Atlas
@@ -254,7 +251,7 @@ void Renderer::setSceneUniforms(Shader* shader)
 		shader->setTexture("u_shadow_atlas", scene->shadow_atlas, 8);
 
 	//Upload scene uniforms
-	shader->setUniform("u_ambient_light", scene->ambient_light);
+	shader->setVector3("u_ambient_light", scene->ambient_light);
 	shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
 	shader->setUniform("u_camera_position", camera->eye);
 	shader->setUniform("u_time", (float)getTime());
@@ -269,24 +266,34 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 		return;
 	assert(glGetError() == GL_NO_ERROR);
 
+	//Material factors
+	Vector3 albedo_factor = rc->material->albedo_factor;
+	Vector3 specular_factor = rc->material->specular_factor;
+	Vector3 occlusion_factor = rc->material->occlusion_factor;
+	Vector3 emissive_factor = rc->material->emissive_factor;
+
 	//Textures
-	Texture* color_texture = NULL;
-	Texture* emissive_texture = NULL;
-	Texture* omr_texture = NULL;
-	Texture* normal_texture = NULL;
-	//Texture* occlusion_texture = NULL;
+	Texture* albedo_texture = rc->material->albedo_texture.texture;
+	Texture* specular_texture = rc->material->specular_texture.texture;
+	Texture* normal_texture = rc->material->normal_texture.texture;
+	Texture* occlusion_texture = rc->material->occlusion_texture.texture;
+	Texture* metalness_texture = rc->material->metalness_texture.texture;
+	Texture* roughness_texture = rc->material->roughness_texture.texture;
+	Texture* omr_texture = rc->material->omr_texture.texture;
+	Texture* emissive_texture = rc->material->emissive_texture.texture;
 
-	//Texture loading
-	color_texture = rc->material->color_texture.texture;
-	emissive_texture = rc->material->emissive_texture.texture;
-	omr_texture = rc->material->metallic_roughness_texture.texture;
-	normal_texture = rc->material->normal_texture.texture;
-	//occlusion_texture = rc->material->occlusion_texture.texture;
-
-	//Texture check
-	if (!color_texture)	color_texture = Texture::getWhiteTexture();
-	if (!emissive_texture) emissive_texture = Texture::getBlackTexture();
-	if (!omr_texture) omr_texture = Texture::getWhiteTexture();
+	//Texture booleans: Controls which texture are uploaded to the shader
+	bool textures[8] =
+	{
+		(albedo_texture != NULL), //0
+		(specular_texture != NULL), //1
+		(normal_texture != NULL), //2
+		(occlusion_texture != NULL), //3
+		(metalness_texture != NULL), //4
+		(roughness_texture != NULL), //5
+		(omr_texture != NULL), //6
+		(emissive_texture != NULL)  //7
+	};
 
 	//Select the blending mode
 	if (rc->material->alpha_mode == AlphaMode::BLEND)
@@ -306,19 +313,28 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	//Check gl errors
 	assert(glGetError() == GL_NO_ERROR);
 
-	//Upload textures
-	if (color_texture) shader->setTexture("u_color_texture", color_texture, 0);
-	if (emissive_texture) shader->setTexture("u_emissive_texture", emissive_texture, 1);
-	if (omr_texture) shader->setTexture("u_omr_texture", omr_texture, 2);
-	if (normal_texture) shader->setTexture("u_normal_texture", normal_texture, 3);
-	//if(occlusion_texture) shader->setTexture("u_occlussion_texture", occlusion_texture, 4);
+	//Upload material factors
+	shader->setVector3("u_albedo_factor", albedo_factor);
+	shader->setVector3("u_specular_factor", specular_factor);
+	shader->setVector3("u_occlusion_factor", occlusion_factor);
+	shader->setVector3("u_emissive_factor", emissive_factor);
 
-	//Normal mapping
-	if (normal_texture) shader->setUniform("u_normal_mapping", 1);
-	else shader->setUniform("u_normal_mapping", 0);
+	//Upload textures
+	if (textures[0]) shader->setTexture("u_albedo_texture", albedo_texture, 0);
+	if (textures[1]) shader->setTexture("u_specular_texture", specular_texture, 1);
+	if (textures[2]) shader->setTexture("u_normal_texture", normal_texture, 2);
+	if (textures[3]) shader->setTexture("u_occlusion_texture", occlusion_texture, 3);
+	if (textures[4]) shader->setTexture("u_metalness_texture", metalness_texture, 4);
+	if (textures[5]) shader->setTexture("u_roughness_texture", roughness_texture, 5);
+	if (textures[6]) shader->setTexture("u_omr_texture", omr_texture, 6);
+	if (textures[7]) shader->setTexture("u_emissive_texture", emissive_texture, 7);
+
+	//Upload the texture array of booleans
+	shader->setUniform1Array("u_textures", (int*)&textures[0], 8);
 
 	//Upload entity uniforms
 	shader->setMatrix44("u_model", *rc->model);
+	shader->setUniform("u_color", Vector3(1.f, 1.f, 1.f));
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
 	//Single pass lighting
@@ -372,7 +388,6 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 	shadows_vp.reserve(max_num_lights);
 
 	//Single pass lighting
-	MainCharacterEntity* character = Game::instance->scene->main_character;
 	while (starting_light < lights_size)
 	{
 		if (starting_light == 5)
@@ -393,8 +408,10 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			//Current Light
 			LightEntity* light = scene->lights[i];
 
-			if (light->name == "flashlight" && !character->flashIsOn)
+			//Check the visibility of the light
+			if (!light->visible)
 				continue;
+
 			//General light properties
 			lights_position[j] = light->model.getTranslation();
 			lights_color[j] = light->color;

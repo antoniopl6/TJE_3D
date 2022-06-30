@@ -92,6 +92,9 @@
     <ClCompile Include="..\..\src\audio.cpp">
       <Filter>gfx</Filter>
     </ClCompile>
+    <ClCompile Include="..\..\src\cMTL.cpp">
+      <Filter>utils</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="..\..\src\camera.h" />
@@ -183,6 +186,9 @@
     </ClInclude>
     <ClInclude Include="..\..\src\audio.h">
       <Filter>gfx</Filter>
+    </ClInclude>
+    <ClInclude Include="..\..\src\cMTL.h">
+      <Filter>utils</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

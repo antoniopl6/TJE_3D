@@ -30,7 +30,7 @@ public:
 	float far_plane;	//far plane
 
 	//for orthogonal projection
-	float left,right,top,bottom;
+	float left, right, top, bottom;
 
 	//planes
 	float frustum[6][4];
@@ -52,6 +52,7 @@ public:
 	void move(Vector3 delta);
 	void rotate(float angle, const Vector3& axis);
 	void orbit(float yaw, float pitch);
+	void changeDistance(float dt);
 
 	//transform a local camera vector to world coordinates
 	Vector3 getLocalVector(const Vector3& v);
@@ -71,14 +72,14 @@ public:
 
 	//to work between world and screen coordinates
 	Vector3 project(Vector3 pos3d, float window_width, float window_height); //to project 3D points to screen coordinates
-	Vector3 unproject( Vector3 coord2d, float window_width, float window_height ); //to project screen coordinates to world coordinates
+	Vector3 unproject(Vector3 coord2d, float window_width, float window_height); //to project screen coordinates to world coordinates
 	float getProjectedScale(Vector3 pos3D, float radius); //used to know how big one unit will look at this distance
 	Vector3 getRayDirection(int mouse_x, int mouse_y, float window_width, float window_height);
 
 	//culling
-	bool testPointInFrustum( Vector3 v );
-	char testSphereInFrustum( const Vector3& v, float radius);
-	char testBoxInFrustum( const Vector3& center, const Vector3& halfsize);
+	bool testPointInFrustum(Vector3 v);
+	char testSphereInFrustum(const Vector3& v, float radius);
+	char testBoxInFrustum(const Vector3& center, const Vector3& halfsize);
 };
 
 
