@@ -162,10 +162,13 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 		//Keep looking forward
 	case SDLK_q:
 	{
-		Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
-		Vector3 inverse_front = camera_front * -1.f;
-		Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
-		main_camera->center = new_center;
+		if (entity_editor->current_camera == Editor3D::MAIN)
+		{
+			Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+			Vector3 inverse_front = camera_front * -1.f;
+			Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
+			main_camera->center = new_center;
+		}
 	}
 	break;
 	}
@@ -204,6 +207,7 @@ void Game::onResize(int width, int height)
     std::cout << "window resized: " << width << "," << height << std::endl;
 	glViewport( 0,0, width, height );
 	main_camera->aspect =  width / (float)height;
+	entity_editor->camera->aspect = width / (float)height;
 	window_width = width;
 	window_height = height;
 }

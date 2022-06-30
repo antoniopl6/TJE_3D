@@ -49,6 +49,7 @@ STAGE_ID TutorialStage::update(double seconds_elapsed) {
 
 
 void PlayStage::render() {
+
 	Game* g = Game::instance;
 
 	//Render the scene
@@ -73,9 +74,11 @@ void PlayStage::render() {
 
 STAGE_ID PlayStage::update(double seconds_elapsed) {
 	Game* g = Game::instance;
-	MainCharacterEntity* character = g->scene->main_character;
+	
 	if (!g->render_editor) {
 		//Update Main Character
+		MainCharacterEntity* character = g->scene->main_character;
+
 		//Update
 		character->update(seconds_elapsed);
 		if (character->bounding_box_trigger)
@@ -126,41 +129,41 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 		{
 			//TODO
 		}
+	}
 
-		//Update cameras
-		switch (g->entity_editor->current_camera)
+	//Update cameras
+	switch (g->entity_editor->current_camera)
+	{
+	case(Editor3D::MAIN):
+		g->scene->main_character->updateMainCamera(seconds_elapsed, g->mouse_speed, g->mouse_locked);
+		break;
+	case(Editor3D::ENTITY):
+		g->entity_editor->updateCamera(seconds_elapsed, g->mouse_speed, g->mouse_locked);
+		break;
+	}
+
+	//Render entity editor
+	if (g->render_editor)
+		g->entity_editor->render();
+
+
+	//Save scene
+	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
+	{
+		if (!g->scene_saved)
 		{
-		case(Editor3D::MAIN):
-			character->updateMainCamera(seconds_elapsed, g->mouse_speed, g->mouse_locked);
-			break;
-		case(Editor3D::ENTITY):
-			g->entity_editor->updateCamera(seconds_elapsed, g->mouse_speed, g->mouse_locked);
-			break;
+			g->scene->save();
+			g->scene_saved = true;
 		}
+	}
 
-		//Render entity editor
-		if (g->render_editor)
-			g->entity_editor->render();
-
-
-		//Save scene
-		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
-		{
-			if (!g->scene_saved)
-			{
-				g->scene->save();
-				g->scene_saved = true;
-			}
-		}
-
-		if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
-			if ((character->num_keys >= 1 && g->scene->hasDoorInRange()) || character->num_apples >= 10) {
-				return STAGE_ID::FINAL;
-			}
+	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
+		if ((g->scene->main_character->num_keys >= 1 && g->scene->hasDoorInRange()) || g->scene->main_character->num_apples >= 10) {
+			return STAGE_ID::FINAL;
 		}
 	}
 	
-	if (character->health == 0) {
+	if (g->scene->main_character->health == 0) {
 		return STAGE_ID::DIED;
 	}
 	return STAGE_ID::PLAY;

@@ -5,22 +5,33 @@ in vec3 v_world_position;
 in vec3 v_normal;
 in vec2 v_uv;
 
-//Textures
-uniform sampler2D u_color_texture;
-uniform sampler2D u_emissive_texture;
-uniform sampler2D u_omr_texture;
-uniform sampler2D u_normal_texture;
-uniform sampler2D u_shadow_atlas;
+//Material factors
+uniform vec3 u_albedo_factor;
+uniform vec3 u_specular_factor;
+uniform vec3 u_occlusion_factor;
+uniform vec3 u_emissive_factor;
 
-//Normal mapping
-uniform bool u_normal_mapping;
+//Textures
+uniform sampler2D u_albedo_texture;
+uniform sampler2D u_specular_texture;
+uniform sampler2D u_normal_texture;
+uniform sampler2D u_occlusion_texture;
+uniform sampler2D u_metalness_texture;
+uniform sampler2D u_roughness_texture;
+uniform sampler2D u_omr_texture;
+uniform sampler2D u_emissive_texture;
+uniform sampler2D u_shadow_atlas;
+uniform int u_textures[8];
 
 //Scene uniforms
 uniform vec3 u_camera_position;
 uniform float u_time;
-uniform float u_alpha_cutoff;
 uniform vec3 u_ambient_light;
 uniform bool u_last_iteration;
+
+//Prefab uniforms
+uniform vec4 u_color;
+uniform float u_alpha_cutoff;
 
 //Single pass maximum number of lights to render
 const int MAX_LIGHTS = 5;
@@ -114,7 +125,7 @@ float testShadowMap(in float shadow_index, in float num_shadows,in float shadows
 	return shadow_factor;
 }
 
-vec3 PhongEquation(in int index, in vec3 light_vector, in float light_intensity, in float light_distance, in vec3 normal_vector, in vec3 omr, in bool light_attenuation)
+vec3 PhongEquation(in int index, in vec3 light_vector, in float light_intensity, in float light_distance, in vec3 normal_vector, in bool light_attenuation)
 {
 	//Compute vectors
 	vec3 L = light_vector;
@@ -141,16 +152,33 @@ vec3 PhongEquation(in int index, in vec3 light_vector, in float light_intensity,
 		attenuation_factor = pow(max( attenuation_factor, 0.0 ),2.0);
 	}
 
-	//Compute shininess factor
-    float shininess_factor = omr.y * 20.0; //Multiply roughness by a float to reduce specular inaccuracy
+	//Diffuse factor
+	vec3 diffuse_factor = vec3(NdotL);
 
-    //Compute light factors
-    float diffuse_factor = attenuation_factor * NdotL;
-    float specular_factor = 0.0;
-    specular_factor = attenuation_factor * omr.z * pow(RdotV, shininess_factor); 
+	//Specular factor
+	vec3 specular_factor;
+	if(u_textures[1] == 1)
+	{
+		specular_factor = texture2D(u_specular_texture,v_uv).xyz;
+	}
+	else if(u_textures[6] == 1)
+	{
+		vec3 omr = texture2D(u_omr_texture,v_uv).xyz;
+	    specular_factor = vec3(omr.z * pow(RdotV, omr.y * 20.0)); //Multiply metalness by a float to reduce specular inaccuracy
+	}
+	else if(u_textures[4] == 1 && u_textures[5] == 1)
+	{
+		vec3 metalness_factor = texture2D(u_metalness_texture,v_uv).xyz;
+		vec3 roughness_factor = texture2D(u_roughness_texture,v_uv).xyz;
+	    specular_factor = roughness_factor * pow(vec3(RdotV), metalness_factor * 20.0); //Multiply metalness by a float to reduce specular inaccuracy
+	}
+	else
+	{
+		specular_factor = u_specular_factor;
+	}
 
     //Phong equation
-	vec3 light = (diffuse_factor + specular_factor) * u_lights_color[index] * light_intensity * shadow_factor;
+	vec3 light = attenuation_factor * (diffuse_factor + specular_factor) * u_lights_color[index] * light_intensity * shadow_factor;
 
 	//Return light
 	return light;
@@ -158,30 +186,33 @@ vec3 PhongEquation(in int index, in vec3 light_vector, in float light_intensity,
 
 void main()
 {
-
-	//Load texture values with texture interpolated coordinates
-	vec3 tangent_space_normal;
-	if(u_normal_mapping) tangent_space_normal = texture2D( u_normal_texture, v_uv ).xyz;
-	vec4 color = texture2D(u_color_texture, v_uv );
-	vec3 omr = texture2D(u_omr_texture,v_uv).xyz;
-
-	FragColor = vec4(0.5,0.7,0.1, 1.0);	
-
-	//ZBuffer-Test
-	if(color.a < u_alpha_cutoff)
+	//Alpha mask
+	if(u_color.a < u_alpha_cutoff)
 		discard;
+
+	//Albedo value
+	vec4 color;
+	if(u_textures[0] == 1) color = texture2D(u_albedo_texture, v_uv );
+	else color = vec4(u_albedo_factor,1.0);
+	color *= 0.1;
+
+	//Normal value
+	vec3 tangent_space_normal;
+	if(u_textures[2] == 1) tangent_space_normal = texture2D( u_normal_texture, v_uv ).xyz;
+
+	//Occlusion value
+	vec3 ambient_factor;
+	if(u_textures[3] == 1) ambient_factor = texture2D( u_occlusion_texture, v_uv ).xyz;
+	else if(u_textures[6] == 1) ambient_factor = vec3(texture2D( u_omr_texture, v_uv ).x);
+	else ambient_factor = u_occlusion_factor;
 
 	//Interpolated normal
 	vec3 interpolated_normal = normalize(v_normal);
 
 	//Normal mapping
 	vec3 normal_vector;
-	if(u_normal_mapping) normal_vector = perturbNormal(interpolated_normal, v_world_position, v_uv, tangent_space_normal);//Normal map
+	if(u_textures[2] == 1) normal_vector = perturbNormal(interpolated_normal, v_world_position, v_uv, tangent_space_normal);//Normal map
 	else normal_vector = interpolated_normal;//Interpolated Normal
-
-	//Compute ambient factor
-	float ambient_factor = 1.0;
-	ambient_factor = omr.x;
 
 	//Set ambient light to phong light
 	vec3 phong_light = ambient_factor * u_ambient_light;
@@ -206,7 +237,7 @@ void main()
 				light_vector /= light_distance;
 
 				//Phong Equation
-				phong_light += PhongEquation(i, light_vector, light_intensity, light_distance,normal_vector, omr, true);
+				phong_light += PhongEquation(i, light_vector, light_intensity, light_distance, normal_vector, true);
 			}
 			else if(u_lights_type[i] == 1)//spot light
 			{
@@ -232,7 +263,7 @@ void main()
 					light_intensity *= pow(spot_cosine,max(u_spots_cone[i].x,0.0));
 
 					//Phong Equation
-					phong_light += PhongEquation(i, light_vector, light_intensity, light_distance,normal_vector, omr, true);
+					phong_light += PhongEquation(i, light_vector, light_intensity, light_distance, normal_vector, true);
 				}
 
 			}
@@ -248,19 +279,23 @@ void main()
 				light_vector /= light_distance;
 
 				//Phong Equation
-				phong_light += PhongEquation(i, light_vector, light_intensity, light_distance,normal_vector, omr, false);
+				phong_light += PhongEquation(i, light_vector, light_intensity, light_distance, normal_vector, false);
 			}			
 		}
 	}
 
-
-	
 	//Final color
 	color.rgb *= phong_light;
+
 	if(u_last_iteration)
 	{
-		vec3 emissive_light = texture2D(u_emissive_texture,v_uv).xyz;
-		color.rgb += emissive_light;
+		if(u_textures[7] == 1)
+		{
+			vec3 emissive_light = u_emissive_factor * texture2D(u_emissive_texture,v_uv).xyz;
+			color.rgb += emissive_light;
+		}
 	}
+
+	//Output
 	FragColor = color;
 }
