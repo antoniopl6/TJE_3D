@@ -101,6 +101,9 @@ void Scene::addEntity(Entity* entity)
 
 void Scene::removeEntity(Entity* entity)
 {
+	if (entity == NULL)
+		return;
+
 	//Only for entity vectors
 	switch (entity->entity_type)
 	{
@@ -537,7 +540,8 @@ bool Scene::save()
 		//Check whether the object is registered or not
 		auto it = scene_objects.find(object->object_id);
 
-		if (it == scene_objects.end()) //Object hasn't been registered yet
+		//Object hasn't been registered yet
+		if (it == scene_objects.end()) 
 		{
 			//Create JSONs
 			cJSON* object_json = cJSON_CreateObject();
@@ -574,10 +578,11 @@ bool Scene::save()
 		//Current light
 		LightEntity* light = lights[i];
 
-		//Check whether the object is registered or not
+		//Check whether the light is registered or not
 		auto it = scene_lights.find(light->light_id);
 
-		if (it == scene_lights.end()) //Object hasn't been registered yet
+		//Light hasn't been registered yet
+		if (it == scene_lights.end())
 		{
 			//Create JSONs
 			cJSON* light_json = cJSON_CreateObject();
@@ -611,10 +616,11 @@ bool Scene::save()
 		//Current light
 		SoundEntity* sound = sounds[i];
 
-		//Check whether the object is registered or not
+		//Check whether the sound is registered or not
 		auto it = scene_sounds.find(sound->sound_id);
 
-		if (it == scene_sounds.end()) //Object hasn't been registered yet
+		//Sound hasn't been registered yet
+		if (it == scene_sounds.end()) 
 		{
 			//Create JSONs
 			cJSON* sound_json = cJSON_CreateObject();

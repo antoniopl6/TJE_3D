@@ -27,6 +27,7 @@ using namespace std;
 
 Game* Game::instance = NULL;
 bool scene_saved = false;
+Vector3 scene_ambient_light;
 
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
@@ -62,6 +63,23 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Set flashlight starting position
 	//TODO
 
+	for (int i = 0; i < 10; i++)
+	{
+		for (int j = 0; j < 10; j++)
+		{
+			ObjectEntity* new_grass = new ObjectEntity();
+			new_grass->object_id = 0;
+			new_grass->name = "Grass";
+			new_grass->mesh = Mesh::Get("data/assets/floor/grass.obj");
+			new_grass->material->albedo_texture.texture = Texture::Get("data/assets/floor/grass.tga");
+			new_grass->model.translate(i * 3000, 0, j * 3000);
+			new_grass->model.rotate(90 * DEG2RAD, Vector3(1, 0, 0));
+			new_grass->model.scale(10.f, 10.f, 0.1f);
+			scene->objects.push_back(new_grass);
+
+		}
+	}
+	
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 
@@ -218,10 +236,13 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		entity_editor->current_camera = Editor3D::MAIN;
 		if (render_editor)
 		{
+			scene_ambient_light = scene->ambient_light;
+			scene->ambient_light = Vector3(5.f, 5.f, 5.f);
 			entity_editor->reset();
 		}
 		else
 		{
+			scene->ambient_light = scene_ambient_light;
 			cout << "Exiting the editor" << endl << endl;
 		}
 		break;
