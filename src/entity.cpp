@@ -87,6 +87,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
 	}
 
+	//Update position
 	Vector3 nextPos = Vector3();
 	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
 	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
@@ -94,14 +95,23 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
-	
-	//To navigate with the mouse fixed in the middle
+
+	Vector3 posCam = camera->eye;
+	Vector3 camForward = (camera->center - camera->eye).normalize();
+	//Update flashlight position and rotate based on camera vectors
+	flashlight->model.setTranslation(posCam.x + camForward.x * 80 - camera->up.x * 35, posCam.y + camForward.y * 80 - camera->up.y * 35, posCam.z + camForward.z * 80 - camera->up.z * 35);
+	flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
+	flashlight->updateBoundingBox();
+
+	//Update light position
+	light->model.setTranslation(posCam.x + camForward.x * 100 - camera->up.x * 50, posCam.y + camForward.y * 100 - camera->up.y * 50, posCam.z + camForward.z * 100 - camera->up.z * 50);
+	light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
+	light->updateBoundingBox();
 
 	//Pick object collectable
 	if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
 		ObjectEntity::ObjectType type;
 		type = Scene::instance->getCollectable();
-		cout << (int) type << endl;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
 			num_keys++;
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
@@ -111,8 +121,9 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 	}
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
-		this->flashIsOn = !this->flashIsOn; //Activate / Desactivate flashlight
+	//Activate / Desactivate flashlight
+	if (Input::wasKeyPressed(SDL_SCANCODE_C) && battery > 0) {
+		this->flashIsOn = !this->flashIsOn; 
 
 	}
 
@@ -175,35 +186,20 @@ void MainCharacterEntity::save(cJSON* main_json)
 
 //Handles battery consumption
 float battery_time = 0.0f;
-//Battery_life is the time that the battery_reduction has before is spent
+//Battery_life is the time that the battery_reduction has, before is spent
 float battery_life = 2.5f;
-float battery_reduction = 4.0f;
+float battery_reduction = 15.0f;
 //Time the battery is on off state
 float battery_off = 0.0f;
 //Handles recovery of health by time
 float last_recovery_health = 0.0f;
 void MainCharacterEntity::update(float elapsed_time)
 {
-	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
-	//
-	Vector3 side = flashlight->model.rotateVector(Vector3(1, 0, 0)).normalize();
-	Vector3 up = flashlight->model.rotateVector(Vector3(0, -1, 0)).normalize();
-	//
-	Vector3 forward = flashlight->model.rotateVector(Vector3(0, 0, -1)).normalize();
-	float sideDot = side.dot(toTarget);
-	float upDot = up.dot(toTarget);
-	float forwardDot = forward.dot(toTarget);
-	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
 
-	float degrees2 = computeDeg(Vector2(forward.y, forward.z), Vector2(toTarget.y, toTarget.z));	
-
-	Vector3 posCam = camera->eye;
-	Vector3 camForward = (camera->center - camera->eye).normalize();
-	flashlight->model.setTranslation(posCam.x + camForward.x * 80 - camera->up.x * 35, posCam.y + camForward.y * 80 - camera->up.y * 35, posCam.z + camForward.z * 80 - camera->up.z * 35);
-	
 	float currTime = Game::instance->time;
 	if (!this->flashIsOn || this->battery == 0) {
 		battery_off = currTime - battery_time;;
+		this->flashIsOn = false;
 	}
 	else if (this->flashIsOn) {
 		battery_time = currTime - battery_off;
@@ -227,7 +223,6 @@ void MainCharacterEntity::update(float elapsed_time)
 		health = min(100, health + 25);
 	}
 	
-	flashlight->updateBoundingBox();
 }
 
 //Monster
@@ -391,7 +386,6 @@ void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 		Vector3 newTranslate = route->getSceneVector(newPos.x, newPos.y);
 		if (moveToTarget(elapsed_time, newTranslate))
 			idx++;
-		//std::cout << "Next target" << std::endl,
 		if (idx == closestPoint->path_steps) {
 			isInPathRoute = false;
 			idx = 0;
@@ -400,28 +394,29 @@ void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 
 }
 
-bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true if has arrived to pos target, false otherwise
+//Returns true if has arrived to pos target, false otherwise
+bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos)
 {
-	
-	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
-	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
-	//std::cout << "forward " << forward.x << std::endl;
-	Vector3 toTarget = model.getTranslation() - pos;
-	float dist = toTarget.length();
-	toTarget.normalize();
-
-	float sideDot = side.dot(toTarget);
-	float forwardDot = forward.dot(toTarget);
 	float rotSpeed = 80.0f;
 	float walkSpeed = 200.0f;
-	Vector3 translate = forward * -walkSpeed * elapsed_time;
-	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	//std::cout << "Grados a rotar                  " << degrees << std::endl;
-	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	Vector3 toTarget = model.getTranslation() - pos;
+
+	float dist = toTarget.length();
+	toTarget.normalize();
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+	Vector3 translate = forward * -walkSpeed * elapsed_time;
+
+	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+
+	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 	model.translateGlobal(translate.x, 0, translate.z);
 
 	this->updateBoundingBox();
+
 	if (dist <= bounding) {
 		return true;
 

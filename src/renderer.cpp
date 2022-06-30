@@ -356,6 +356,7 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 	shadows_vp.reserve(max_num_lights);
 
 	//Single pass lighting
+	MainCharacterEntity* character = Game::instance->scene->main_character;
 	while (starting_light < lights_size)
 	{
 		if (starting_light == 5)
@@ -376,6 +377,8 @@ void Renderer::SinglePassLoop(Shader* shader, Mesh* mesh)
 			//Current Light
 			LightEntity* light = scene->lights[i];
 
+			if (light->name == "flashlight" && !character->flashIsOn)
+				continue;
 			//General light properties
 			lights_position[j] = light->model.getTranslation();
 			lights_color[j] = light->color;

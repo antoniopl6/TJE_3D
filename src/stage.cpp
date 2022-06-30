@@ -121,10 +121,14 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 			g->scene_saved = true;
 		}
 	}
+
 	if (Input::wasKeyPressed(SDL_SCANCODE_X)) {
 		if (character->num_keys >= 1 && g->scene->hasDoorInRange()) {
 			return STAGE_ID::FINAL;
 		}
+	}
+	if (character->health == 0) {
+		return STAGE_ID::DIED;
 	}
 	return STAGE_ID::PLAY;
 	
