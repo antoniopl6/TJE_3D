@@ -67,13 +67,7 @@
     <ClCompile Include="..\..\src\entity.cpp">
       <Filter>elements</Filter>
     </ClCompile>
-    <ClCompile Include="..\..\src\intro.cpp">
-      <Filter>Stages</Filter>
-    </ClCompile>
     <ClCompile Include="..\..\src\stage.cpp">
-      <Filter>Stages</Filter>
-    </ClCompile>
-    <ClCompile Include="..\..\src\play.cpp">
       <Filter>Stages</Filter>
     </ClCompile>
     <ClCompile Include="..\..\src\scene.cpp" />
@@ -163,12 +157,6 @@
       <Filter>elements</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\stage.h">
-      <Filter>Stages</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\intro.h">
-      <Filter>Stages</Filter>
-    </ClInclude>
-    <ClInclude Include="..\..\src\play.h">
       <Filter>Stages</Filter>
     </ClInclude>
     <ClInclude Include="..\..\src\scene.h" />

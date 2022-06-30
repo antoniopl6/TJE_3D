@@ -20,13 +20,12 @@ bool turn_around = false;
 
 Animation* anim = NULL;
 float angle = 0;
-float mouse_speed = 100.0f;
 FBO* fbo = NULL;
 
 using namespace std;
 
 Game* Game::instance = NULL;
-bool scene_saved = false;
+
 
 
 Game::Game(int window_width, int window_height, SDL_Window* window)
@@ -64,6 +63,8 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 
 	//This class will be the one in charge of rendering the scene
 	renderer = new Renderer(scene,main_camera);
+
+	curr_stage = STAGE_ID::INTRO;
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
@@ -116,9 +117,6 @@ void Game::update(double seconds_elapsed)
 	
 	if (character->bounding_box_trigger)
 	{
-		/*character->model.print();
-		character->model.rotateGlobal(180 * DEG2RAD, Vector3(0, 1, 0));
-		character->model.print();*/
 		character->updateBoundingBox();
 		character->bounding_box_trigger = false;
 		
@@ -135,13 +133,11 @@ void Game::update(double seconds_elapsed)
 	if (monster->isInFollowRange(character)) {
 		monster->updateFollow(elapsed_time, character->camera);
 	}
-	//////////////////////////// path
+	//Path finding IA
 	else {
 		monster->followPath(elapsed_time);
 	}
-	
 
-	//}
 	
 	//Update Objects
 	for (int i = 0; i < scene->objects.size(); ++i)

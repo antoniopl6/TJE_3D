@@ -108,6 +108,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 			this->battery = min(100.f, this->battery + 36.f);
 		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
 			num_apples++;
+
 	}
 
 	if (Input::wasKeyPressed(SDL_SCANCODE_C)) {
@@ -179,6 +180,8 @@ float battery_life = 2.5f;
 float battery_reduction = 4.0f;
 //Time the battery is on off state
 float battery_off = 0.0f;
+//Handles recovery of health by time
+float last_recovery_health = 0.0f;
 void MainCharacterEntity::update(float elapsed_time)
 {
 	Vector3 toTarget = (flashlight->model.getTranslation() - camera->center).normalize();
@@ -219,10 +222,11 @@ void MainCharacterEntity::update(float elapsed_time)
 	}
 
 	//With time, the player recovers health
-	if (currTime - playerHittedTime > 9.0f) {
+	if (currTime - last_recovery_health > 9.0f) {
+		last_recovery_health = currTime;
 		health = min(100, health + 25);
 	}
-
+	
 	flashlight->updateBoundingBox();
 }
 
@@ -329,15 +333,10 @@ bool MonsterEntity::isInFollowRange(MainCharacterEntity* mainCharacter)
 	//If the player is in vision range of the monster then should start following
 	if (1900.0f > dist && forwardDot > 0.30f) {
 		if (300.0f >= dist && !mainCharacter->isHitted) {
-			/*float currTime = Game::instance->time;
-			if ((currTime - mainCharacter->playerHittedTime) <= 0.0f || (currTime - mainCharacter->playerHittedTime) >= 1.5f) {
-				mainCharacter->health = max(0, mainCharacter->health - 25);
-				mainCharacter->playerHittedTime = currTime;
-				mainCharacter->isHitted = true;
-			}*/
 			mainCharacter->health = max(0, mainCharacter->health - 25);
 			mainCharacter->isHitted = true;
 			mainCharacter->playerHittedTime = Game::instance->time;
+			last_recovery_health = Game::instance->time;
 		}
 		return true;
 	}

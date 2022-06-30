@@ -31,6 +31,8 @@ public:
 	int fps;
 	bool must_exit;
 	bool render_editor;
+	bool scene_saved = false;
+	float mouse_speed = 100.0f;
 
 	//some vars
 	Camera* main_camera; //our global camera
@@ -38,6 +40,7 @@ public:
 	Editor3D* entity_editor;
 	Renderer* renderer; //game render class
 	bool mouse_locked; //tells if the mouse is locked (not seen)
+	STAGE_ID curr_stage;
 
 	Game(int window_width, int window_height, SDL_Window* window);
 

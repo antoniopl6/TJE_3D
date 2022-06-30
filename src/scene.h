@@ -66,6 +66,7 @@ public:
 	Vector3 testCollisions(Vector3 currPos, Vector3 nexPos, float elapsed_time);
 
 	bool hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm);
+	bool hasDoorInRange();
 	ObjectEntity::ObjectType getCollectable();
 	bool collectableInRange();
 

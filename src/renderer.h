@@ -48,6 +48,23 @@ public:
 	Texture* dmgScreen;
 	Texture* apple;
 	Texture* key;
+	Texture* enter;
+
+	//Scenes
+	Texture* introScene;
+	Texture* tutorialScene;
+	Texture* loadScene;
+	Texture* diedScene;
+	Texture* finalScene;
+	
+	Texture* continueX;
+
+	//Tutorial textures
+	Texture* keyboardTutorial;
+	Texture* mouseTutorial;
+
+	//intro textures
+	Texture* title;
 
 	//Constructor
 	Renderer(Scene* scene, Camera* camera);
@@ -57,6 +74,9 @@ public:
 
 	//Renders an image
 	void renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range = Vector4(1, 1, 1, 1), Vector4 color = Vector4(1, 1, 1, 1));
+
+	//Scene intro render
+
 
 	//loads GUIs textures
 	void loadGUIs();

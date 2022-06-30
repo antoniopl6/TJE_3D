@@ -242,6 +242,42 @@ bool Scene::collectableInRange() {
 
 }
 
+//True if a collectable can be grabbed
+bool Scene::hasDoorInRange() {
+	//Selected entity and maximum distance of selection
+	float max_distance = 500.f;
+
+	//Get global variables
+	Camera* camera = main_character->camera;
+	Game* game = Game::instance;
+	Vector2 mouse_pos = Vector2(game->window_width / 2, game->window_height / 2);
+
+	//Compute the direction form mouse to window
+	Vector3 ray_direction = camera->getRayDirection(mouse_pos.x, mouse_pos.y, game->window_width, game->window_height);
+	Vector3 ray_origin = camera->eye;
+
+	//Search for the object with a Ray Collision in the scene and then return it
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		//Current object entity
+		ObjectEntity* entity = objects[i];
+
+		//Entity properties
+		Vector3 entity_position;
+		Vector3 entity_normal;
+
+		//Ray collision test
+		if (entity->name == "door" && entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
+		{
+			return true;
+
+		}
+
+	}
+	return false;
+
+}
+
 //JSON Methods
 bool Scene::load(const char* scene_filepath)
 {
