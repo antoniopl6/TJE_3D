@@ -19,6 +19,8 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 	//Open the file
 	reader.open(root + "\\" + asset + ".mtl", ios::out);
 
+	string directory = root.substr(root.find("data\\assets"), root.size());
+
 	if (reader)
 	{
 		//Notify the user the reader has succeded in opening the file	
@@ -66,7 +68,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + obj;
+				string path = directory + "\\" + obj;
 
 				//Assign OBJ
 				current_object->mesh = Mesh::Get(path.c_str());
@@ -147,7 +149,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
@@ -167,7 +169,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->albedo_texture.texture = Texture::Get(path.c_str());
@@ -186,7 +188,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->specular_texture.texture = Texture::Get(path.c_str());
@@ -205,7 +207,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->emissive_texture.texture = Texture::Get(path.c_str());
@@ -224,7 +226,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->normal_texture.texture = Texture::Get(path.c_str());
@@ -243,7 +245,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
@@ -262,7 +264,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->roughness_texture.texture = Texture::Get(path.c_str());
@@ -281,7 +283,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->metalness_texture.texture = Texture::Get(path.c_str());
@@ -300,7 +302,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 					continue;
 
 				//Set path
-				string path = root + "\\" + texture;
+				string path = directory + "\\" + texture;
 
 				//Get Texture
 				current_object->material->omr_texture.texture = Texture::Get(path.c_str());
