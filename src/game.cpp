@@ -16,7 +16,7 @@
 Mesh* mesh = NULL;
 Texture* texture = NULL;
 Shader* shader = NULL;
-bool turn_around = false;
+
 
 Animation* anim = NULL;
 float angle = 0;
@@ -111,12 +111,13 @@ void Game::update(double seconds_elapsed)
 {
 	//Update Main Character
 	MainCharacterEntity* character = scene->main_character;
+
+	//Update
+	character->update(seconds_elapsed);
 	
+	//Bounding box
 	if (character->bounding_box_trigger)
 	{
-		/*character->model.print();
-		character->model.rotateGlobal(180 * DEG2RAD, Vector3(0, 1, 0));
-		character->model.print();*/
 		character->updateBoundingBox();
 		character->bounding_box_trigger = false;
 		
@@ -124,23 +125,25 @@ void Game::update(double seconds_elapsed)
 
 	//Update Monster
 	MonsterEntity* monster = scene->monster;
+
+	//Update
 	monster->update(elapsed_time);
+
+	//Bounding box
 	if (monster->bounding_box_trigger)
 	{
 		monster->updateBoundingBox();
 		monster->bounding_box_trigger = false;
 	}
+	
+	//Path AI
 	/*if (monster->isInFollowRange(camera)) {
 		monster->updateFollow(elapsed_time, camera);
 		MonsterIsInPathRoute = false;
-	}*/
-	//////////////////////////// path
-	//else {
+	} else {
 		monster->followPath(elapsed_time);
-	//}
-	
-
-	//}
+	}*/
+	monster->followPath(elapsed_time);
 	
 	//Update Objects
 	for (int i = 0; i < scene->objects.size(); ++i)
@@ -168,7 +171,6 @@ void Game::update(double seconds_elapsed)
 	switch (entity_editor->current_camera)
 	{
 	case(Editor3D::MAIN):
-		character->update(seconds_elapsed);
 		character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
 		break;
 	case(Editor3D::ENTITY):
@@ -205,11 +207,8 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 
 	//Turn around
 	case SDLK_q:
-		if (!turn_around)
-		{
-			main_camera->center *= -1.f;
-			turn_around = true;
-		}
+		main_camera->center.print();
+		main_camera->center *= -1.f;
 		break;
 
 	//Entity editor
@@ -233,7 +232,10 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 		//Keep looking forward
-		case SDLK_q: main_camera->center *= -1.f;
+		case SDLK_q: 
+			main_camera->center.print();
+			main_camera->center *= -1.f;
+			break;
 	}
 }
 

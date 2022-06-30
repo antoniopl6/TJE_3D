@@ -65,12 +65,6 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
 	}
 
-	//Turn around
-	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
-		camera->center *= -1.f;
-	if (Input::isKeyPressed(SDL_SCANCODE_Q))
-		return;
-
 	// Define and boost the speed
 	float speed = seconds_elapsed * mouse_speed * 4;
 	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 1.5; //move faster with left shift
@@ -93,9 +87,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
 	
-	//this->model.translateGlobal(nextPos.x, nextPos.y, nextPos.z);
-	//this->updateBoundingBox();
-	//To navigate with the mouse fixed in the middle
+	
 	if (Input::isKeyPressed(SDL_SCANCODE_X)) {
 		ObjectEntity::ObjectType type;
 		type = Scene::instance->getCollectable();
@@ -108,6 +100,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 			num_apples++;
 	}
 
+	//To navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
 }
