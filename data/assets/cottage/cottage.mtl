@@ -2,6 +2,7 @@
 # Material Count: 1
 
 newmtl cottage_texture
+mesh cottage_obj.obj
 Ns 96.078421
 Ka 1.000000 1.000000 1.000000
 Kd 0.640000 0.640000 0.640000
