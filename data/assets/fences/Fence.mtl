@@ -2,7 +2,7 @@
 # Material Count: 1
 
 newmtl No_Name
-obj fence.obj
+mesh fence.obj
 Ns 199.999995
 Ka 1.000000 1.000000 1.000000
 Kd 1.000000 1.000000 1.000000
@@ -11,5 +11,5 @@ Ke 0.000000 0.000000 0.000000
 Ni 1.450000
 d 1.000000
 illum 3
-map_Bump prutev_DefaultMaterial_Normal.png
+map_normal prutev_DefaultMaterial_Normal.png
 map_Kd prutev_DefaultMaterial_AlbedoTransparency.png

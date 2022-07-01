@@ -2,6 +2,7 @@
 # File Created: 22.04.2011 13:23:06
 
 newmtl Grass
+mesh grass.obj
 Ns 10.0000
 Ni 1.5000
 alpha false
