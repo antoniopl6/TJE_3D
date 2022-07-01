@@ -101,15 +101,6 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 		light->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 50, camera_position.y + camera_front.y * 100 - camera->up.y * 50, camera_position.z + camera_front.z * 80 - camera->up.z * 50);
 		light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
 	}
-	
-
-	//Turn around
-	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
-	{
-		Vector3 inverse_front = camera_front * -1.f;
-		Vector3 new_center = Vector3(camera->eye.x + inverse_front.x, camera->eye.y, camera->eye.z + inverse_front.z);
-		camera->center = new_center;
-	}
 
 	if (mouse_locked)
 		Input::centerMouse();
@@ -184,6 +175,7 @@ void MainCharacterEntity::update(float elapsed_time)
 	if (!this->flashIsOn || this->battery == 0) {
 		battery_off = currTime - battery_time;;
 		this->flashIsOn = false;
+		light->visible = false;
 	}
 	else if (this->flashIsOn) {
 		battery_time = currTime - battery_off;
@@ -206,9 +198,6 @@ void MainCharacterEntity::update(float elapsed_time)
 		last_recovery_health = currTime;
 		health = min(100, health + 25);
 	}
-
-	
-
 	
 
 	if (Input::isKeyPressed(SDL_SCANCODE_E)) {
