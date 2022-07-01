@@ -54,7 +54,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->battery = 75.f;
 	this->health = 100;
 	this->flashIsOn = true;
-	this->num_apples = 0;
+	this->num_apples = 9;
 	this->num_keys = 0;
 }
 
@@ -89,44 +89,26 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
+	if (!Game::instance->render_editor) {
+		Vector3 camera_position = camera->eye;
+		Vector3 camera_front = (camera->center - camera->eye).normalize();
+		//Update flashlight position and rotate based on camera vectors
+		flashlight->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 35, camera_position.y + camera_front.y * 80 - camera->up.y * 35, camera_position.z + camera_front.z * 80 - camera->up.z * 35);
+		flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
+		flashlight->updateBoundingBox();
 
-	Vector3 posCam = camera->eye;
-	Vector3 camForward = (camera->center - camera->eye).normalize();
-	//Update flashlight position and rotate based on camera vectors
-	flashlight->model.setTranslation(posCam.x + camForward.x * 80 - camera->up.x * 35, posCam.y + camForward.y * 80 - camera->up.y * 35, posCam.z + camForward.z * 80 - camera->up.z * 35);
-	flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
-	flashlight->updateBoundingBox();
-
-	//Update light position
-	light->model.setTranslation(posCam.x + camForward.x * 100 - camera->up.x * 50, posCam.y + camForward.y * 100 - camera->up.y * 50, posCam.z + camForward.z * 100 - camera->up.z * 50);
-	light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
-	light->updateBoundingBox();
-
-
-	//Pick object collectable
-	if (Input::wasKeyPressed(SDL_SCANCODE_E)) {
-		ObjectEntity::ObjectType type;
-		type = Scene::instance->getCollectable();
-		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
-			num_keys++;
-		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
-			this->battery = min(100.f, this->battery + 36.f);
-		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
-			num_apples++;
-
+		//Update light position
+		light->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 50, camera_position.y + camera_front.y * 100 - camera->up.y * 50, camera_position.z + camera_front.z * 80 - camera->up.z * 50);
+		light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
 	}
+	
+
 	//Turn around
 	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 	{
 		Vector3 inverse_front = camera_front * -1.f;
 		Vector3 new_center = Vector3(camera->eye.x + inverse_front.x, camera->eye.y, camera->eye.z + inverse_front.z);
 		camera->center = new_center;
-	}
-	////Activate / Desactivate flashlight
-	if (Input::wasKeyPressed(SDL_SCANCODE_F) && battery > 0) {
-		this->flashIsOn = !this->flashIsOn; 
-		light->visible = !light->visible;
-
 	}
 
 	if (mouse_locked)
@@ -190,7 +172,7 @@ void MainCharacterEntity::save(cJSON* main_json)
 float battery_time = 0.0f;
 //Battery_life is the time that the battery_reduction has, before is spent
 float battery_life = 2.5f;
-float battery_reduction = 7.5f;
+float battery_reduction = 5.0f;
 //Time the battery is on off state
 float battery_off = 0.0f;
 //Handles recovery of health by time
@@ -224,6 +206,29 @@ void MainCharacterEntity::update(float elapsed_time)
 		last_recovery_health = currTime;
 		health = min(100, health + 25);
 	}
+
+	
+
+	
+
+	if (Input::isKeyPressed(SDL_SCANCODE_E)) {
+		ObjectEntity::ObjectType type;
+		type = Scene::instance->getCollectable();
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_KEY)
+			num_keys++;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_BATTERY)
+			this->battery += 35.f;
+		if (type == ObjectEntity::ObjectType::PICK_OBJECT_APPLE)
+			num_apples++;
+	}
+
+	////Activate / Desactivate flashlight
+	if (Input::wasKeyPressed(SDL_SCANCODE_F) && battery > 0) 
+	{
+		this->flashIsOn = !this->flashIsOn;
+		light->visible = !light->visible;
+
+	}
 	
 }
 
@@ -244,11 +249,19 @@ MonsterEntity::MonsterEntity()
 	Vector3* p0 = new Vector3(0, 0, 0);
 	Vector3* p1 = new Vector3(1600, 0, 0);
 	Vector3* p2 = new Vector3(1600, 0, 1600);
-	Vector3* p3 = new Vector3(0, 0, 1600);
+	Vector3* p3 = new Vector3(0, 0, 2000);
+	Vector3* p4 = new Vector3(1000, 0, 2500);
+	Vector3* p5 = new Vector3(0, 0, 7000);
+	Vector3* p6 = new Vector3(2000, 0, 1600);
+	Vector3* p7 = new Vector3(0, 0, 4000);
 	points.push_back(*p0);
 	points.push_back(*p1);
 	points.push_back(*p2);
 	points.push_back(*p3);
+	points.push_back(*p4);
+	points.push_back(*p5);
+	points.push_back(*p6);
+	points.push_back(*p7);
 	route = new Route(100, 100, points);
 
 	/////////////////////////

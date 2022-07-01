@@ -116,6 +116,7 @@ void mainLoop()
 			case SDL_MOUSEWHEEL:
 				Input::mouse_wheel += sdlEvent.wheel.y;
 				Input::mouse_wheel_delta = sdlEvent.wheel.y;
+				Input::mouse_wheel_trigger = true;
 				game->onMouseWheel(sdlEvent.wheel);
 				break;
 			case SDL_KEYDOWN:
@@ -161,10 +162,13 @@ void mainLoop()
 		//update game logic
 		game->update(elapsed_time);
 
+		//Reset triggers
+		Input::mouse_wheel_trigger = false;
+
 		//check errors in opengl only when working in debug
-#ifdef _DEBUG
-		checkGLErrors();
-#endif
+		#ifdef _DEBUG
+				checkGLErrors();
+		#endif
 	}
 
 	SDL_GL_DeleteContext(glcontext);

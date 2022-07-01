@@ -1,7 +1,7 @@
 {
 	"ambient_light":	[0.31960785388946533, 0.30392158031463623, 0.429411768913269],
-	"camera_position":	[1631.859375, 231.69088745117188, 161.43905639648438],
-	"camera_target":	[1449.5479736328125, 166.8828125, 110.82591247558594],
+	"camera_position":	[-668.25030517578125, 231.69088745117188, 1238.8533935546875],
+	"camera_target":	[-579.28448486328125, 185.12399291992188, 1411.77978515625],
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
 	"camera_far":	3000,
@@ -20,24 +20,21 @@
 			"emissive_factor":	[0, 0, 0]
 		}
 	},
-  "monster": {
-    "name": "Monster",
-    "visible": true,
-    "model": [ 2.74666817858815e-05, 0, 5.0001988410949707, 0, 0, 4.9999990463256836, 0, 0, -5.0001988410949707, 0, 2.74666817858815e-05, 0, 1.8034882545471191, 0, 1599.9990234375, 1 ],
-    "mesh": "data/assets/monster/monster.obj",
-    "material": {
-      "transparency": "NO_ALPHA",
-      "alpha_cutoff": 0.5,
-      "two_sided": false,
-      "occlusion_factor": [ 1, 1, 1 ],
-      "albedo_factor": [ 1, 1, 1 ],
-      "specular_factor": [ 1, 1, 1 ],
-      "emissive_factor": [ 0, 0, 0 ],
-      "color_texture": "data/assets/monster/_MaleHeroStanding_v1_albedo.png",
-      "normal_texture": "data/assets/monster/_MaleHeroStanding_v1_normal.png",
-      "specular_texture": "data/assets/monster/_MaleHeroStanding_v1_specular.png"
-    }
-  },
+	"monster":	{
+		"name":	"Wendigo",
+		"visible":	true,
+		"model":	[4.74859261885285e-05, 0, -5.000053882598877, 0, 0, 4.999997615814209, 0, 0, 5.000053882598877, 0, 4.74859261885285e-05, 0, 1358.64697265625, 0, 1599.9984130859375, 1],
+		"mesh":	"data/assets/monster/monster.obj",
+		"material":	{
+			"transparency":	"NO_ALPHA",
+			"alpha_cutoff":	0.5,
+			"two_sided":	false,
+			"occlusion_factor":	[1, 1, 1],
+			"albedo_factor":	[1, 1, 1],
+			"specular_factor":	[1, 1, 1],
+			"emissive_factor":	[0, 0, 0]
+		}
+	},
 	"objects":	[{
 			"Object_ID":	1,
 			"units":	1,
@@ -78,53 +75,11 @@
 			"children_ID":	[],
 			"Object_type":	0
 		}, {
-			"Object_ID":	3,
-			"units":	1,
-			"names":	["Apple"],
-			"visibilities":	[true],
-			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -200, 100, 0, 1]],
-			"mesh":	"data/assets/apple/apple.obj",
-			"material":	{
-				"transparency":	"NO_ALPHA",
-				"alpha_cutoff":	0.5,
-				"two_sided":	false,
-				"occlusion_factor":	[1, 1, 1],
-				"albedo_factor":	[1, 1, 1],
-				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
-				"emissive_factor":	[0, 0, 0],
-				"albedo_texture":	"data/assets/apple/apple_albedo.png",
-				"occlusion_texture":	"data/assets/apple/apple_AO.jpeg",
-				"roughness_texture":	"data/assets/apple/apple_roughness.png"
-			},
-			"node_ID":	[-1],
-			"children_ID":	[],
-			"Object_type":	2
-		}, {
-			"Object_ID":	5,
-			"units":	1,
-			"names":	["Battery"],
-			"visibilities":	[true],
-			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 20, 100, 0, 1]],
-			"mesh":	"data/assets/battery/battery.obj",
-			"material":	{
-				"transparency":	"NO_ALPHA",
-				"alpha_cutoff":	0.5,
-				"two_sided":	false,
-				"occlusion_factor":	[0.83600002527236938, 0.83600002527236938, 0.83600002527236938],
-				"albedo_factor":	[0.90200001001358032, 0.90200001001358032, 0.90200001001358032],
-				"specular_factor":	[0.34999999403953552, 0.34999999403953552, 0.34999999403953552],
-				"emissive_factor":	[1, 1, 1],
-				"albedo_texture":	"data/assets/battery/battery_Material.tga"
-			},
-			"node_ID":	[-1],
-			"children_ID":	[],
-			"Object_type":	3
-		}, {
 			"Object_ID":	7,
 			"units":	1,
 			"names":	["flashlight"],
 			"visibilities":	[true],
-			"models":	[[0.26750203967094421, 0, -0.963557243347168, 0, -0.0329522341489792, 0.99941504001617432, -0.00914817396551371, 0, 0.96299374103546143, 0.034198522567749, 0.2673456072807312, 0, 1558.93408203125, 170.76741027832031, 141.193603515625, 1]],
+			"models":	[[-0.88922041654586792, 0, 0.45747911930084229, 0, -0.0276442617177963, 0.99817264080047607, -0.0537332557141781, 0, -0.45664310455322266, -0.0604273751378059, -0.88759541511535645, 0, -632.65814208984375, 178.06108093261719, 1308.0352783203125, 1]],
 			"mesh":	"data/assets/flashlight/flashlight.obj",
 			"material":	{
 				"transparency":	"NO_ALPHA",
@@ -145,30 +100,891 @@
 			"children_ID":	[],
 			"Object_type":	0
 		}, {
-			"Object_ID":	8,
+			"Object_ID":	3,
 			"units":	1,
-			"names":	["Wendigo"],
+			"names":	["apple_u1_v1"],
 			"visibilities":	[true],
-			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1]],
-			"mesh":	"",
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 770.39306640625, 0, 28.54833984375, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
 			"material":	{
 				"transparency":	"NO_ALPHA",
 				"alpha_cutoff":	0.5,
 				"two_sided":	false,
 				"occlusion_factor":	[1, 1, 1],
 				"albedo_factor":	[1, 1, 1],
-				"specular_factor":	[1, 1, 1],
-				"emissive_factor":	[0, 0, 0]
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
 			},
 			"node_ID":	[0],
 			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	4,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 182.54635620117188, 0, 2247.8701171875, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[1],
+			"children_ID":	[],
 			"Object_type":	0
 		}, {
+			"Object_ID":	5,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 32.173431396484375, -1.52587890625e-05, 3102.310791015625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[2],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	6,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -588.5042724609375, 0, 4520.6630859375, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[3],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	8,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 387.19180297851562, -1.52587890625e-05, 5613.69580078125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[4],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	9,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 183.33450317382812, 0, 6830.5595703125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[5],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	10,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2404.950439453125, 0, 6462.02001953125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[6],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	11,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4115.841796875, 0, 6242.791015625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[7],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	12,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4907.953125, 0, 5234.27734375, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[8],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	13,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5973.9306640625, 0, 6302.49609375, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[9],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	14,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6960.951171875, -1.52587890625e-05, 6766.72021484375, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[10],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	15,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6897.50341796875, -1.52587890625e-05, 4975.095703125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[11],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	16,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6886.171875, -1.52587890625e-05, 3826.319580078125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[12],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	17,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5634.94384765625, -1.52587890625e-05, 3048.54296875, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[13],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	18,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6637.81689453125, 0, 1834.10791015625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[14],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	19,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5482.61279296875, -1.52587890625e-05, 1459.8248291015625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[15],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	20,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6197.2822265625, 1.52587890625e-05, 526.537353515625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[16],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	21,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5350.921875, 0, 12.695281982421875, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[17],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	22,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5765.57470703125, -1.52587890625e-05, -516.94927978515625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[18],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	23,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6986.4228515625, 0, -864.5965576171875, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[19],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	24,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4365.61474609375, 0, -914.76611328125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[20],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	25,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 3754.488037109375, 0, -84.60003662109375, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[21],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	26,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2400.80126953125, 0, -583.5675048828125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[22],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	27,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1747.3775634765625, 0, 1218.105712890625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[23],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	28,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1520.990234375, 0, 4533.7197265625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[24],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	29,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 1451.5673828125, 0, 3304.130126953125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[25],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	30,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2186.53662109375, 0, 2337.40185546875, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[26],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	31,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 3469.408203125, 0, 1138.05078125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[27],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	32,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4633.431640625, 0, 742.653564453125, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[28],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	33,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4140.6796875, 0, 2479.06103515625, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[29],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	34,
+			"units":	1,
+			"names":	["TreeWL"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4576.63916015625, 0, 3869.517333984375, 1]],
+			"mesh":	"data\\assets\\treeWithoutLeaf\\treeWL.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\treeWithoutLeaf\\tree_00_d.png"
+			},
+			"node_ID":	[30],
+			"children_ID":	[],
+			"Object_type":	0
+		}, {
+			"Object_ID":	35,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 43.016555786132812, 0, 6759.9755859375, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[31],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	37,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 7170.001953125, 0, 6830.81689453125, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[33],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	38,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4537.1748046875, 0, 1557.450927734375, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[34],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	39,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 6302.69873046875, -1.52587890625e-05, -1002.907470703125, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[35],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	40,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 90.0301513671875, 0, 3251.06396484375, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[36],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	41,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -119.32769775390625, 0, 7002.1708984375, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[37],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	42,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 2805.66259765625, 0, 4282.07861328125, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[38],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	43,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4176.34228515625, 0, 6371.724609375, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[39],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	36,
+			"units":	1,
+			"names":	["apple_u1_v1"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 7114.91064453125, 0, 3567.775634765625, 1]],
+			"mesh":	"data\\assets\\apple\\apple.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[1, 1, 1],
+				"specular_factor":	[0.42069000005722046, 0.42069000005722046, 0.42069000005722046],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\apple\\apple_albedo.png",
+				"occlusion_texture":	"data\\assets\\apple\\apple_AO.jpeg",
+				"roughness_texture":	"data\\assets\\apple\\apple_roughness.png"
+			},
+			"node_ID":	[32],
+			"children_ID":	[],
+			"Object_type":	2
+		}, {
+			"Object_ID":	44,
+			"units":	1,
+			"names":	["Battery"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 5665.064453125, 0, 3195.720947265625, 1]],
+			"mesh":	"data\\assets\\battery\\Battery.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\battery\\battery_Material.tga"
+			},
+			"node_ID":	[40],
+			"children_ID":	[],
+			"Object_type":	3
+		}, {
+			"Object_ID":	45,
+			"units":	1,
+			"names":	["Battery"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 4434.90185546875, 0, -628.995361328125, 1]],
+			"mesh":	"data\\assets\\battery\\Battery.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\battery\\battery_Material.tga"
+			},
+			"node_ID":	[41],
+			"children_ID":	[],
+			"Object_type":	3
+		}, {
+			"Object_ID":	46,
+			"units":	1,
+			"names":	["Battery"],
+			"visibilities":	[true],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 479.30596923828125, 0, -350.79537963867188, 1]],
+			"mesh":	"data\\assets\\battery\\Battery.obj",
+			"material":	{
+				"transparency":	"NO_ALPHA",
+				"alpha_cutoff":	0.5,
+				"two_sided":	false,
+				"occlusion_factor":	[1, 1, 1],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.5, 0.5, 0.5],
+				"emissive_factor":	[0, 0, 0],
+				"albedo_texture":	"data\\assets\\battery\\battery_Material.tga"
+			},
+			"node_ID":	[42],
+			"children_ID":	[],
+			"Object_type":	3
+		}, {
 			"Object_ID":	0,
-			"units":	100,
-			"names":	["Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass"],
-			"visibilities":	[true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true, true],
-			"models":	[[9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 0, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 3000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 6000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 9000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 12000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 15000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 18000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 21000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 24000, 0, 27000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 9000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 12000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 15000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 18000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 21000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 24000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 0.10000000149011612, -4.37113900630948e-09, 0, 27000, 0, 27000, 1]],
+			"units":	9,
+			"names":	["Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass", "Grass"],
+			"visibilities":	[true, true, true, true, true, true, true, true, true],
+			"models":	[[9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 0, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 0, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 0, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 3000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 3000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 3000, 0, 6000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 6000, 0, 0, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 6000, 0, 3000, 1], [9.9999990463256836, 0, 0, 0, 0, -4.37113897078234e-07, -10, 0, 0, 1, -4.37113882867379e-08, 0, 6000, 0, 6000, 1]],
 			"mesh":	"data/assets/floor/grass.obj",
 			"material":	{
 				"transparency":	"NO_ALPHA",
@@ -180,7 +996,7 @@
 				"emissive_factor":	[0, 0, 0],
 				"albedo_texture":	"data/assets/floor/grass.tga"
 			},
-			"node_ID":	[-1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1, -1],
+			"node_ID":	[-1, -1, -1, -1, -1, -1, -1, -1, -1],
 			"children_ID":	[],
 			"Object_type":	0
 		}],
@@ -189,7 +1005,7 @@
 			"units":	1,
 			"names":	["flashlight"],
 			"visibilities":	[true],
-			"models":	[[0.2675020694732666, 0, -0.96355730295181274, 0, 0.1475905179977417, 0.98819947242736816, 0.0409739725291729, 0, 0.95218682289123535, -0.15317255258560181, 0.26434540748596191, 0, 1558.93408203125, 149.28652954101562, 141.193603515625, 1]],
+			"models":	[[-0.88922035694122314, 0, 0.4574790894985199, 0, -0.1021306961774826, 0.974761962890625, -0.19851550459861755, 0, -0.445933222770691, -0.223246693611145, -0.86677819490432739, 0, -632.65814208984375, 158.40364074707031, 1308.0352783203125, 1]],
 			"color":	[0.10000000149011612, 1, 0.800000011920929],
 			"intensity":	10,
 			"max_distance":	2500,

@@ -63,6 +63,7 @@ void Renderer::loadGUIs() {
 }
 
 void Renderer::renderGUIs() {
+
 	Game* g = Game::instance;
 	int screenWidth = g->window_width;
 	int screenHeight = g->window_height;
@@ -198,6 +199,7 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 	if (scene->show_atlas) showShadowAtlas();
 
 }
+
 //Renders an image
 void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range, Vector4 color, bool flipuv)
 {
@@ -244,6 +246,7 @@ void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 t
 	glDisable(GL_BLEND);
 
 }
+
 void Renderer::setSceneUniforms(Shader* shader)
 {
 	//Shadow Atlas
