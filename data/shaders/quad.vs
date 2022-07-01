@@ -2,6 +2,7 @@
 
 in vec3 a_vertex;
 in vec2 a_coord;
+
 out vec2 v_uv;
 
 void main()

@@ -1,5 +1,6 @@
 #include "entity.h"
 #include "scene.h"
+#include "game.h"
 #include <limits>
 
 float computeDeg(Vector2 a, Vector2 b) {
@@ -50,7 +51,9 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->mesh = new Mesh();
 	this->material = new Material();
 	this->bounding_box_trigger = true; //Set it to true for the first iteration
-	this->battery = 70.f;
+	this->battery = 75.f;
+	this->health = 100;
+	this->flashIsOn = true;
 	this->num_apples = 0;
 	this->num_keys = 0;
 }
@@ -72,7 +75,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	Vector3 camera_front = Vector3();
 	Vector3 camera_side = Vector3();
 
-	if (Input::wasKeyPressed(SDL_SCANCODE_Q) || Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
+	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
 	{
 		camera_front = ((camera->center - camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
 		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
@@ -80,22 +83,21 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 	//Update camera position
 	Vector3 nextPos = Vector3();
-	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
-	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
-	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && !Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
-	if (!Input::isKeyPressed(SDL_SCANCODE_Q) && Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
 	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
 	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
-	
+
 	//Turn around
-	if(Input::wasKeyPressed(SDL_SCANCODE_Q))
+	if (Input::wasKeyPressed(SDL_SCANCODE_Q))
 	{
 		Vector3 inverse_front = camera_front * -1.f;
 		Vector3 new_center = Vector3(camera->eye.x + inverse_front.x, camera->eye.y, camera->eye.z + inverse_front.z);
 		camera->center = new_center;
 	}
 
-	//To navigate with the mouse fixed in the middle
 	if (mouse_locked)
 		Input::centerMouse();
 }
@@ -153,12 +155,48 @@ void MainCharacterEntity::save(cJSON* main_json)
 	if (material)material->save(main_json);
 }
 
+//Handles battery consumption
+float battery_time = 0.0f;
+//Battery_life is the time that the battery_reduction has, before is spent
+float battery_life = 2.5f;
+float battery_reduction = 7.5f;
+//Time the battery is on off state
+float battery_off = 0.0f;
+//Handles recovery of health by time
+float last_recovery_health = 0.0f;
+
 void MainCharacterEntity::update(float elapsed_time)
 {
+	float currTime = Game::instance->time;
+	if (!this->flashIsOn || this->battery == 0) {
+		battery_off = currTime - battery_time;;
+		this->flashIsOn = false;
+	}
+	else if (this->flashIsOn) {
+		battery_time = currTime - battery_off;
+		if (battery_time > battery_life) {
+			this->battery = max(this->battery - battery_reduction, 0);
+			battery_time = 0;
+			battery_off = currTime;
+		}
+	}
+
+	//Time that the player is invulnerable
+	if (isHitted) {
+		if (currTime - playerHittedTime > 3.0f) {
+			isHitted = false;
+		}
+	}
+
+	//With time, the player recovers health
+	if (currTime - last_recovery_health > 9.0f) {
+		last_recovery_health = currTime;
+		health = min(100, health + 25);
+	}
 
 	Vector3 camera_position = camera->eye;
 	Vector3 camera_front = (camera->center - camera->eye).normalize();
-	
+
 	//Update flashlight position and rotate based on camera vectors
 	flashlight->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 35, camera_position.y + camera_front.y * 80 - camera->up.y * 35, camera_position.z + camera_front.z * 80 - camera->up.z * 35);
 	flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
@@ -180,11 +218,14 @@ void MainCharacterEntity::update(float elapsed_time)
 			num_apples++;
 	}
 
-	//Turn on or off the flashlight
-	if (Input::wasKeyPressed(SDL_SCANCODE_F))
+	////Activate / Desactivate flashlight
+	if (Input::wasKeyPressed(SDL_SCANCODE_F) && battery > 0) 
+	{
+		this->flashIsOn = !this->flashIsOn;
 		light->visible = !light->visible;
-		
 
+	}
+	
 }
 
 //Monster
@@ -276,11 +317,11 @@ void MonsterEntity::update(float elapsed_time)
 	}
 }
 
-bool MonsterEntity::isInFollowRange(Camera* camera)
+bool MonsterEntity::isInFollowRange(MainCharacterEntity* mainCharacter)
 {
 	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
 	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
-	Vector3 toTarget = model.getTranslation() - camera->eye;
+	Vector3 toTarget = model.getTranslation() - mainCharacter->camera->eye;
 
 	float dist = toTarget.length();
 	toTarget.normalize();
@@ -288,7 +329,16 @@ bool MonsterEntity::isInFollowRange(Camera* camera)
 	float forwardDot = forward.dot(toTarget);
 
 	//If the player is in vision range of the monster then should start following
-	return (1900.0f > dist && forwardDot > 0.30f);
+	if (1900.0f > dist && forwardDot > 0.30f) {
+		if (300.0f >= dist && !mainCharacter->isHitted) {
+			mainCharacter->health = max(0, mainCharacter->health - 25);
+			mainCharacter->isHitted = true;
+			mainCharacter->playerHittedTime = Game::instance->time;
+			last_recovery_health = Game::instance->time;
+		}
+		return true;
+	}
+	return false;
 }
 
 void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running animation
@@ -306,9 +356,12 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running a
 	float runSpeed = 400.0f;
 
 	//Translate the model of the monster to catch the player
-	if (dist > 400.0f) {
+	if (dist > 300) {
 		Vector3 translate = forward * -runSpeed * elapsed_time;
-		model.translateGlobal(translate.x, 0, translate.z);
+		Vector3 monsterPos = Vector3(model.getTranslation().x, 231, model.getTranslation().z);
+		Vector3 nextPos = Scene::instance->testCollisions(monsterPos, translate, elapsed_time);
+		Vector3 translation = nextPos - model.getTranslation();
+		model.translateGlobal(translation.x, 0, translation.z);
 	}
 	//Change the rotation based on main character pos
 	if (forwardDot < 0.98f) {
@@ -336,7 +389,6 @@ void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 		Vector3 newTranslate = route->getSceneVector(newPos.x, newPos.y);
 		if (moveToTarget(elapsed_time, newTranslate))
 			idx++;
-		//std::cout << "Next target" << std::endl,
 		if (idx == closestPoint->path_steps) {
 			isInPathRoute = false;
 			idx = 0;
@@ -345,28 +397,29 @@ void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 
 }
 
-bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos) //Returns true if has arrived to pos target, false otherwise
+//Returns true if has arrived to pos target, false otherwise
+bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos)
 {
-	
-	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
-	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
-	//std::cout << "forward " << forward.x << std::endl;
-	Vector3 toTarget = model.getTranslation() - pos;
-	float dist = toTarget.length();
-	toTarget.normalize();
-
-	float sideDot = side.dot(toTarget);
-	float forwardDot = forward.dot(toTarget);
 	float rotSpeed = 80.0f;
 	float walkSpeed = 200.0f;
-	Vector3 translate = forward * -walkSpeed * elapsed_time;
-	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
-	//std::cout << "Grados a rotar                  " << degrees << std::endl;
-	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 
+	Vector3 side = model.rotateVector(Vector3(1, 0, 0)).normalize();
+	Vector3 forward = model.rotateVector(Vector3(0, 0, -1)).normalize();
+	Vector3 toTarget = model.getTranslation() - pos;
+
+	float dist = toTarget.length();
+	toTarget.normalize();
+	float sideDot = side.dot(toTarget);
+	float forwardDot = forward.dot(toTarget);
+	Vector3 translate = forward * -walkSpeed * elapsed_time;
+
+	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+
+	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 	model.translateGlobal(translate.x, 0, translate.z);
 
 	this->updateBoundingBox();
+
 	if (dist <= bounding) {
 		return true;
 
@@ -412,7 +465,7 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 
 	//Name
 	cJSON* name_json = readJSONArrayItem(object_json, "names", object_index);
-	if (name_json) name = name_json->valuestring;	
+	if (name_json) name = name_json->valuestring;
 
 	//Visibility
 	cJSON* visibility_json = readJSONArrayItem(object_json, "visibilities", object_index);
@@ -454,7 +507,7 @@ void ObjectEntity::load(cJSON* object_json, int object_index)
 	//Type
 	type = (ObjectType)readJSONNumber(object_json, "Object_type", type);
 
-	//Flashlight
+	//flashlight
 	if (name == "flashlight") Scene::instance->main_character->flashlight = this;
 }
 
@@ -616,7 +669,7 @@ void LightEntity::load(cJSON* light_json, int light_index)
 	cast_shadows = readJSONBoolean(light_json, "cast_shadows", cast_shadows);
 	shadow_bias = readJSONNumber(light_json, "shadow_bias", shadow_bias);
 
-	//Flashlight
+	//flashlight
 	if (name == "flashlight") Scene::instance->main_character->light = this;
 }
 
@@ -724,7 +777,7 @@ void SoundEntity::Stop()
 
 void SoundEntity::changeVolume(float volume)
 {
-	
+
 }
 
 void SoundEntity::load(cJSON* sound_json, int sound_index)
@@ -800,4 +853,3 @@ void SoundEntity::updateJSON(vector<cJSON*> json)
 	//Add model
 	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
 }
-

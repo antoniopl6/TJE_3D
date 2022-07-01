@@ -1,10 +1,17 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl None
+newmtl flashlight
+mesh flashlight.obj
 Ns 500
 Ka 0.8 0.8 0.8
 Kd 0.8 0.8 0.8
 Ks 0.8 0.8 0.8
 d 1
 illum 2
+map_Kd "data/assets/flashlight/flashlightColor.png"
+normal_texture "data/assets/flashlight/flashlightNormal.png"
+occlusion_texture "data/assets/flashlight/flashlightAO.png"
+metalness_texture "data/assets/flashlight/flashlightMetallic.png"
+roughness_texture "data/assets/flashlight/flashlightSmoothness.png"
+emissive_texture "data/assets/flashlight/flashlighemissive.png"

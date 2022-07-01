@@ -72,14 +72,14 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Assign OBJ
 				current_object->mesh = Mesh::Get(path.c_str());
-				
+
 			}
 			else if (buffer.substr(0, 2) == "Ka")
 			{
 				//Current object check
 				if (!current_object)
 					continue;
-				
+
 				//Assign components
 				current_object->material->occlusion_factor = GetVector3(buffer);
 			}
@@ -121,7 +121,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Choose blending option
 				alpha = true ? current_object->material->alpha_mode = AlphaMode::BLEND : current_object->material->alpha_mode = AlphaMode::NO_ALPHA;
-				
+
 			}
 			else if (buffer.find("double_sided") != string::npos)
 			{
@@ -133,7 +133,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				bool double_sided = GetBoolean(buffer);
 
 				//Assign boolean
-				current_object->material->two_sided = double_sided;				
+				current_object->material->two_sided = double_sided;
 			}
 			else if (buffer.find("map_Ka") != string::npos)
 			{
@@ -351,7 +351,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Assign children ID to parent (JSON support)
 				parent_object->children_ids.push_back(object->node_id);
-				
+
 			}
 		}
 

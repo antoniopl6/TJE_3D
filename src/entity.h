@@ -33,6 +33,7 @@ public:
 	virtual ~Entity() {}; //destructor
 
 	//Entity features
+	int ID;
 	string name;
 	bool visible;
 	Matrix44 model;
@@ -58,10 +59,13 @@ public:
 	//Game values
 	int num_apples;
 	float battery;
-
+	float health;
+	bool flashIsOn;
 	ObjectEntity* flashlight;
 	LightEntity* light;
 	int num_keys;
+	bool isHitted = false;
+	float playerHittedTime = 0.0f;
 
 	//Triggers
 	bool bounding_box_trigger;
@@ -110,7 +114,7 @@ public:
 	MonsterEntity();
 
 	//Methods
-	bool isInFollowRange(Camera* camera);
+	bool isInFollowRange(MainCharacterEntity* mainCharacter);
 	void updateFollow(float elapsed_time, Camera* camera);
 	void followPath(float elapsed_time);
 	bool moveToTarget(float elapsed_time, Vector3 pos);
@@ -123,6 +127,20 @@ public:
 	virtual void updateBoundingBox() override;
 	virtual void update(float elapsed_time) override;
 };
+
+//class FlashLight : public ObjectEntity {
+//public:
+//
+//	//Game values
+//	bool is_on;
+//	float battery;
+//
+//	//Constructor
+//	FlashLight();
+//
+//};
+
+
 
 class LightEntity : public Entity {
 public:
@@ -183,7 +201,7 @@ public:
 	ObjectType type;
 
 	//Object tree
-	int node_id; //Just for JSON support
+	int node_id;
 	ObjectEntity* parent;
 	vector<ObjectEntity*> children;
 	vector<int> children_ids; //Just for JSON support

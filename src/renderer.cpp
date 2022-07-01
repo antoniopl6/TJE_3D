@@ -14,6 +14,10 @@ Renderer::Renderer(Scene* scene, Camera* camera)
 	this->scene = scene;
 	this->camera = camera;
 	
+	//Creates shader for GUI and loads all textures
+	shaderGUI = Shader::Get("data/shaders/image.vs", "data/shaders/image.fs");
+	loadGUIs();
+
 	//Create Shadow Atlas: We create a dynamic atlas to be resizable
 	createShadowAtlas();
 }
@@ -28,6 +32,93 @@ bool sortRenderCall(const RenderCall* rc1, const RenderCall* rc2)
 	else if (rc1_alpha == AlphaMode::BLEND && rc2_alpha == AlphaMode::BLEND) return rc1->distance_to_camera > rc2->distance_to_camera;
 	else if (rc1_alpha != AlphaMode::BLEND && rc2_alpha != AlphaMode::BLEND) return rc1->distance_to_camera < rc2->distance_to_camera;
 	else return true;
+}
+
+//loads GUIs textures
+void Renderer::loadGUIs() {
+	collectItem = Texture::Get("data/GUIs/collect.png");
+	battery = Texture::Get("data/GUIs/battery.png");
+	points[0] = Texture::Get("data/GUIs/circle.png");
+	points[1] = Texture::Get("data/GUIs/grey.png");
+	dmgScreen = Texture::Get("data/GUIs/dmg.png");
+	apple = Texture::Get("data/GUIs/shiny-apple.png");
+	key = Texture::Get("data/GUIs/key.png");
+	enter = Texture::Get("data/GUIs/enter.png");
+
+	//Scenes
+	introScene = Texture::Get("data/screens/Intro-wallpaper.jpg");
+	title = Texture::Get("data/screens/title.png");
+	tutorialScene = Texture::Get("data/screens/4165805.jpg");
+	diedScene = Texture::Get("data/screens/died.jpg");
+	finalScene = Texture::Get("data/screens/died.jpg");
+
+	keyboard = Texture::Get("data/screens/tutorial_GUIs/5650714.png");
+	keyboard_fe = Texture::Get("data/screens/tutorial_GUIs/FE.png");
+	mouseTutorial = Texture::Get("data/screens/tutorial_GUIs/mouse.png");
+	continueX = Texture::Get("data/GUIs/continue2.png");
+	diedTitle = Texture::Get("data/GUIs/diedTitle.png");
+	exitX = Texture::Get("data/GUIs/exit.png");
+	restartX = Texture::Get("data/GUIs/restart.png");
+	note = Texture::Get("data/screens/tutorial_GUIs/note.png");
+}
+
+void Renderer::renderGUIs() {
+
+	Game* g = Game::instance;
+	int screenWidth = g->window_width;
+	int screenHeight = g->window_height;
+
+	//if a collectable is in range to pick notify the player
+	if (scene->collectableInRange()) {
+		renderImage(collectItem, 300, 40, screenWidth / 2, screenHeight / 2 + 150, Vector4(0, 0, 1, 1));
+		renderImage(points[1], 6, 6, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1));
+	}
+	if (scene->hasDoorInRange() && g->scene->main_character->num_keys >= 1) {
+		renderImage(enter, 300, 40, screenWidth / 2, screenHeight / 2 + 150, Vector4(0, 0, 1, 1));
+		renderImage(points[1], 6, 6, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1));
+	}
+	else {
+		renderImage(points[0], 6, 6, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.7, 0.7, 0.7, 0.7));
+	}
+
+	//Renders battery GUIs indicators
+	float batteryPerc = scene->main_character->battery;
+	if (0.0f <= batteryPerc && batteryPerc < 25.0f) {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else if (25.0f <= batteryPerc && batteryPerc < 50.0f) {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0.25, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else if (50.0f <= batteryPerc && batteryPerc < 75.0f) {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0.5, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else {
+		renderImage(battery, 50, 35, 40, 35, Vector4(0, 0.75, 1, 0.25), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+
+	//Renders health GUIs indicators
+	float health = scene->main_character->health;
+	if (0.0f <= health && health <= 25.0f) {
+		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.8, 0.8, 0.8, 0.8));
+	}
+	else if (25.0f < health && health <= 50.0f) {
+		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.6, 0.6, 0.6, 0.6));
+	}
+	else if (50.0f < health && health <= 75.0f) {
+		renderImage(dmgScreen, screenWidth, screenHeight, screenWidth / 2, screenHeight / 2, Vector4(0, 0, 1, 1), Vector4(0.3, 0.3, 0.3, 0.3));
+	}
+
+	//Render GUI apple and key
+	int num_apples = scene->main_character->num_apples;
+	for (size_t i = 0; i < num_apples; i++)
+	{
+		renderImage(apple, 35, 35, 110 + i * 8, 35, Vector4(0, 0, 1, 1));
+	}
+	int num_keys = scene->main_character->num_keys;
+	for (size_t i = 0; i < num_keys; i++)
+	{
+		renderImage(key, 35, 35, 190 + i * 8, 35, Vector4(0, 0, 1, 1));
+	}
 }
 
 //Intialize render calls vector
@@ -109,6 +200,53 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 
 }
 
+//Renders an image
+void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range, Vector4 color, bool flipuv)
+{
+	//Check if there is an image
+	if (!Image)
+		return;
+
+	//Disable and enable OpenGL flags
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Local variables
+	Mesh quad;
+	Camera cam2d;
+
+	//Intialize local variables
+	quad.createQuad(x, y, w, h, flipuv);
+	cam2d.setOrthographic(0, Game::instance->window_width, Game::instance->window_height, 0, -1, 1);
+
+	//Check if the shader exists
+	if (!shaderGUI)
+		return;
+
+	//Set shader uniforms
+	shaderGUI->enable();
+	shaderGUI->setUniform("u_color", color);
+	shaderGUI->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
+	shaderGUI->setUniform("u_texture", Image, 0);
+	shaderGUI->setUniform("u_time", time);
+	shaderGUI->setUniform("u_tex_range", tex_range);
+	shaderGUI->setUniform("u_model", Matrix44());
+
+	//Render the quad	
+	quad.render(GL_TRIANGLES);
+
+	//Disable the shader
+	shaderGUI->disable();
+
+	//Reset OpenGL flags
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+
+}
+
 void Renderer::setSceneUniforms(Shader* shader)
 {
 	//Shadow Atlas
@@ -148,8 +286,8 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	Texture* emissive_texture = rc->material->emissive_texture.texture;
 
 	//Texture booleans: Controls which texture are uploaded to the shader
-	bool textures[8] = 
-	{ 
+	bool textures[8] =
+	{
 		(albedo_texture != NULL), //0
 		(specular_texture != NULL), //1
 		(normal_texture != NULL), //2
@@ -199,7 +337,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 
 	//Upload entity uniforms
 	shader->setMatrix44("u_model", *rc->model);
-	shader->setUniform("u_color", Vector3(1.f,1.f,1.f));
+	shader->setUniform("u_color", Vector3(1.f, 1.f, 1.f));
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
 	//Single pass lighting

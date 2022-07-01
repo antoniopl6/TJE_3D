@@ -19,6 +19,8 @@ class Game
 public:
 	static Game* instance;
 
+	STAGE_ID current_stage;
+
 	//window
 	SDL_Window* window;
 	int window_width;
@@ -31,6 +33,8 @@ public:
 	int fps;
 	bool must_exit;
 	bool render_editor;
+	bool scene_saved = false;
+	float mouse_speed = 100.0f;
 
 	//some vars
 	Camera* main_camera; //our global camera

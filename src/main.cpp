@@ -1,7 +1,7 @@
 /*  by Javi Agenjo 2013 UPF  javi.agenjo@gmail.com
 
 	MAIN:
-	 + This file creates the window and the game instance. 
+	 + This file creates the window and the game instance.
 	 + It also contains the mainloop
 	 + This is the lowest level, here we access the system to create the opengl Context
 	 + It takes all the events from SDL and redirect them to the game
@@ -27,8 +27,8 @@ SDL_GLContext glcontext;
 //create a window using SDL
 SDL_Window* createWindow(const char* caption, int width, int height, bool fullscreen = false)
 {
-    int multisample = 8;
-    bool retina = true; //change this to use a retina display
+	int multisample = 8;
+	bool retina = true; //change this to use a retina display
 
 	//set attributes
 	SDL_GL_SetAttribute(SDL_GL_RED_SIZE, 8);
@@ -44,21 +44,21 @@ SDL_Window* createWindow(const char* caption, int width, int height, bool fullsc
 
 	//antialiasing (disable this lines if it goes too slow)
 	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLEBUFFERS, 1);
-	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, multisample ); //increase to have smoother polygons
+	SDL_GL_SetAttribute(SDL_GL_MULTISAMPLESAMPLES, multisample); //increase to have smoother polygons
 
 	// Initialize the joystick subsystem
 	SDL_InitSubSystem(SDL_INIT_JOYSTICK);
 
 	//create the window
-	SDL_Window *window = SDL_CreateWindow(caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL|SDL_WINDOW_RESIZABLE|
-                                          (retina ? SDL_WINDOW_ALLOW_HIGHDPI:0) |
-                                          (fullscreen?SDL_WINDOW_FULLSCREEN_DESKTOP:0) );
-	if(!window)
+	SDL_Window* window = SDL_CreateWindow(caption, SDL_WINDOWPOS_CENTERED, SDL_WINDOWPOS_CENTERED, width, height, SDL_WINDOW_OPENGL | SDL_WINDOW_RESIZABLE |
+		(retina ? SDL_WINDOW_ALLOW_HIGHDPI : 0) |
+		(fullscreen ? SDL_WINDOW_FULLSCREEN_DESKTOP : 0));
+	if (!window)
 	{
 		fprintf(stderr, "Window creation error: %s\n", SDL_GetError());
 		exit(-1);
 	}
-  
+
 	// Create an OpenGL context associated with the window.
 	glcontext = SDL_GL_CreateContext(window);
 
@@ -69,9 +69,9 @@ SDL_Window* createWindow(const char* caption, int width, int height, bool fullsc
 	SDL_PumpEvents(); //without this line asserts could fail on windows
 
 	//launch glew to extract the opengl extensions functions from the DLL
-	#ifdef USE_GLEW
-		glewInit();
-	#endif
+#ifdef USE_GLEW
+	glewInit();
+#endif
 
 	int window_width, window_height;
 	SDL_GetWindowSize(window, &window_width, &window_height);
@@ -100,7 +100,7 @@ void mainLoop()
 		game->render();
 
 		//update events
-		while(SDL_PollEvent(&sdlEvent))
+		while (SDL_PollEvent(&sdlEvent))
 		{
 			switch (sdlEvent.type)
 			{
@@ -140,35 +140,35 @@ void mainLoop()
 					game->onResize(sdlEvent.window.data1, sdlEvent.window.data2);
 					break;
 				}
-			}				
+			}
 		}
 
-        
+
 		//compute delta time
 		long last_time = now;
 		now = SDL_GetTicks();
 		double elapsed_time = (now - last_time) * 0.001; //0.001 converts from milliseconds to seconds
 		double last_time_seconds = game->time;
-        game->time = float(now * 0.001);
+		game->time = float(now * 0.001);
 		game->elapsed_time = elapsed_time;
 		game->frame++;
 		frames_this_second++;
-		if (int(last_time_seconds *2) != int(game->time*2)) //next half second
+		if (int(last_time_seconds * 2) != int(game->time * 2)) //next half second
 		{
-			game->fps = (int)frames_this_second*2;
+			game->fps = (int)frames_this_second * 2;
 			frames_this_second = 0;
 		}
 
 		//update game logic
-		game->update(elapsed_time); 
-
-		//check errors in opengl only when working in debug
-		#ifdef _DEBUG
-			checkGLErrors();
-		#endif
+		game->update(elapsed_time);
 
 		//Reset triggers
 		Input::mouse_wheel_trigger = false;
+
+		//check errors in opengl only when working in debug
+		#ifdef _DEBUG
+				checkGLErrors();
+		#endif
 	}
 
 	SDL_GL_DeleteContext(glcontext);
@@ -178,7 +178,61 @@ void mainLoop()
 	return;
 }
 
-int main(int argc, char **argv)
+void renderLoadingScreen(SDL_Window* window, int window_width, int window_height) {
+	Shader* shader = Shader::Get("data/shaders/image.vs", "data/shaders/image.fs");
+	Texture* loading = Texture::Get("data/GUIs/loading.png");
+	//Set the clear color (the background color)
+	glClearColor(0.0, 0.0, 0.0, 1.0);
+
+	// Clear the window and the depth buffer
+	glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+	//Check gl errors before starting
+	checkGLErrors();
+
+	//Disable and enable OpenGL flags
+	glDisable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Local variables
+	Mesh quad;
+	Camera cam2d;
+
+	//Intialize local variables
+	quad.createQuad(window_width - 100, window_height - 30, 150, 45, true);
+	cam2d.setOrthographic(0, window_width, window_height, 0, -1, 1);
+
+	//Check if the shader exists
+	if (!shader)
+		return;
+
+	//Set shader uniforms
+	shader->enable();
+	shader->setUniform("u_color", Vector4(1, 1, 1, 1));
+	shader->setUniform("u_viewprojection", cam2d.viewprojection_matrix);
+	shader->setUniform("u_texture", loading, 0);
+	shader->setUniform("u_time", time);
+	shader->setUniform("u_tex_range", Vector4(0, 0, 1, 1));
+	shader->setUniform("u_model", Matrix44());
+
+	//Render the quad	
+	quad.render(GL_TRIANGLES);
+
+	//Disable the shader
+	shader->disable();
+
+	//Reset OpenGL flags
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+
+	//swap between front buffer and back buffer
+	SDL_GL_SwapWindow(window);
+}
+
+int main(int argc, char** argv)
 {
 	std::cout << "Initiating game..." << std::endl;
 
@@ -186,13 +240,13 @@ int main(int argc, char **argv)
 	SDL_Init(SDL_INIT_EVERYTHING);
 
 	bool fullscreen = false; //change this to go fullscreen
-	Vector2 size(800,600);
+	Vector2 size(800, 600);
 
-	if(fullscreen)
+	if (fullscreen)
 		size = getDesktopSize(0);
 
 	//create the game window (WINDOW_WIDTH and WINDOW_HEIGHT are two macros defined in includes.h)
-	SDL_Window* window = createWindow("TJE", (int)size.x, (int)size.y, fullscreen );
+	SDL_Window* window = createWindow("TJE", (int)size.x, (int)size.y, fullscreen);
 	if (!window)
 		return 0;
 	int window_width, window_height;
@@ -200,6 +254,8 @@ int main(int argc, char **argv)
 
 	Input::init(window);
 
+	renderLoadingScreen(window, window_width, window_height);
+	
 	//launch the game (game is a global variable)
 	game = new Game(window_width, window_height, window);
 

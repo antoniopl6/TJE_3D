@@ -49,7 +49,7 @@ public:
 
 	//Camera
 	Camera* camera;
-	CameraType current_camera; 
+	CameraType current_camera;
 
 	//MTL Parser
 	cMTL* Parser;
@@ -109,5 +109,5 @@ public:
 	void focusCamera(Entity* entity);
 	void updateCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
 
-	
+
 };

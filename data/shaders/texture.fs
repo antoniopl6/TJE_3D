@@ -1,13 +1,9 @@
+#version 330 core
 
-varying vec3 v_position;
-varying vec3 v_world_position;
-varying vec3 v_normal;
-varying vec2 v_uv;
-varying vec4 v_color;
+in vec2 v_uv;
 
 uniform vec4 u_color;
 uniform sampler2D u_texture;
-uniform float u_time;
 
 void main()
 {

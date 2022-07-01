@@ -1,7 +1,7 @@
 # Blender MTL File: 'None'
 # Material Count: 1
 
-newmtl apple_u1_v1
+newmtl Apple
 mesh apple.obj
 Ns 0.000000
 Ka 1.000000 1.000000 1.000000

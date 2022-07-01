@@ -80,15 +80,15 @@ void Material::registerMaterial(const char* name)
 
 void Material::releaseMaterials()
 {
-	std::vector<Material *>mats;
+	std::vector<Material*>mats;
 
 	for (auto mp : sMaterials)
 	{
-		Material *m = mp.second;
+		Material* m = mp.second;
 		mats.push_back(m);
 	}
 
-	for (Material *m : mats)
+	for (Material* m : mats)
 	{
 		delete m;
 	}
@@ -104,8 +104,8 @@ void Material::load(cJSON* material_json)
 	//Transparency
 	string transparency = readJSONString(material_json, "transparency", "NO_ALPHA");
 	if (transparency == "NO_ALPHA") alpha_mode = AlphaMode::NO_ALPHA;
-	else if(transparency == "MASK") alpha_mode = AlphaMode::MASK;
-	else if(transparency == "BLEND") alpha_mode = AlphaMode::BLEND;
+	else if (transparency == "MASK") alpha_mode = AlphaMode::MASK;
+	else if (transparency == "BLEND") alpha_mode = AlphaMode::BLEND;
 	alpha_cutoff = readJSONNumber(material_json, "alpha_cutoff", alpha_cutoff);
 	two_sided = readJSONBoolean(material_json, "two_sided", two_sided);
 
@@ -126,18 +126,18 @@ void Material::load(cJSON* material_json)
 	string emissive_filename = readJSONString(material_json, "emissive_texture", "");
 
 	//Material textures
-	if(!albedo_filename.empty()) albedo_texture.texture = Texture::Get(albedo_filename.c_str());
-	if(!specular_filename.empty()) specular_texture.texture = Texture::Get(specular_filename.c_str());
-	if(!normal_filename.empty()) normal_texture.texture = Texture::Get(normal_filename.c_str());
-	if(!occlusion_filename.empty()) occlusion_texture.texture = Texture::Get(occlusion_filename.c_str());
-	if(!metalness_filename.empty()) metalness_texture.texture = Texture::Get(metalness_filename.c_str());
-	if(!roughness_filename.empty()) roughness_texture.texture = Texture::Get(roughness_filename.c_str());
-	if(!omr_filename.empty()) omr_texture.texture = Texture::Get(omr_filename.c_str());
-	if(!emissive_filename.empty()) emissive_texture.texture = Texture::Get(emissive_filename.c_str());
+	if (!albedo_filename.empty()) albedo_texture.texture = Texture::Get(albedo_filename.c_str());
+	if (!specular_filename.empty()) specular_texture.texture = Texture::Get(specular_filename.c_str());
+	if (!normal_filename.empty()) normal_texture.texture = Texture::Get(normal_filename.c_str());
+	if (!occlusion_filename.empty()) occlusion_texture.texture = Texture::Get(occlusion_filename.c_str());
+	if (!metalness_filename.empty()) metalness_texture.texture = Texture::Get(metalness_filename.c_str());
+	if (!roughness_filename.empty()) roughness_texture.texture = Texture::Get(roughness_filename.c_str());
+	if (!omr_filename.empty()) omr_texture.texture = Texture::Get(omr_filename.c_str());
+	if (!emissive_filename.empty()) emissive_texture.texture = Texture::Get(emissive_filename.c_str());
 
 }
 
-void Material::save(cJSON* entity_json) 
+void Material::save(cJSON* entity_json)
 {
 	//Create JSON's material
 	cJSON* material_json = cJSON_AddObjectToObject(entity_json, "material");
@@ -165,13 +165,13 @@ void Material::save(cJSON* entity_json)
 	writeJSONVector3(material_json, "emissive_factor", emissive_factor);
 
 	//Material textures
-	if(albedo_texture.texture) writeJSONString(material_json, "albedo_texture", albedo_texture.texture->filename);
-	if(specular_texture.texture) writeJSONString(material_json, "specular_texture", specular_texture.texture->filename);
-	if(normal_texture.texture) writeJSONString(material_json, "normal_texture", normal_texture.texture->filename);
-	if(occlusion_texture.texture) writeJSONString(material_json, "occlusion_texture", occlusion_texture.texture->filename);
-	if(metalness_texture.texture) writeJSONString(material_json, "metalness_texture", metalness_texture.texture->filename);
-	if(roughness_texture.texture) writeJSONString(material_json, "roughness_texture", roughness_texture.texture->filename);
-	if(omr_texture.texture) writeJSONString(material_json, "omr_texture", omr_texture.texture->filename);
-	if(emissive_texture.texture) writeJSONString(material_json, "emissive_texture", emissive_texture.texture->filename);
-	
+	if (albedo_texture.texture) writeJSONString(material_json, "albedo_texture", albedo_texture.texture->filename);
+	if (specular_texture.texture) writeJSONString(material_json, "specular_texture", specular_texture.texture->filename);
+	if (normal_texture.texture) writeJSONString(material_json, "normal_texture", normal_texture.texture->filename);
+	if (occlusion_texture.texture) writeJSONString(material_json, "occlusion_texture", occlusion_texture.texture->filename);
+	if (metalness_texture.texture) writeJSONString(material_json, "metalness_texture", metalness_texture.texture->filename);
+	if (roughness_texture.texture) writeJSONString(material_json, "roughness_texture", roughness_texture.texture->filename);
+	if (omr_texture.texture) writeJSONString(material_json, "omr_texture", omr_texture.texture->filename);
+	if (emissive_texture.texture) writeJSONString(material_json, "emissive_texture", emissive_texture.texture->filename);
+
 }

@@ -16,17 +16,15 @@
 Mesh* mesh = NULL;
 Texture* texture = NULL;
 Shader* shader = NULL;
-
+bool turn_around = false;
 
 Animation* anim = NULL;
 float angle = 0;
-float mouse_speed = 100.0f;
 FBO* fbo = NULL;
 
 using namespace std;
 
 Game* Game::instance = NULL;
-bool scene_saved = false;
 Vector3 scene_ambient_light;
 
 
@@ -44,6 +42,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	time = 0.0f;
 	elapsed_time = 0.0f;
 	mouse_locked = false;
+	current_stage = STAGE_ID::INTRO;
 
 	//OpenGL flags
 	glEnable(GL_CULL_FACE); //render both sides of every triangle
@@ -60,17 +59,21 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	if (!scene->load("data/scene.json"))
 		exit(1);
 
-	//Set flashlight starting position
-	//TODO
+	for (int i = 0; i < scene->objects.size(); i++)
+	{
+		ObjectEntity* object = scene->objects[i];
+
+	}
 	
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 
 	//This class will be the one in charge of rendering the scene
-	renderer = new Renderer(scene,main_camera);
+	renderer = new Renderer(scene, main_camera);
 
 	//hide the cursor
 	SDL_ShowCursor(!mouse_locked); //hide or show the mouse
+	
 }
 
 //what to do when the image has to be draw
@@ -85,120 +88,42 @@ void Game::render(void)
 	//Check gl errors before starting
 	checkGLErrors();
 
-	//Draw the floor grid
-	//drawGrid();
-
-	//Render the scene
-	switch(entity_editor->current_camera)
-	{
-		case(Editor3D::MAIN):
-			main_camera->enable();
-			renderer->renderScene(scene, main_camera);
-			break;
-		case(Editor3D::ENTITY):
-			entity_editor->camera->enable();
-			renderer->renderScene(scene, entity_editor->camera);
-			break;
+	switch (current_stage) {
+	case(STAGE_ID::INTRO):
+		IntroStage::render();
+		break;
+	case(STAGE_ID::TUTORIAL):
+		TutorialStage::render();
+		break;
+	case(STAGE_ID::PLAY):
+		PlayStage::render();
+		break;
+	case(STAGE_ID::DIED):
+		DiedStage::render();
+		break;
 	}
 
-	//render the FPS, Draw Calls, etc
-	drawText(2, 2, getGPUStats(), Vector3(1, 1, 1), 2);
-	drawText(2, 20, "Current battery", Vector3(1, 1, 1), 2);
-	drawText(300, 20, "Keys", Vector3(1, 1, 1), 2);
-	drawText(400, 20, "Apples", Vector3(1, 1, 1), 2);
-	drawText(this->window_width / 2, this->window_height / 2, "o",Vector3(1, 1, 1),2);
 	//swap between front buffer and back buffer
-	SDL_GL_SwapWindow(this->window);
+	SDL_GL_SwapWindow(window);
 }
 
 void Game::update(double seconds_elapsed)
 {
-	//Updates
-	if (!render_editor)
-	{
-		//Update Main Character
-		MainCharacterEntity* character = scene->main_character;
-
-		//Update
-		character->update(seconds_elapsed);
-
-		//Bounding box
-		if (character->bounding_box_trigger)
-		{
-			character->updateBoundingBox();
-			character->bounding_box_trigger = false;
-
-		}
-
-		//Update Monster
-		MonsterEntity* monster = scene->monster;
-
-		//Update
-		monster->update(elapsed_time);
-
-		//Bounding box
-		if (monster->bounding_box_trigger)
-		{
-			monster->updateBoundingBox();
-			monster->bounding_box_trigger = false;
-		}
-
-		//Path AI
-		/*if (monster->isInFollowRange(camera)) {
-			monster->updateFollow(elapsed_time, camera);
-			MonsterIsInPathRoute = false;
-		} else {
-			monster->followPath(elapsed_time);
-		}*/
-		monster->followPath(elapsed_time);
-
-		//Update Objects
-		for (int i = 0; i < scene->objects.size(); ++i)
-		{
-			ObjectEntity* object = scene->objects[i];
-			if (object->bounding_box_trigger) {
-				object->updateBoundingBox();
-				object->bounding_box_trigger = false;
-			}
-		}
-
-		//Update Lights
-		for (int i = 0; i < scene->lights.size(); i++)
-		{
-			//TODO
-		}
-
-		//Update Sounds
-		for (int i = 0; i < scene->sounds.size(); i++)
-		{
-			//TODO
-		}
-	}
-	
-	//Update cameras
-	switch (entity_editor->current_camera)
-	{
-	case(Editor3D::MAIN):
-		scene->main_character->updateMainCamera(seconds_elapsed, mouse_speed, mouse_locked);
+	switch(current_stage) {
+	case(STAGE_ID::INTRO):
+		current_stage = IntroStage::update(seconds_elapsed);
 		break;
-	case(Editor3D::ENTITY):
-		entity_editor->updateCamera(seconds_elapsed, mouse_speed, mouse_locked);
+	case(STAGE_ID::TUTORIAL):
+		current_stage = TutorialStage::update(seconds_elapsed);
+		break;
+	case(STAGE_ID::PLAY):
+		current_stage = PlayStage::update(seconds_elapsed);
+		break;
+	case(STAGE_ID::DIED):
+		current_stage = DiedStage::update(seconds_elapsed);
 		break;
 	}
 
-	//Render entity editor
-	if (render_editor)
-		entity_editor->render();
-
-	//Save scene
-	if (Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S))
-	{
-		if (!scene_saved)
-		{
-			scene->save();
-			scene_saved = true;
-		}
-	}
 }
 
 
@@ -213,11 +138,11 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		break;
 	case SDLK_F1: Shader::ReloadAll(); break;
 
-	
+
 	case SDLK_q:
 
 		break;
-	//Entity editor
+		//Entity editor
 	case SDLK_h:
 		render_editor = !render_editor;
 		entity_editor->current_camera = Editor3D::MAIN;
@@ -241,17 +166,17 @@ void Game::onKeyUp(SDL_KeyboardEvent event)
 	switch (event.keysym.sym)
 	{
 		//Keep looking forward
-		case SDLK_q: 
-			{
-				if (entity_editor->current_camera == Editor3D::MAIN)
-				{
-					Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
-					Vector3 inverse_front = camera_front * -1.f;
-					Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
-					main_camera->center = new_center;
-				}
-			}
-			break;
+	case SDLK_q:
+	{
+		if (entity_editor->current_camera == Editor3D::MAIN)
+		{
+			Vector3 camera_front = ((main_camera->center - main_camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+			Vector3 inverse_front = camera_front * -1.f;
+			Vector3 new_center = Vector3(main_camera->eye.x + inverse_front.x, main_camera->eye.y, main_camera->eye.z + inverse_front.z);
+			main_camera->center = new_center;
+		}
+	}
+	break;
 	}
 }
 
@@ -287,7 +212,7 @@ void Game::onResize(int width, int height)
 {
     std::cout << "window resized: " << width << "," << height << std::endl;
 	glViewport( 0,0, width, height );
-	main_camera->aspect = width / (float)height;
+	main_camera->aspect =  width / (float)height;
 	entity_editor->camera->aspect = width / (float)height;
 	window_width = width;
 	window_height = height;

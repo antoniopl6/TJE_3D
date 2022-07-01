@@ -98,7 +98,7 @@ public:
 	static bool wasMousePressed(int button) { return (mouse_state & SDL_BUTTON(button) && prev_mouse_state[button - 1] == 0); }
 	static void centerMouse();
 
-	static void init( SDL_Window* window );
+	static void init(SDL_Window* window);
 	static void update();
 
 	static SDL_Joystick* openGamepad(int index);

@@ -74,6 +74,89 @@ void Scene::clear()
 	sounds.resize(0);
 }
 
+void Scene::assignID(Entity* entity)
+{
+	//Support variables
+	int new_entity_ID = 0;
+	int new_node_ID = 0;
+	vector<int> entity_IDs;
+	vector<int> node_IDs;
+
+	//Entities
+	ObjectEntity* object;
+	LightEntity* light;
+	SoundEntity* sound;
+
+	switch (entity->entity_type)
+	{
+	case(Entity::EntityType::OBJECT):
+
+		//Downcast
+		object = (ObjectEntity*)entity;
+
+		//Fill ID lists
+		for (auto i = objects.begin(); i != objects.end(); i++)
+		{
+			//Current Object
+			ObjectEntity* current_object = *i;
+
+			entity_IDs.push_back(current_object->object_id);
+			node_IDs.push_back(current_object->node_id);
+		}
+
+		//Find available IDs
+		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+		while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
+
+		//Assign the new IDs
+		object->object_id = new_entity_ID;
+		object->node_id = new_node_ID;
+
+		break;
+	case(Entity::EntityType::LIGHT):
+
+		//Downcast
+		light = (LightEntity*)entity;
+
+		//Fill ID list
+		for (auto i = lights.begin(); i != lights.end(); ++i)
+		{
+			//Current Light
+			LightEntity* current_light = *i;
+
+			entity_IDs.push_back(current_light->light_id);
+		}
+
+		//Find available IDs
+		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+
+		//Assign the new ID
+		light->light_id = new_entity_ID;
+
+		break;
+	case(Entity::EntityType::SOUND):
+
+		//Downcast
+		sound = (SoundEntity*)entity;
+
+		//Fill ID list
+		for (auto i = sounds.begin(); i != sounds.end(); ++i)
+		{
+			//Current Sound
+			SoundEntity* current_sound = *i;
+
+			entity_IDs.push_back(current_sound->sound_id);
+		}
+
+		//Find available IDs
+		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+
+		//Assign the new ID
+		sound->sound_id = new_entity_ID;
+		break;
+	}
+}
+
 void Scene::addEntity(Entity* entity)
 {
 	switch (entity->entity_type)
@@ -136,89 +219,6 @@ void Scene::removeEntity(Entity* entity)
 	delete entity;
 }
 
-void Scene::assignID(Entity* entity) 
-{
-	//Support variables
-	int new_entity_ID = 0;
-	int new_node_ID = 0;
-	vector<int> entity_IDs;
-	vector<int> node_IDs;
-
-	//Entities
-	ObjectEntity* object;
-	LightEntity* light;
-	SoundEntity* sound;
-
-	switch (entity->entity_type)
-	{
-		case(Entity::EntityType::OBJECT):
-
-			//Downcast
-			object =  (ObjectEntity*)entity;
-
-			//Fill ID lists
-			for (auto i = objects.begin(); i != objects.end(); i++)
-			{
-				//Current Object
-				ObjectEntity* current_object = *i;
-
-				entity_IDs.push_back(current_object->object_id);
-				node_IDs.push_back(current_object->node_id);
-			}
-
-			//Find available IDs
-			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
-			while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
-
-			//Assign the new IDs
-			object->object_id = new_entity_ID;
-			object->node_id = new_node_ID;
-
-			break;
-		case(Entity::EntityType::LIGHT):
-		
-			//Downcast
-			light = (LightEntity*)entity;
-		
-			//Fill ID list
-			for (auto i = lights.begin(); i != lights.end(); ++i)
-			{
-				//Current Light
-				LightEntity* current_light = *i;
-
-				entity_IDs.push_back(current_light->light_id);
-			}
-
-			//Find available IDs
-			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
-
-			//Assign the new ID
-			light->light_id = new_entity_ID;
-
-			break;
-		case(Entity::EntityType::SOUND):
-		
-			//Downcast
-			sound = (SoundEntity*)entity;
-
-			//Fill ID list
-			for (auto i = sounds.begin(); i != sounds.end(); ++i)
-			{
-				//Current Sound
-				SoundEntity* current_sound = *i;
-
-				entity_IDs.push_back(current_sound->sound_id);
-			}
-
-			//Find available IDs
-			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
-
-			//Assign the new ID
-			sound->sound_id = new_entity_ID;
-			break;
-	}
-}
-
 Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
 {
 	Vector3 coll;
@@ -236,14 +236,10 @@ Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_ti
 }
 
 bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
-	/*if (monster->mesh->testSphereCollision(monster->model, pos, 20.0f, coll, collnorm))
-		return true;*/
-	//std::cout << objects.size() << std::endl;
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		ObjectEntity* object = objects[i];
 		if (objects[i]->mesh->testSphereCollision(object->model, pos, 20.0f, coll, collnorm)) {
-			//std::cout << "jsdjas" << std::endl;
 			return true;
 		}
 			
@@ -255,7 +251,7 @@ bool Scene::hasCollision(Vector3 pos, Vector3& coll, Vector3& collnorm) {
 ObjectEntity::ObjectType Scene::getCollectable() { 
 	//Selected entity and maximum distance of selection
 	ObjectEntity::ObjectType type = ObjectEntity::ObjectType::RENDER_OBJECT;
-	ObjectEntity* entity = NULL;
+	ObjectEntity* collectable = NULL;
 	float max_distance = 500.f;
 
 	//Get global variables
@@ -271,27 +267,27 @@ ObjectEntity::ObjectType Scene::getCollectable() {
 	for (size_t i = 0; i < objects.size(); i++)
 	{
 		//Current object entity
-		entity = objects[i];
+		ObjectEntity* entity = objects[i];
 
 		//Entity properties
 		Vector3 entity_position;
 		Vector3 entity_normal;
 
 		//Ray collision test
-		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance) && entity->type != ObjectEntity::ObjectType::RENDER_OBJECT)
-		{
+		if (entity->type != ObjectEntity::ObjectType::RENDER_OBJECT && entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance)) {
 			float entity_distance = (entity_position - ray_origin).length();
 			if (entity_distance < max_distance)
 			{
 				//cout << entity->name << " removed succesfully." << endl;
 				type = entity->type;
+				collectable = entity;
 			}
-
 		}
+		
 
 	}
-	if (entity && type != ObjectEntity::ObjectType::RENDER_OBJECT)
-		removeEntity(entity);
+	if (collectable && type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		removeEntity(collectable);
 	
 	return type;
 }
@@ -321,7 +317,43 @@ bool Scene::collectableInRange() {
 		Vector3 entity_normal;
 
 		//Ray collision test
-		if (entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance) && entity->type != ObjectEntity::ObjectType::RENDER_OBJECT)
+		if (entity->type != ObjectEntity::ObjectType::RENDER_OBJECT && entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
+		{
+			return true;
+
+		}
+
+	}
+	return false;
+
+}
+
+//True if a collectable can be grabbed
+bool Scene::hasDoorInRange() {
+	//Selected entity and maximum distance of selection
+	float max_distance = 500.f;
+
+	//Get global variables
+	Camera* camera = main_character->camera;
+	Game* game = Game::instance;
+	Vector2 mouse_pos = Vector2(game->window_width / 2, game->window_height / 2);
+
+	//Compute the direction form mouse to window
+	Vector3 ray_direction = camera->getRayDirection(mouse_pos.x, mouse_pos.y, game->window_width, game->window_height);
+	Vector3 ray_origin = camera->eye;
+
+	//Search for the object with a Ray Collision in the scene and then return it
+	for (size_t i = 0; i < objects.size(); i++)
+	{
+		//Current object entity
+		ObjectEntity* entity = objects[i];
+
+		//Entity properties
+		Vector3 entity_position;
+		Vector3 entity_normal;
+
+		//Ray collision test
+		if (entity->name == "door" && entity->mesh->testRayCollision(entity->model, ray_origin, ray_direction, entity_position, entity_normal, max_distance))
 		{
 			return true;
 
@@ -416,7 +448,7 @@ bool Scene::load(const char* scene_filepath)
 			for (int i = 0; i < units; ++i)
 			{
 				ObjectEntity* object = new ObjectEntity();
-		
+
 				object->load(object_json, i);
 
 				objects.push_back(object);
@@ -541,7 +573,7 @@ bool Scene::save()
 		auto it = scene_objects.find(object->object_id);
 
 		//Object hasn't been registered yet
-		if (it == scene_objects.end()) 
+		if (it == scene_objects.end())
 		{
 			//Create JSONs
 			cJSON* object_json = cJSON_CreateObject();
@@ -620,7 +652,7 @@ bool Scene::save()
 		auto it = scene_sounds.find(sound->sound_id);
 
 		//Sound hasn't been registered yet
-		if (it == scene_sounds.end()) 
+		if (it == scene_sounds.end())
 		{
 			//Create JSONs
 			cJSON* sound_json = cJSON_CreateObject();
