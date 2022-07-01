@@ -55,7 +55,7 @@ Route::Route(int W, int H, std::vector<Vector3> &points) {
 	file.close();*/
 	
 	//Grid file read and store it in grid[W*H]
-	ifstream file2("data/gridRoute.txt");
+	/*ifstream file2("data/gridRoute.txt");
 	int idx = 0;
 	int number;
 
@@ -67,7 +67,7 @@ Route::Route(int W, int H, std::vector<Vector3> &points) {
 			grid[i + j * W] = number;
 		}
 	}
-	file2.close();
+	file2.close();*/
 
 	//Adds points route to the vector route and initialize each point, setting his path from them to the next point
 	Vector3 nextPoint;
