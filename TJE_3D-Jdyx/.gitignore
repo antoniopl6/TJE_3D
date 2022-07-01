@@ -1,0 +1,17 @@
+.exe
+.iobj
+.ipdb
+.pdb
+.db
+.d
+.ipch
+.opendb
+.DS_store
+visualstudio/visualstudio/Debug
+visualstudio/visualstudio/Release
+visualstudio/VS2015/Debug
+visualstudio/VS2015/Release
+visualstudio/.vs/visualstudio/v16
+*.ipch
+*.db
+*.exe

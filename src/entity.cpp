@@ -54,7 +54,7 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->battery = 75.f;
 	this->health = 100;
 	this->flashIsOn = true;
-	this->num_apples = 9;
+	this->num_apples = 0;
 	this->num_keys = 0;
 }
 
