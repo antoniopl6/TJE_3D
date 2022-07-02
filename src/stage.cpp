@@ -109,10 +109,10 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 
 		//Path finding IA
 		if (monster->isInFollowRange(character)) {
-			//monster->updateFollow(g->elapsed_time, character->camera);
+			monster->updateFollow(g->elapsed_time, character->camera);
 		}
 		else {
-			//monster->followPath(g->elapsed_time);
+			monster->followPath(g->elapsed_time);
 		}
 
 		//Update Objects

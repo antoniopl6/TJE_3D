@@ -171,22 +171,18 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 void MainCharacterEntity::updateFlashlight(Vector3 position_delta, float seconds_elapsed)
 {
-	//Flashlight position
-	Vector3 current_position = flashlight->getPosition();
-	Vector3 next_position = current_position + position_delta;
+	//Camera position and front
+	Vector3 camera_position = camera->eye;
+	Vector3 camera_front = (camera->center - camera->eye).normalize();
 
 	//Update flashlight position and rotate based on camera vectors
-	flashlight->model.setTranslation(next_position.x, next_position.y, next_position.z);
-	flashlight->model.setFrontAndOrthonormalize(next_position - camera->center);
+	flashlight->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 35, camera_position.y + camera_front.y * 80 - camera->up.y * 35, camera_position.z + camera_front.z * 80 - camera->up.z * 35);
+	flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
 	flashlight->updateBoundingBox();
 
-	//Light position
-	current_position = light->getPosition();
-	next_position = current_position + position_delta;
-
 	//Update light position
-	light->model.setTranslation(next_position.x, next_position.y, next_position.z);
-	light->model.setFrontAndOrthonormalize(next_position - camera->center);
+	light->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 50, camera_position.y + camera_front.y * 100 - camera->up.y * 50, camera_position.z + camera_front.z * 80 - camera->up.z * 50);
+	light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
 }
 
 void MainCharacterEntity::updateBoundingBox()
