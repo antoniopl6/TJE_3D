@@ -45,6 +45,8 @@ public:
 
 	//Some useful methods...
 	Vector3 getPosition();
+	Matrix44 getRotation();
+	Vector3 getScale();
 };
 
 class MainCharacterEntity : public Entity {
@@ -75,6 +77,7 @@ public:
 
 	//Methods
 	void updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
+	void updateFlashlight(Vector3 position_delta, float seconds_elapsed);
 
 	//JSON methods
 	void load(cJSON* main_json);
@@ -127,20 +130,6 @@ public:
 	virtual void updateBoundingBox() override;
 	virtual void update(float elapsed_time) override;
 };
-
-//class FlashLight : public ObjectEntity {
-//public:
-//
-//	//Game values
-//	bool is_on;
-//	float battery;
-//
-//	//Constructor
-//	FlashLight();
-//
-//};
-
-
 
 class LightEntity : public Entity {
 public:
@@ -231,6 +220,7 @@ public:
 
 	//Sound features
 	int sound_id;
+	float sound_area;
 	string filename;
 	Audio* audio;
 

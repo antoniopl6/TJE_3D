@@ -304,6 +304,22 @@ Vector3 Matrix44::getTranslation()
 	return Vector3(m[12],m[13],m[14]);
 }
 
+Matrix44 Matrix44::getRotationOnly()
+{
+	Matrix44 trans = *this;
+	trans.transpose();
+
+	Matrix44 inv = *this;
+	inv.inverse();
+
+	return trans * inv;
+}
+
+Vector3 Matrix44::getScale()
+{
+	return Vector3(m[0], m[5], m[10]);
+}
+
 //To create a rotation matrix
 void Matrix44::setRotation( float angle_in_rad, const Vector3& axis  )
 {
@@ -328,17 +344,6 @@ void Matrix44::setRotation( float angle_in_rad, const Vector3& axis  )
 	M[2][2] = t * axis_n.z * axis_n.z + c;
 
 	M[3][3] = 1.0f;
-}
-
-Matrix44 Matrix44::getRotationOnly()
-{
-	Matrix44 trans = *this;
-	trans.transpose();
-
-	Matrix44 inv = *this;
-	inv.inverse();
-
-	return trans * inv;
 }
 
 bool Matrix44::getXYZ(float* euler) const

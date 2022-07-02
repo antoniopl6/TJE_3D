@@ -2,6 +2,7 @@
 #include "game.h"
 #include <filesystem>
 
+
 //Constructor
 Editor3D::Editor3D(Scene* scene)
 {
@@ -13,8 +14,10 @@ Editor3D::Editor3D(Scene* scene)
 
 	//Camera
 	camera = new Camera();
+	camera->lookAt(Vector3(500.f, 500.f, 500.f), Vector3(0.f, 0.f, 0.f), Vector3(0.f, 1.f, 0.f));
 	camera->setPerspective(45.f, game->window_width / (float)game->window_height, 1.0f, camera->far_plane + 10000.f);
 	current_camera = MAIN;
+	camera_focus = true;
 
 	//MTL Parser
 	Parser = new cMTL(scene);
@@ -39,9 +42,9 @@ Editor3D::Editor3D(Scene* scene)
 	};
 
 	lights.reserve(3);
-	lights[0] = "point light";
-	lights[1] = "spot light";
-	lights[2] = "directional light";
+	lights.push_back("point light");
+	lights.push_back("spot light");
+	lights.push_back("directional light");
 
 	//Vector support variables
 	assets_size = assets.size();
@@ -68,7 +71,11 @@ Editor3D::Editor3D(Scene* scene)
 	current_action = Actions::TRANSLATE;
 	translation_speed = 1.f;
 	rotation_speed = 1.f;
-	scale_speed = 1.001;
+	scale_speed = 1.001f;
+	color_speed = 0.001f;
+	intensity_speed = 0.5f;
+	distance_speed = 1.f;
+	cone_speed = 1.f;
 }
 
 //General methods
@@ -102,10 +109,9 @@ void Editor3D::reset()
 void Editor3D::show()
 {
 	//Support boolean variables
-	bool keyboard_interaction = Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3) || Input::wasKeyPressed(SDL_SCANCODE_TAB);
-	bool exit_interaction = Input::wasKeyPressed(SDL_SCANCODE_ESCAPE);
-	bool selection_status = (!selected_object && !selected_light && !selected_sound);
-	bool menu_change = ((start_menu || keyboard_interaction) && selection_status) || exit_interaction;
+	bool input = ((Input::wasKeyPressed(SDL_SCANCODE_1) || Input::wasKeyPressed(SDL_SCANCODE_2) || Input::wasKeyPressed(SDL_SCANCODE_3)) && current_layer != LAYER3) || ((Input::wasMousePressed(SDL_BUTTON_X1) || Input::wasMousePressed(SDL_BUTTON_X2)) && current_layer == LAYER3);
+	bool exit = Input::wasKeyPressed(SDL_SCANCODE_ESCAPE);
+	bool menu_change = (start_menu || input) || exit;
 
 	//Select Menu Option
 	if (current_layer == EditorLayer::LAYER1) {
@@ -154,11 +160,10 @@ void Editor3D::show()
 				selected_light = NULL;
 			else if (selected_sound)
 				selected_sound = NULL;
-			else
-			{
-				entity_option = EntityOption::NO_ENTITY;
-				current_layer = EditorLayer::LAYER2;
-			}
+
+			entity_option = EntityOption::NO_ENTITY;
+			current_layer = EditorLayer::LAYER2;
+			
 			if (current_camera == ENTITY) switchCamera();
 
 		}
@@ -166,48 +171,45 @@ void Editor3D::show()
 	}
 
 	//Selectors
-	if (Input::wasKeyPressed(SDL_SCANCODE_TAB))
+	if (Input::wasMousePressed(SDL_BUTTON_X2))
 	{
 		if (menu_option == MenuOption::ADD && entity_option == EntityOption::OBJECT)
-		{
-			int next_asset = current_asset + 1;
-			if (next_asset < assets_size) current_asset = next_asset;
-			else current_asset = 0;
-		}
+			current_asset = current_asset - 1 < 0 ? assets_size - 1 : current_asset - 1;
 		else if (entity_option == EntityOption::LIGHT)
 		{
 			if (menu_option == MenuOption::ADD)
-			{
-				int next_light = current_light + 1;
-				if (next_light < lights_size) current_light = next_light;
-				else current_light = 0;
-			}
+				current_light = current_light - 1 < 0 ? lights_size - 1 : current_light - 1;
 			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::REMOVE)
-			{
-				int next_light = current_light + 1;
-				if (next_light < scene->lights.size()) current_light = next_light;
-				else current_light = 0;
-			}
-
+				current_light = current_light - 1 < 0 ? scene->lights.size() - 1 : current_light - 1;
 		}
 		else if (entity_option == EntityOption::SOUND)
 		{
 			if (menu_option == MenuOption::ADD)
-			{
-				int next_sound = current_sound + 1;
-				if (next_sound < sounds_size) current_sound = next_sound;
-				else current_sound = 0;
-			}
+				current_sound = current_sound - 1 < 0 ? sounds_size - 1 : current_sound - 1;
 			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::REMOVE)
-			{
-				int next_sound = current_sound + 1;
-				if (next_sound < scene->sounds.size()) current_sound = next_sound;
-				else current_sound = 0;
-			}
-
+				current_sound = current_sound - 1 < 0 ? scene->sounds.size() - 1 : current_sound - 1;
 		}
+	}
 
+	if (Input::wasMousePressed(SDL_BUTTON_X1))
+	{
 
+		if (menu_option == MenuOption::ADD && entity_option == EntityOption::OBJECT)
+			current_asset = current_asset + 1 > assets_size - 1 ? 0 : current_asset + 1;
+		else if (entity_option == EntityOption::LIGHT)
+		{
+			if (menu_option == MenuOption::ADD)
+				current_light = current_light + 1 > lights_size - 1 ? 0 : current_light + 1;
+			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::REMOVE)
+				current_light = current_light + 1 > scene->lights.size() - 1 ? 0 : current_light + 1;
+		}
+		else if (entity_option == EntityOption::SOUND)
+		{
+			if (menu_option == MenuOption::ADD)
+				current_sound = current_sound + 1 > sounds_size - 1 ? 0 : current_sound + 1;
+			else if (menu_option == MenuOption::EDIT || menu_option == MenuOption::REMOVE)
+				current_sound = current_sound + 1 > scene->sounds.size() - 1 ? 0 : current_sound + 1;
+		}
 	}
 
 	//Menu display
@@ -271,11 +273,11 @@ void Editor3D::show()
 				{
 					if (i == current_light)
 					{
-						cout << scene->lights[i] << " <--" << endl;
+						cout << scene->lights[i]->name << " <--" << endl;
 						focusCamera(scene->lights[i]);
 					}
 					else
-						cout << scene->lights[i] << endl;
+						cout << scene->lights[i]->name << endl;
 				}
 				cout << endl;
 				break;
@@ -285,11 +287,11 @@ void Editor3D::show()
 				{
 					if (i == current_sound)
 					{
-						cout << scene->sounds[i] << " <--" << endl;
+						cout << scene->sounds[i]->name << " <--" << endl;
 						focusCamera(scene->sounds[i]);
 					}
 					else
-						cout << scene->sounds[i] << endl;
+						cout << scene->sounds[i]->name << endl;
 				}
 				cout << endl;
 				break;
@@ -313,11 +315,11 @@ void Editor3D::show()
 				{
 					if (i == current_light)
 					{
-						cout << scene->lights[i] << " <--" << endl;
+						cout << scene->lights[i]->name << " <--" << endl;
 						focusCamera(scene->lights[i]);
 					}
 					else
-						cout << scene->lights[i] << endl;
+						cout << scene->lights[i]->name << endl;
 				}
 				cout << endl;
 				break;
@@ -327,11 +329,11 @@ void Editor3D::show()
 				{
 					if (i == current_sound)
 					{
-						cout << scene->sounds[i] << " <--" << endl;
+						cout << scene->sounds[i]->name << " <--" << endl;
 						focusCamera(scene->sounds[i]);
 					}
 					else
-						cout << scene->sounds[i] << endl;
+						cout << scene->sounds[i]->name << endl;
 				}
 				cout << endl;
 				break;
@@ -353,8 +355,8 @@ void Editor3D::show()
 		}
 	}
 
-	//Action mode
-	if (selected_object || selected_light || selected_sound)
+	//Object action mode
+	if (selected_object)
 	{
 		if (Input::wasKeyPressed(SDL_SCANCODE_1))
 		{
@@ -370,6 +372,56 @@ void Editor3D::show()
 		{
 			current_action = Actions::SCALE;
 			cout << "Action changed to SCALE" << endl << endl;
+		}
+	}
+
+	//Light action mode
+	if (selected_light)
+	{
+		if (Input::wasKeyPressed(SDL_SCANCODE_1))
+		{
+			current_action = Actions::TRANSLATE;
+			cout << "Action changed to TRANSLATE" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_2))
+		{
+			current_action = Actions::ROTATE;
+			cout << "Action changed to ROTATE" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_3))
+		{
+			current_action = Actions::COLOR;
+			cout << "Action changed to COLOR" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_4))
+		{
+			current_action = Actions::INTENSITY;
+			cout << "Action changed to INTENSITY" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_5))
+		{
+			current_action = Actions::MAX_DISTANCE;
+			cout << "Action changed to MAX_DISTANCE" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_6))
+		{
+			current_action = Actions::CONE_ANGLE;
+			cout << "Action changed to CONE_ANGLE" << endl << endl;
+		}
+	}
+
+	//Sound action mode
+	if (selected_object)
+	{
+		if (Input::wasKeyPressed(SDL_SCANCODE_1))
+		{
+			current_action = Actions::TRANSLATE;
+			cout << "Action changed to TRANSLATE" << endl << endl;
+		}
+		else if (Input::wasKeyPressed(SDL_SCANCODE_2))
+		{
+			current_action = Actions::ROTATE;
+			cout << "Action changed to ROTATE" << endl << endl;
 		}
 	}
 
@@ -410,21 +462,22 @@ void Editor3D::work()
 				editEntity(selected_object);
 
 		}
-		else if (entity_option == EntityOption::LIGHT)//&& (Input::mouse_state == SDL_BUTTON_MIDDLE))
+		else if (entity_option == EntityOption::LIGHT)
 		{
-			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
-				selected_light = scene->lights[current_light];
+			selected_light = scene->lights[current_light];
 
 			if (selected_light != NULL)
 				editEntity(scene->lights[current_light]);
 		}
 		else if (entity_option == EntityOption::SOUND)
 		{
-			if (Input::wasKeyPressed(SDL_SCANCODE_SPACE))
-				selected_sound = scene->sounds[current_sound];
+			selected_sound = scene->sounds[current_sound];
 
 			if (selected_sound != NULL)
+			{
 				editEntity(selected_sound);
+			}
+				
 		}
 	}
 
@@ -502,6 +555,9 @@ void Editor3D::addEntity()
 				}
 			}
 
+			//Update object bounding box
+			object->updateBoundingBox();
+
 			//Add new objects to the scene
 			scene->addEntity(object);
 		}
@@ -529,6 +585,9 @@ void Editor3D::addEntity()
 			new_light->light_type = LightEntity::LightType::DIRECTIONAL_LIGHT;
 		}
 
+		//Assign name
+		new_light->name = light_type;
+
 		//Assign ID
 		scene->assignID(new_light);
 
@@ -549,6 +608,9 @@ void Editor3D::addEntity()
 		//Sound filename
 		string sound_name = sounds[current_sound];
 		new_sound->filename = "\\data\\assets\\" + sound_name;
+
+		//Assign name
+		new_sound->name = sound_name;
 
 		//Assign ID
 		scene->assignID(new_sound);
@@ -571,30 +633,60 @@ void Editor3D::editEntity(Entity* entity)
 	{
 	case(Actions::TRANSLATE):
 
-		if (Input::isMousePressed(SDL_BUTTON_X1))
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
 			translation_speed = max(translation_speed - 0.1, 0.f);
-		else if (Input::isMousePressed(SDL_BUTTON_X2))
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
 			translation_speed += 0.1;
 		break;
 
 	case(Actions::ROTATE):
 
-		if (Input::isMousePressed(SDL_BUTTON_X1))
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
 			rotation_speed = max(rotation_speed - 0.1, 0.f);
-		else if (Input::isMousePressed(SDL_BUTTON_X2))
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
 			rotation_speed += 0.1;
 		break;
 
 	case(Actions::SCALE):
 
-		if (Input::isMousePressed(SDL_BUTTON_X1))
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
 			scale_speed = max(scale_speed - 0.0001, 1.001);
-		else if (Input::isMousePressed(SDL_BUTTON_X2))
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
 			scale_speed = min(scale_speed + 0.0001, 1.999);
+		break;
+
+	case(Actions::COLOR):
+
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
+			color_speed = max(color_speed - 0.0001, 0.f);
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+			color_speed = min(color_speed + 0.0001, 0.1f);
+		break;
+	
+	case(Actions::INTENSITY):
+
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
+			intensity_speed = max(intensity_speed - 0.1, 0.f);
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+			intensity_speed += 0.1;
+		break;
+
+	case(Actions::MAX_DISTANCE):
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
+			distance_speed = max(distance_speed - 1, 0.f);
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+			distance_speed += 1;
+		break;
+
+	case(Actions::CONE_ANGLE):
+		if (Input::isKeyPressed(SDL_SCANCODE_LCTRL))
+			cone_speed -= 0.1;
+		else if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT))
+			cone_speed += 0.1;
 		break;
 	}
 
-	//Edit
+	//Model edit
 	switch (current_action)
 	{
 	case(Actions::TRANSLATE):
@@ -654,6 +746,77 @@ void Editor3D::editEntity(Entity* entity)
 			entity->model.scale(deescalate_speed, deescalate_speed, deescalate_speed);
 
 		break;
+	}
+
+	//Color change
+	bool color_change = Input::wasKeyPressed(SDL_SCANCODE_Q) || Input::wasKeyPressed(SDL_SCANCODE_A) || Input::wasKeyPressed(SDL_SCANCODE_W) || Input::wasKeyPressed(SDL_SCANCODE_S) || Input::wasKeyPressed(SDL_SCANCODE_E) || Input::wasKeyPressed(SDL_SCANCODE_D);
+
+	//Light properties edit
+	if(entity->entity_type == Entity::EntityType::LIGHT)
+	{
+		//Downcast
+		LightEntity* light = (LightEntity*) entity;
+
+		switch (current_action)
+		{
+		case(Actions::COLOR):
+
+			//Change red component
+			if (Input::isKeyPressed(SDL_SCANCODE_Q))
+				light->color.x = min(light->color.x + color_speed, 1.f);
+			if (Input::isKeyPressed(SDL_SCANCODE_A))
+				light->color.x = max(light->color.x - color_speed, 0.f);
+
+			//Change green component
+			if (Input::isKeyPressed(SDL_SCANCODE_W))
+				light->color.y = min(light->color.y + color_speed, 1.f);
+			if (Input::isKeyPressed(SDL_SCANCODE_S))
+				light->color.y = max(light->color.y - color_speed, 0.f);
+
+			//Change blue component
+			if (Input::isKeyPressed(SDL_SCANCODE_E))
+				light->color.z = min(light->color.z + color_speed, 1.f);
+			if (Input::isKeyPressed(SDL_SCANCODE_D))
+				light->color.z = max(light->color.z - color_speed, 0.f);
+
+			if (color_change)
+				cout << "Color: [ " << light->color.x << " , " << light->color.y << " , " << light->color.z << " ]" << endl;
+
+			break;
+
+		case(Actions::INTENSITY):
+
+			//Change intesity
+			if (Input::isKeyPressed(SDL_SCANCODE_W))
+				light->intensity += intensity_speed;
+			if (Input::isKeyPressed(SDL_SCANCODE_S))
+				light->intensity = max(light->intensity - intensity_speed, 0.f);
+			break;
+
+		case(Actions::MAX_DISTANCE):
+
+			//Change max distance
+			if (Input::isKeyPressed(SDL_SCANCODE_W))
+				light->max_distance += distance_speed;
+			if (Input::isKeyPressed(SDL_SCANCODE_S))
+				light->max_distance = max(light->max_distance - distance_speed, 0.f);
+			break;
+
+		case(Actions::CONE_ANGLE):
+
+			//Change max distance
+			if (Input::isKeyPressed(SDL_SCANCODE_W))
+				light->cone_angle = min(light->cone_angle + cone_speed, 160.f);
+			if (Input::isKeyPressed(SDL_SCANCODE_S))
+				light->cone_angle = max(light->cone_angle - cone_speed, 5.f);
+			break;
+		}
+	}
+
+	//Sound properties edit
+	if (entity->entity_type == Entity::EntityType::SOUND)
+	{
+		//TODO
 	}
 
 	entity->updateBoundingBox();
@@ -744,6 +907,7 @@ void Editor3D::focusCamera(Entity* entity)
 	Vector3 camera_center = Vector3(0.f, 0.f, 0.f);
 	Vector3 camera_eye = Vector3(200.f, 200.f, 200.f);
 	Vector3 camera_up = Vector3(0.f, 1.f, 0.f);
+	Vector3 camera_inverse_front = camera->eye - camera->center;
 
 	switch (entity->entity_type)
 	{
@@ -753,7 +917,7 @@ void Editor3D::focusCamera(Entity* entity)
 
 		//Camera variables
 		camera_center = object->world_bounding_box.center;
-		camera_eye = 200 * object->model.frontVector() + camera_center;
+		camera_eye = camera_center + camera_inverse_front;
 		break;
 	case(Entity::EntityType::LIGHT):
 		//Downcast
@@ -761,7 +925,7 @@ void Editor3D::focusCamera(Entity* entity)
 
 		//Camera variables
 		camera_center = light->model.getTranslation();
-		camera_eye = 200 * light->model.frontVector() + camera_center;
+		camera_eye = camera_center + camera_inverse_front;
 		break;
 	case(Entity::EntityType::SOUND):
 		//Downcast
@@ -769,7 +933,7 @@ void Editor3D::focusCamera(Entity* entity)
 
 		//Camera variables
 		camera_center = sound->model.getTranslation();
-		camera_eye = 200 * sound->model.frontVector() + camera_center;
+		camera_eye = camera_center + camera_inverse_front;
 		break;
 	}
 
@@ -781,8 +945,28 @@ void Editor3D::updateCamera(double seconds_elapsed, float mouse_speed, bool mous
 {
 	float orbit_speed = seconds_elapsed * 0.5;
 
+	//Change camera focus
+	if (Input::isKeyPressed(SDL_SCANCODE_F))
+		camera_focus = !camera_focus;
+
+	//Update camera center
+	if (camera_focus)
+	{
+		Vector3 camera_inverse_front = camera->eye - camera->center;
+		if (selected_light)
+		{
+			camera->center = selected_light->getPosition();
+			camera->eye = camera->center + camera_inverse_front;
+		}
+		if (selected_sound)
+		{
+			camera->center = selected_sound->getPosition();
+			camera->eye = camera->center + camera_inverse_front;
+		}
+	}
+
 	//Mouse input to rotate the cam
-	if (Input::mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) //move in first person view
+	if (!camera_focus && Input::mouse_state & SDL_BUTTON(SDL_BUTTON_RIGHT)) //move in first person view
 	{
 		camera->rotate(-Input::mouse_delta.x * orbit_speed * 0.5, Vector3(0, 1, 0));
 		Vector3 right = camera->getLocalVector(Vector3(1, 0, 0));

@@ -151,6 +151,7 @@ void Renderer::createRenderCalls()
 	sort(render_calls.begin(), render_calls.end(), sortRenderCall);
 }
 
+//Renders several elements of the scene
 void Renderer::renderScene(Scene* scene, Camera* camera)
 {
 	//Set the scene and the camera with which to render
@@ -247,6 +248,51 @@ void Renderer::renderImage(Texture* Image, int w, int h, int x, int y, Vector4 t
 
 }
 
+//Renders the bounding a sound sphere
+void Renderer::renderSoundSphere(SoundEntity* sound)
+{
+	//Sphere mesh check
+	if (!sphere_mesh || !sphere_shader || !sphere_texture)
+		return;
+
+	//Sound model
+	Vector3 sound_position = sound->getPosition();
+	float sound_area = sound->sound_area;
+
+	//Sphere model
+	Matrix44 sphere_model;
+	sphere_model.translate(sound_position.x, sound_position.y, sound_position.z);
+	sphere_model.scale(sound_area, sound_area, sound_area);
+
+	//Set flags
+	glEnable(GL_DEPTH_TEST);
+	glDisable(GL_CULL_FACE);
+	glFrontFace(GL_CCW);
+	glEnable(GL_BLEND);
+	glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+	//Enable shader
+	sphere_shader->enable();
+
+	//Set uniforms
+	sphere_shader->setUniform("u_viewprojection", camera->viewprojection_matrix);
+	sphere_shader->setUniform("u_camera_position", camera->eye);
+	sphere_shader->setTexture("u_texture", sphere_texture, 0);
+	sphere_shader->setMatrix44("u_model", sphere_model);
+	sphere_shader->setUniform("u_color", Vector4(1.f, 1.f, 1.f, 1.f));
+	sphere_shader->setUniform("u_time", (float)getTime());
+
+	//Render bounding box
+	sphere_mesh->render(GL_TRIANGLES);
+
+	//Disable shader
+	sphere_shader->disable();
+
+	//Reset flags
+	glEnable(GL_CULL_FACE);
+	glDisable(GL_BLEND);
+}
+
 void Renderer::setSceneUniforms(Shader* shader)
 {
 	//Shadow Atlas
@@ -286,7 +332,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	Texture* emissive_texture = rc->material->emissive_texture.texture;
 
 	//Texture booleans: Controls which texture are uploaded to the shader
-	bool textures[8] =
+	int textures[8] =
 	{
 		(albedo_texture != NULL), //0
 		(specular_texture != NULL), //1
@@ -337,7 +383,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 
 	//Upload entity uniforms
 	shader->setMatrix44("u_model", *rc->model);
-	shader->setUniform("u_color", Vector3(1.f, 1.f, 1.f));
+	shader->setUniform("u_color", rc->material->albedo_factor);
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
 	//Single pass lighting

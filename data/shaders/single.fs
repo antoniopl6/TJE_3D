@@ -194,7 +194,6 @@ void main()
 	vec4 color;
 	if(u_textures[0] == 1) color = texture2D(u_albedo_texture, v_uv );
 	else color = vec4(u_albedo_factor,1.0);
-	color *= 0.1;
 
 	//Normal value
 	vec3 tangent_space_normal;

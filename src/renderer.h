@@ -62,12 +62,16 @@ public:
 	Texture* diedTitle;
 	Texture* continueX;
 
-
 	//Tutorial textures
 	Texture* keyboard;
 	Texture* keyboard_fe;
 	Texture* mouseTutorial;
 	Texture* note;
+
+	//Sphere
+	Mesh* sphere_mesh = Mesh::Get("data/assets/sphere/sphere.obj");
+	Texture* sphere_texture = Texture::Get("data/assets/sphere/white_wire_texture.png");
+	Shader* sphere_shader = Shader::Get("data/shaders/pixel.vs", "data/shaders/texture.fs");
 
 	//Constructor
 	Renderer(Scene* scene, Camera* camera);
@@ -78,8 +82,8 @@ public:
 	//Renders an image
 	void renderImage(Texture* Image, int w, int h, int x, int y, Vector4 tex_range = Vector4(1, 1, 1, 1), Vector4 color = Vector4(1, 1, 1, 1), bool flipuv = true);
 
-	//Scene intro render
-
+	//Renders the bounding a sound sphere
+	void renderSoundSphere(SoundEntity* sound);
 
 	//loads GUIs textures
 	void loadGUIs();

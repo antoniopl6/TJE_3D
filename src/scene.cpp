@@ -77,9 +77,11 @@ void Scene::clear()
 void Scene::assignID(Entity* entity)
 {
 	//Support variables
-	int new_entity_ID = 0;
-	int new_node_ID = 0;
+	int new_entity_ID = -1;
+	int new_node_ID = -1;
+	bool registered_object = false;
 	vector<int> entity_IDs;
+	vector<string> entity_names;
 	vector<int> node_IDs;
 
 	//Entities
@@ -100,16 +102,24 @@ void Scene::assignID(Entity* entity)
 			//Current Object
 			ObjectEntity* current_object = *i;
 
+			//Check whether the entity is already registered
+			if (object->name == current_object->name)
+			{
+				object->object_id = current_object->object_id;
+				registered_object = true;
+			}
+
+			//Fill vectors
 			entity_IDs.push_back(current_object->object_id);
 			node_IDs.push_back(current_object->node_id);
 		}
 
-		//Find available IDs
+		//Find available node ID
 		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
 		while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
 
 		//Assign the new IDs
-		object->object_id = new_entity_ID;
+		if(!registered_object) object->object_id = new_entity_ID;
 		object->node_id = new_node_ID;
 
 		break;
@@ -219,11 +229,11 @@ void Scene::removeEntity(Entity* entity)
 	delete entity;
 }
 
-Vector3 Scene::testCollisions(Vector3 currPos, Vector3 nextPos, float elapsed_time)
+Vector3 Scene::testCollisions(Vector3 currPos, Vector3 deltaPos, float elapsed_time)
 {
 	Vector3 coll;
 	Vector3 collnorm;
-	nextPos = currPos + nextPos;
+	Vector3 nextPos = currPos + deltaPos;
 
 	if (hasCollision(nextPos, coll, collnorm)) {
 		Vector3 push_away = normalize(coll - nextPos) * elapsed_time;

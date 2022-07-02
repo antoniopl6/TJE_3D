@@ -279,5 +279,7 @@ void main()
 		vec3 emissive_light = u_emissive_factor * texture2D(u_emissive_texture,v_uv).xyz;
 		color.rgb += emissive_light;
 	}
+
+	//Output
 	FragColor = color;
 }

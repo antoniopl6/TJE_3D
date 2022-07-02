@@ -24,5 +24,6 @@ public:
 	float GetNumber(string buffer);
 	Vector3 GetVector3(string buffer);
 	vector<float> GetVector(string buffer);
+	void replaceSlash(string& str);
 	
 };

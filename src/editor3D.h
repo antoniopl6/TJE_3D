@@ -39,9 +39,17 @@ public:
 	};
 
 	enum Actions {
+		
+		//Model actions
 		TRANSLATE,
 		ROTATE,
-		SCALE
+		SCALE,	
+
+		//Light actions
+		COLOR,
+		INTENSITY,
+		MAX_DISTANCE,
+		CONE_ANGLE
 	};
 
 	//Game variables
@@ -50,6 +58,7 @@ public:
 	//Camera
 	Camera* camera;
 	CameraType current_camera;
+	bool camera_focus;
 
 	//MTL Parser
 	cMTL* Parser;
@@ -82,6 +91,10 @@ public:
 	float translation_speed;
 	float rotation_speed;
 	float scale_speed;
+	float color_speed;
+	float intensity_speed;
+	float distance_speed;
+	float cone_speed;
 
 	//Constructor
 	Editor3D(Scene* scene);

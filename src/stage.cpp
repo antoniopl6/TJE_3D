@@ -65,6 +65,10 @@ void PlayStage::render() {
 		break;
 	}
 
+	//Render the sound sphere for the editor
+	if (g->entity_editor->selected_sound)
+		g->renderer->renderSoundSphere(g->entity_editor->selected_sound);
+
 	//Render GUIs
 	g->renderer->renderGUIs();
 
@@ -75,12 +79,14 @@ void PlayStage::render() {
 STAGE_ID PlayStage::update(double seconds_elapsed) {
 	Game* g = Game::instance;
 	
-	if (!g->render_editor) {
+	if (!g->render_editor) 
+	{
 		//Update Main Character
 		MainCharacterEntity* character = g->scene->main_character;
 
 		//Update
 		character->update(seconds_elapsed);
+
 		if (character->bounding_box_trigger)
 		{
 			character->updateBoundingBox();
@@ -90,6 +96,7 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 
 		//Update Monster
 		MonsterEntity* monster = g->scene->monster;
+
 		//Update
 		monster->update(g->elapsed_time);
 
@@ -99,14 +106,14 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 			monster->updateBoundingBox();
 			monster->bounding_box_trigger = false;
 		}
+
+		//Path finding IA
 		if (monster->isInFollowRange(character)) {
 			monster->updateFollow(g->elapsed_time, character->camera);
 		}
-		//Path finding IA
 		else {
 			monster->followPath(g->elapsed_time);
 		}
-
 
 		//Update Objects
 		for (int i = 0; i < g->scene->objects.size(); ++i)
@@ -156,18 +163,24 @@ STAGE_ID PlayStage::update(double seconds_elapsed) {
 			g->scene_saved = true;
 		}
 	}
+
+	//Win game condition
 	if (g->scene->main_character->num_apples >= 10) {
 		return STAGE_ID::FINAL;
 	}
+
+
 	if (Input::wasKeyPressed(SDL_SCANCODE_SPACE)) {
 		if (g->scene->main_character->num_keys >= 1 && g->scene->hasDoorInRange()) {
 			return STAGE_ID::FINAL;
 		}
 	}
 	
+	//Lose game condition
 	if (g->scene->main_character->health == 0) {
 		return STAGE_ID::DIED;
 	}
+
 	return STAGE_ID::PLAY;
 	
 }

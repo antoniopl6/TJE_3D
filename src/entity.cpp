@@ -41,6 +41,16 @@ Vector3 Entity::getPosition()
 	return model.getTranslation();
 }
 
+Matrix44 Entity::getRotation()
+{
+	return model.getRotationOnly();
+}
+
+Vector3 Entity::getScale()
+{
+	return model.getScale();
+}
+
 //Main character
 MainCharacterEntity::MainCharacterEntity() {
 	this->name = "";
@@ -56,59 +66,6 @@ MainCharacterEntity::MainCharacterEntity() {
 	this->flashIsOn = true;
 	this->num_apples = 0;
 	this->num_keys = 0;
-}
-
-void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
-{
-	//Mouse input to rotate the camera
-	if (((Input::mouse_state) || mouse_locked)) //is left button pressed?
-	{
-		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
-		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
-	}
-
-	// Define and boost the speed
-	float speed = seconds_elapsed * mouse_speed * 4;
-	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 1.5; //move faster with left shift
-
-	//Camera front and side vectors
-	Vector3 camera_front = Vector3();
-	Vector3 camera_side = Vector3();
-
-	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
-	{
-		camera_front = ((camera->center - camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
-		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
-	}
-
-	//Update camera position
-	Vector3 nextPos = Vector3();
-	if (Input::isKeyPressed(SDL_SCANCODE_W)) nextPos = nextPos + camera_front * speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_A)) nextPos = nextPos + camera_side * -speed;
-	if (!Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) nextPos = nextPos + camera_front * -speed;
-	if (Input::isKeyPressed(SDL_SCANCODE_D)) nextPos = nextPos + camera_side * speed;
-	nextPos = Scene::instance->testCollisions(camera->eye, nextPos, seconds_elapsed);
-	camera->lookAt(nextPos, nextPos + (camera->center - camera->eye), camera->up);
-	if (!Game::instance->render_editor) {
-		Vector3 camera_position = camera->eye;
-		Vector3 camera_front = (camera->center - camera->eye).normalize();
-		//Update flashlight position and rotate based on camera vectors
-		flashlight->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 35, camera_position.y + camera_front.y * 80 - camera->up.y * 35, camera_position.z + camera_front.z * 80 - camera->up.z * 35);
-		flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
-		flashlight->updateBoundingBox();
-
-		//Update light position
-		light->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 50, camera_position.y + camera_front.y * 100 - camera->up.y * 50, camera_position.z + camera_front.z * 80 - camera->up.z * 50);
-		light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
-	}
-
-	if (mouse_locked)
-		Input::centerMouse();
-}
-
-void MainCharacterEntity::updateBoundingBox()
-{
-	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
 }
 
 void MainCharacterEntity::load(cJSON* main_json)
@@ -169,8 +126,77 @@ float battery_off = 0.0f;
 //Handles recovery of health by time
 float last_recovery_health = 0.0f;
 
-void MainCharacterEntity::update(float elapsed_time)
+void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
 {
+	//Mouse input to rotate the camera
+	if (((Input::mouse_state) || mouse_locked)) //is left button pressed?
+	{
+		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
+		camera->rotate(Input::mouse_delta.y * 0.005f, camera->getLocalVector(Vector3(-1.0f, 0.0f, 0.0f)));
+	}
+
+	// Define and boost the speed
+	float speed = seconds_elapsed * mouse_speed * 4;
+	if (Input::isKeyPressed(SDL_SCANCODE_LSHIFT)) speed *= 1.5; //move faster with left shift
+
+	//Camera front and side vectors
+	Vector3 camera_front = Vector3();
+	Vector3 camera_side = Vector3();
+
+	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
+	{
+		camera_front = ((camera->center - camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
+	}
+
+	//Estimate next position
+	Vector3 position_delta = Vector3();
+	if (Input::isKeyPressed(SDL_SCANCODE_W)) position_delta = position_delta + camera_front * speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_A)) position_delta = position_delta + camera_side * -speed;
+	if (!Input::isKeyPressed(SDL_SCANCODE_LCTRL) && Input::isKeyPressed(SDL_SCANCODE_S)) position_delta = position_delta + camera_front * -speed;
+	if (Input::isKeyPressed(SDL_SCANCODE_D)) position_delta = position_delta + camera_side * speed;
+
+	//Check collisions
+	Vector3 next_position = Scene::instance->testCollisions(camera->eye, position_delta, seconds_elapsed);
+
+	//Assign new position
+	camera->lookAt(next_position, next_position + (camera->center - camera->eye), camera->up);
+
+	//Update flashlight position
+	updateFlashlight(position_delta, seconds_elapsed);
+
+	if (mouse_locked)
+		Input::centerMouse();
+}
+
+void MainCharacterEntity::updateFlashlight(Vector3 position_delta, float seconds_elapsed)
+{
+	//Flashlight position
+	Vector3 current_position = flashlight->getPosition();
+	Vector3 next_position = current_position + position_delta;
+
+	//Update flashlight position and rotate based on camera vectors
+	flashlight->model.setTranslation(next_position.x, next_position.y, next_position.z);
+	flashlight->model.setFrontAndOrthonormalize(next_position - camera->center);
+	flashlight->updateBoundingBox();
+
+	//Light position
+	current_position = light->getPosition();
+	next_position = current_position + position_delta;
+
+	//Update light position
+	light->model.setTranslation(next_position.x, next_position.y, next_position.z);
+	light->model.setFrontAndOrthonormalize(next_position - camera->center);
+}
+
+void MainCharacterEntity::updateBoundingBox()
+{
+	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+}
+
+void MainCharacterEntity::update(float elapsed_time)
+{	
+	//Battery consumption
 	float currTime = Game::instance->time;
 	if (!this->flashIsOn || this->battery == 0) {
 		battery_off = currTime - battery_time;;
@@ -199,7 +225,7 @@ void MainCharacterEntity::update(float elapsed_time)
 		health = min(100, health + 25);
 	}
 	
-
+	//Pick object
 	if (Input::isKeyPressed(SDL_SCANCODE_E)) {
 		ObjectEntity::ObjectType type;
 		type = Scene::instance->getCollectable();
@@ -211,7 +237,7 @@ void MainCharacterEntity::update(float elapsed_time)
 			num_apples++;
 	}
 
-	////Activate / Desactivate flashlight
+	//Turn on/off the flashlight
 	if (Input::wasKeyPressed(SDL_SCANCODE_F) && battery > 0) 
 	{
 		this->flashIsOn = !this->flashIsOn;
@@ -609,8 +635,8 @@ LightEntity::LightEntity()
 	this->entity_type = LIGHT;
 	this->light_type = LightType::POINT_LIGHT;
 	this->color.set(1.0f, 1.0f, 1.0f);
-	this->intensity = 1;
-	this->max_distance = 100;
+	this->intensity = 5;
+	this->max_distance = 1000;
 
 	//Spot light
 	this->cone_angle = 45;
@@ -757,6 +783,7 @@ void LightEntity::update(float elapsed_time)
 SoundEntity::SoundEntity()
 {
 	this->sound_id = -1;
+	this->sound_area = 500.f;
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();

@@ -226,8 +226,6 @@ class Matrix44
 		void setUpAndOrthonormalize(Vector3 up);
 		void setFrontAndOrthonormalize(Vector3 front);
 
-		Matrix44 getRotationOnly(); //used when having scale
-
 		//rotate only
 		Vector3 rotateVector( const Vector3& v) const;
 
@@ -246,6 +244,8 @@ class Matrix44
 		void setScale(float x, float y, float z);
 
 		Vector3 getTranslation();
+		Matrix44 getRotationOnly(); //used when having scale
+		Vector3 getScale();
 
 		bool getXYZ(float* euler) const;
 

@@ -69,6 +69,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + obj;
+				replaceSlash(path);
 
 				//Assign OBJ
 				current_object->mesh = Mesh::Get(path.c_str());
@@ -150,6 +151,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
@@ -170,6 +172,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->albedo_texture.texture = Texture::Get(path.c_str());
@@ -189,6 +192,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->specular_texture.texture = Texture::Get(path.c_str());
@@ -208,6 +212,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->emissive_texture.texture = Texture::Get(path.c_str());
@@ -227,6 +232,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->normal_texture.texture = Texture::Get(path.c_str());
@@ -246,6 +252,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->occlusion_texture.texture = Texture::Get(path.c_str());
@@ -265,6 +272,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->roughness_texture.texture = Texture::Get(path.c_str());
@@ -284,6 +292,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->metalness_texture.texture = Texture::Get(path.c_str());
@@ -303,6 +312,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 
 				//Set path
 				string path = directory + "\\" + texture;
+				replaceSlash(path);
 
 				//Get Texture
 				current_object->material->omr_texture.texture = Texture::Get(path.c_str());
@@ -422,4 +432,16 @@ vector<float> cMTL::GetVector(string buffer)
 
 	//Return vector
 	return output;
+}
+
+void cMTL::replaceSlash(string& str)
+{
+	std::string::size_type pos;
+	pos = str.find_first_of("\\");
+
+	while (pos != string::npos)
+	{
+		str.replace(pos, 1, "/");
+		pos = str.find_first_of("\\");
+	}
 }

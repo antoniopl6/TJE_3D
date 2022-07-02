@@ -123,7 +123,6 @@ void Game::update(double seconds_elapsed)
 		current_stage = FinalStage::update(seconds_elapsed);
 		break;
 	}
-
 }
 
 
@@ -149,7 +148,7 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 		if (render_editor)
 		{
 			scene_ambient_light = scene->ambient_light;
-			scene->ambient_light = Vector3(5.f, 5.f, 5.f);
+			scene->ambient_light = scene->ambient_light * Vector3(5.f, 5.f, 5.f);
 			entity_editor->reset();
 		}
 		else
