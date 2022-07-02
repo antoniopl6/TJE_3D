@@ -136,8 +136,11 @@ void Game::onKeyDown(SDL_KeyboardEvent event)
 			must_exit = true; //ESC key, kill the app
 		break;
 	case SDLK_F1: Shader::ReloadAll(); break;
-
-
+	case SDLK_r: 
+		scene->clear();
+		scene->load("data/scene.json");
+		cout << "Scene reloaded" << endl;
+		break;
 	case SDLK_q:
 
 		break;
