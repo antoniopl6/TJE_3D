@@ -33,7 +33,6 @@ public:
 	virtual ~Entity() {}; //destructor
 
 	//Entity features
-	int ID;
 	string name;
 	bool visible;
 	Matrix44 model;
@@ -41,6 +40,7 @@ public:
 
 	//Methods overwritten by derived classes 
 	virtual void update(float elapsed_time) {};
+	virtual void print() {};
 	virtual void updateBoundingBox() {};
 
 	//Some useful methods...
@@ -84,8 +84,9 @@ public:
 	void save(cJSON* main_json);
 
 	//Inherited methods
-	virtual void updateBoundingBox() override;
 	virtual void update(float elapsed_time) override;
+	virtual void print() override;
+	virtual void updateBoundingBox() override;
 };
 
 class MonsterEntity : public Entity {
@@ -128,8 +129,54 @@ public:
 	void save(cJSON* monster_json);
 
 	//Inherited methods
-	virtual void updateBoundingBox() override;
 	virtual void update(float elapsed_time) override;
+	virtual void print() override;
+	virtual void updateBoundingBox() override;
+	
+};
+
+class ObjectEntity : public Entity {
+public:
+	//Object enum
+	enum ObjectType {
+		PICK_OBJECT_KEY = 1,
+		PICK_OBJECT_APPLE = 2,
+		PICK_OBJECT_BATTERY = 3,
+		RENDER_OBJECT = 0,
+	};
+
+	//Object features
+	int object_id;
+	Mesh* mesh;
+	Material* material;
+	BoundingBox world_bounding_box;
+	ObjectType type;
+
+	//Object tree
+	int node_id;
+	ObjectEntity* parent;
+	vector<ObjectEntity*> children;
+	vector<int> children_ids; //Just for JSON support
+
+	//Triggers
+	bool bounding_box_trigger;
+
+	//Constructor
+	ObjectEntity();
+
+	//Children methods
+	Matrix44 computeGlobalModel();
+
+	//JSON methods
+	void load(cJSON* object_json, int object_index);
+	void save(vector<cJSON*> json);
+	void updateJSON(vector<cJSON*> json);
+
+	//Inherited methods
+	virtual void update(float elapsed_time) override;
+	virtual void print() override;
+	virtual void updateBoundingBox() override;
+
 };
 
 class LightEntity : public Entity {
@@ -171,49 +218,7 @@ public:
 
 	//Inherited methods
 	virtual void update(float elapsed_time) override;
-};
-
-class ObjectEntity : public Entity {
-public:
-	//Object enum
-	enum ObjectType {
-		PICK_OBJECT_KEY = 1,
-		PICK_OBJECT_APPLE = 2,
-		PICK_OBJECT_BATTERY = 3,
-		RENDER_OBJECT = 0,
-	};
-
-	//Object features
-	int object_id;
-	Mesh* mesh;
-	Material* material;
-	BoundingBox world_bounding_box;
-	ObjectType type;
-
-	//Object tree
-	int node_id;
-	ObjectEntity* parent;
-	vector<ObjectEntity*> children;
-	vector<int> children_ids; //Just for JSON support
-
-	//Triggers
-	bool bounding_box_trigger;
-
-	//Constructor
-	ObjectEntity();
-
-	//Children methods
-	Matrix44 computeGlobalModel();
-
-	//JSON methods
-	void load(cJSON* object_json, int object_index);
-	void save(vector<cJSON*> json);
-	void updateJSON(vector<cJSON*> json);
-
-	//Inherited methods
-	virtual void updateBoundingBox() override;
-	virtual void update(float elapsed_time) override;
-
+	virtual void print() override;
 };
 
 class SoundEntity : public Entity {
@@ -222,7 +227,7 @@ public:
 	//Sound features
 	int sound_id;
 	float volume;
-	float sound_area;
+	float radius;
 	string filename;
 	Audio* audio;
 
@@ -237,6 +242,10 @@ public:
 	void load(cJSON* sound_json, int sound_index);
 	void save(vector<cJSON*> json);
 	void updateJSON(vector<cJSON*> json);
+
+	//Inherited methods
+	virtual void update(float elapsed_time) override;
+	virtual void print() override;
 };
 
 #endif

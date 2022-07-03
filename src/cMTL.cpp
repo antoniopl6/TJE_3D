@@ -345,6 +345,7 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 			//Create the parent object
 			ObjectEntity* parent_object = new ObjectEntity();
 			parent_object->parent = NULL;
+			parent_object->name = asset;
 
 			//Assign ID
 			scene->assignID(parent_object);
@@ -363,6 +364,9 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				parent_object->children_ids.push_back(object->node_id);
 
 			}
+
+			//Push parent
+			objects.push_back(parent_object);
 		}
 
 		return objects;

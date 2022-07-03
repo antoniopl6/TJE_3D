@@ -77,9 +77,9 @@ void Scene::clear()
 void Scene::assignID(Entity* entity)
 {
 	//Support variables
-	int new_entity_ID = -1;
-	int new_node_ID = -1;
-	bool registered_object = false;
+	int new_entity_ID = 0;
+	int new_node_ID = 0;
+	bool registered_entity = false;
 	vector<int> entity_IDs;
 	vector<string> entity_names;
 	vector<int> node_IDs;
@@ -106,20 +106,25 @@ void Scene::assignID(Entity* entity)
 			if (object->name == current_object->name)
 			{
 				object->object_id = current_object->object_id;
-				registered_object = true;
+				registered_entity = true;
 			}
 
 			//Fill vectors
-			entity_IDs.push_back(current_object->object_id);
+			if (!registered_entity) entity_IDs.push_back(current_object->object_id);
 			node_IDs.push_back(current_object->node_id);
 		}
 
-		//Find available node ID
-		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
-		while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
+		//Find and assign an available object ID
+		if (!registered_entity)
+		{
+			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+			object->object_id = new_entity_ID;
+		}
 
-		//Assign the new IDs
-		if(!registered_object) object->object_id = new_entity_ID;
+		//Find an available node ID
+		while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
+	
+		//Assign the new node IDs
 		object->node_id = new_node_ID;
 
 		break;
@@ -134,14 +139,23 @@ void Scene::assignID(Entity* entity)
 			//Current Light
 			LightEntity* current_light = *i;
 
-			entity_IDs.push_back(current_light->light_id);
+			//Check whether the entity is already registered
+			if (light->name == current_light->name)
+			{
+				light->light_id = current_light->light_id;
+				registered_entity = true;
+			}
+
+			//Fill vector
+			if(!registered_entity) entity_IDs.push_back(current_light->light_id);
 		}
 
-		//Find available IDs
-		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
-
-		//Assign the new ID
-		light->light_id = new_entity_ID;
+		//Find and assign an available light ID
+		if (!registered_entity)
+		{
+			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+			light->light_id = new_entity_ID;
+		}
 
 		break;
 	case(Entity::EntityType::SOUND):
@@ -155,14 +169,23 @@ void Scene::assignID(Entity* entity)
 			//Current Sound
 			SoundEntity* current_sound = *i;
 
-			entity_IDs.push_back(current_sound->sound_id);
+			//Check whether the entity is already registered
+			if (sound->name == current_sound->name)
+			{
+				sound->sound_id = current_sound->sound_id;
+				registered_entity = true;
+			}
+
+			if(!registered_entity) entity_IDs.push_back(current_sound->sound_id);
 		}
 
-		//Find available IDs
-		while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
-
-		//Assign the new ID
-		sound->sound_id = new_entity_ID;
+		//Find and assign an available sound ID
+		if (!registered_entity)
+		{
+			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
+			sound->sound_id = new_entity_ID;
+		}
+		
 		break;
 	}
 }

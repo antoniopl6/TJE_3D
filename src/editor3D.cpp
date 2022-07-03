@@ -538,6 +538,8 @@ void Editor3D::addEntity()
 			//Current object
 			ObjectEntity* object = *i;
 
+			object->print();
+
 			//Place parent object
 			if (!object->parent)
 			{

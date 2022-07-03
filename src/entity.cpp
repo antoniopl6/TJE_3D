@@ -207,6 +207,18 @@ void MainCharacterEntity::update(float elapsed_time)
 	
 }
 
+void MainCharacterEntity::print()
+{
+	cout << "Main character" << endl << endl;
+	cout << "Mesh: " << mesh->filename << endl;
+	cout << "Apples: " << num_apples << endl;
+	cout << "Battery: " << battery << "%" << endl;
+	cout << "Keys: " << num_keys << endl;
+	cout << "Health: " << health << "%" << endl;
+	cout << "Light: " << (flashIsOn ? "On" : "Off") << endl;
+	cout << endl;
+}
+
 //Monster
 MonsterEntity::MonsterEntity()
 {
@@ -302,6 +314,13 @@ void MonsterEntity::update(float elapsed_time)
 	if (route == NULL) {
 		
 	}
+}
+
+void MonsterEntity::print()
+{
+	cout << "Monster" << endl << endl;
+	cout << "Mesh: " << mesh->filename << endl;
+	cout << endl;
 }
 
 bool MonsterEntity::isInFollowRange(MainCharacterEntity* mainCharacter)
@@ -585,6 +604,18 @@ void ObjectEntity::update(float elapsed_time)
 
 }
 
+void ObjectEntity::print()
+{
+	cout << "Object" << endl << endl;
+	cout << "Object ID: " << object_id << endl;
+	cout << "Name: " << name << endl;
+	cout << "Visible: " << visible << endl;
+	cout << "Type: " << type << endl;
+	cout << "Mesh: " << mesh->filename << endl;
+	cout << "Node ID: " << node_id << endl;
+	cout << endl;
+}
+
 //Lights
 LightEntity::LightEntity()
 {
@@ -739,11 +770,38 @@ void LightEntity::update(float elapsed_time)
 
 }
 
+void LightEntity::print()
+{
+	cout << "Light" << endl << endl;
+	cout << "Light ID" << light_id << endl;
+	cout << "Name: " << name << endl;
+	cout << "Visibility: " << visible << endl;
+	cout << "Type: " << light_type << endl;
+	cout << "Color: " << color.x << " " << color.y << " " << color.z << endl;
+	cout << "Intensity: " << intensity << endl;
+	cout << "Cast shadows: " << ((cast_shadows == true) ? "yes" : "no") << endl;
+	cout << "Shadow bias: " << shadow_bias << endl;
+	
+	switch (light_type)
+	{
+	case(LightType::SPOT_LIGHT):
+		cout << "Max distance: " << max_distance << endl;
+		cout << "Cone angle: " << cone_angle << endl;
+		cout << "Cone exponent: " << cone_exp << endl;
+		break;
+	case(LightType::DIRECTIONAL_LIGHT):
+		cout << "Area size: " << area_size << endl;
+		break;
+	}
+
+	cout << endl;
+}
+
 //Sounds
 SoundEntity::SoundEntity()
 {
 	this->sound_id = -1;
-	this->sound_area = 500.f;
+	this->radius = 500.f;
 	this->name = "";
 	this->visible = true;
 	this->model = Matrix44();
@@ -769,7 +827,7 @@ void SoundEntity::changeVolume(float volume)
 
 void SoundEntity::changeArea(float area)
 {
-	this->sound_area = area;
+	this->radius = area;
 }
 
 void SoundEntity::load(cJSON* sound_json, int sound_index)
@@ -844,4 +902,20 @@ void SoundEntity::updateJSON(vector<cJSON*> json)
 
 	//Add model
 	cJSON_AddFloatVectorToArray(models_array, model.m, 16);
+}
+
+void SoundEntity::update(float elapsed_time)
+{
+	//TODO
+}
+
+void SoundEntity::print()
+{
+	cout << "Sound" << endl << endl;
+	cout << "Sound ID: " << sound_id << endl;
+	cout << "Name: " << name << endl;
+	cout << "Active: " << (visible ? "yes" : "no") << endl;
+	cout << "Volume: " << volume << endl;
+	cout << "Radius: " << radius << endl;
+	cout << endl;
 }

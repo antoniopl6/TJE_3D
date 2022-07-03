@@ -268,7 +268,7 @@ void Renderer::renderSoundSphere(SoundEntity* sound)
 
 	//Sound model
 	Vector3 sound_position = sound->getPosition();
-	float sound_area = sound->sound_area;
+	float sound_area = sound->radius;
 
 	//Sphere model
 	Matrix44 sphere_model;

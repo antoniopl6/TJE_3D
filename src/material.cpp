@@ -65,6 +65,26 @@ Material* Material::Get(const char* name)
 	return NULL;
 }
 
+void Material::print()
+{
+	cout << "Material" << endl << endl;
+	cout << "AO factor: " << occlusion_factor.x << " " << occlusion_factor.y << " " << occlusion_factor.z << endl;
+	cout << "Albedo factor: " << albedo_factor.x << " " << albedo_factor.y << " " << albedo_factor.z << endl;
+	cout << "Specular factor: " << specular_factor.x << " " << specular_factor.y << " " << specular_factor.z << endl;
+	cout << "Emissive factor: " << emissive_factor.x << " " << emissive_factor.y << " " << emissive_factor.z << endl;
+	cout << "Albedo texture: " << ((albedo_texture.texture != NULL) ? albedo_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((specular_texture.texture != NULL) ? specular_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((normal_texture.texture != NULL) ? normal_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((occlusion_texture.texture != NULL) ? occlusion_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((metalness_texture.texture != NULL) ? metalness_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((roughness_texture.texture != NULL) ? roughness_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((omr_texture.texture != NULL) ? omr_texture.texture->filename : "") << endl;
+	cout << "Albedo texture: " << ((emissive_texture.texture != NULL) ? emissive_texture.texture->filename : "") << endl;
+	cout << "Alpha mode: " << ((alpha_mode == AlphaMode::BLEND) ? "Blend" : "Alpha") << endl;
+	cout << "Two sided: " << two_sided << endl;
+
+}
+
 void Material::registerMaterial(const char* name)
 {
 	this->name = name;

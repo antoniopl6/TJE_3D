@@ -62,6 +62,7 @@ public:
 	//Static manager to reuse materials
 	static std::map<std::string, Material*> sMaterials;
 	static Material* Get(const char* name);
+	void print();
 	void registerMaterial(const char* name);
 	static void releaseMaterials();
 

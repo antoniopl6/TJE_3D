@@ -54,7 +54,7 @@ private:
 
     float* pixels_f[N_MAX_LEVELS][N_FACES]; // Xpos, Xneg, Ypos, Yneg, Zpos, Zneg
     short* pixels_h[N_MAX_LEVELS][N_FACES]; // Xpos, Xneg, Ypos, Yneg, Zpos, Zneg
-    byte* pixels_b[N_MAX_LEVELS][N_FACES]; // Xpos, Xneg, Ypos, Yneg, Zpos, Zneg
+    ::byte* pixels_b[N_MAX_LEVELS][N_FACES]; // Xpos, Xneg, Ypos, Yneg, Zpos, Zneg
 
 	bool clean();
 	void init();
@@ -88,8 +88,8 @@ public:
 	float* getFacef(int level, int face);	// Specific level and face
 	float** getFacesf(int level = 0);		// [[]]: Array per face with all level data
 
-    byte* getFaceb(int level, int face);	// Specific level and face
-    byte** getFacesb(int level = 0);		// [[]]: Array per face with all level data
+    ::byte* getFaceb(int level, int face);	// Specific level and face
+    ::byte** getFacesb(int level = 0);		// [[]]: Array per face with all level data
 
     short* getFaceh(int level, int face);	// Specific level and face
 	short** getFacesh(int level = 0);		// [[]]: Array per face with all level data
