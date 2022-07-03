@@ -112,6 +112,9 @@ public:
 	Vector3 cross( const Vector3& v ) const;
 	float dot( const Vector3& v ) const;
 	void rotate(float theta, Vector3 axis);
+	void inverse();
+
+	Vector3 getInverse();
 
 	void parseFromText(const char* text, const char separator);
 

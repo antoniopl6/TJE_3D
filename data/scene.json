@@ -1,14 +1,14 @@
 {
-	"ambient_light":	[0.041960785388946533, 0.060392158031463623, 0.0429411768913269],
-	"camera_position":	[-668.25030517578125, 231.69088745117188, 1238.8533935546875],
-	"camera_target":	[-579.28448486328125, 185.12399291992188, 1411.77978515625],
+	"ambient_light":	[0.0419607870280743, 0.0603921562433243, 0.0429411754012108],
+	"camera_position":	[6635.69775390625, 231.69088745117188, -254.73387145996094],
+	"camera_target":	[6769.9248046875, 189.99966430664062, -396.969482421875],
 	"camera_fov":	80,
 	"camera_near":	0.10000000149011612,
 	"camera_far":	3000,
 	"main_character":	{
 		"name":	"Adventurer",
 		"visible":	true,
-		"model":	[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1],
+		"model":	[0.72728514671325684, -0, 0.68633544445037842, 0, 0.14309580624103546, 0.978023886680603, -0.15163351595401764, 0, -0.67125248908996582, 0.20849253237247467, 0.71130228042602539, 0, 6635.69775390625, 231.69088745117188, -254.73387145996094, 1],
 		"mesh":	"",
 		"material":	{
 			"transparency":	"NO_ALPHA",
@@ -23,7 +23,7 @@
 	"monster":	{
 		"name":	"Monster",
 		"visible":	true,
-		"model":	[-5.0000519752502441, 0, 0.00179911754094064, 0, 0, 4.999997615814209, 0, 0, -0.00179911754094064, 0, -5.0000519752502441, 0, 1600.001953125, 0, 1006.693115234375, 1],
+		"model":	[1.3066920042037964, 0, 4.8264389038085938, 0, 0, 4.999997615814209, 0, 0, -4.8264389038085938, 0, 1.3066920042037964, 0, 1553.0361328125, 0, -420.78753662109375, 1],
 		"mesh":	"data/assets/monster/monster.obj",
 		"material":	{
 			"transparency":	"NO_ALPHA",
@@ -35,7 +35,7 @@
 			"emissive_factor":	[0, 0, 0],
 			"albedo_texture":	"data/assets/monster/_MaleHeroStanding_v1_albedo.png",
 			"specular_texture":	"data/assets/monster/_MaleHeroStanding_v1_specular.png",
-			"normal_texture":	"data/assets/monster/_MaleHeroStanding_v1_normal.png"	
+			"normal_texture":	"data/assets/monster/_MaleHeroStanding_v1_normal.png"
 		}
 	},
 	"objects":	[{
@@ -82,15 +82,15 @@
 			"units":	1,
 			"names":	["flashlight"],
 			"visibilities":	[true],
-			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -15, 200, -15, 1]],
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -20, -30, -60, 1]],
 			"mesh":	"data/assets/flashlight/flashlight.obj",
 			"material":	{
 				"transparency":	"NO_ALPHA",
 				"alpha_cutoff":	0.5,
 				"two_sided":	false,
-				"occlusion_factor":	[0.8, 0.8, 0.8],
-				"albedo_factor":	[0.8, 0.8, 0.8],
-				"specular_factor":	[0.8, 0.8, 0.8],
+				"occlusion_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"albedo_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
+				"specular_factor":	[0.800000011920929, 0.800000011920929, 0.800000011920929],
 				"emissive_factor":	[0, 0, 0],
 				"albedo_texture":	"data/assets/flashlight/flashlightColor.png",
 				"normal_texture":	"data/assets/flashlight/flashlightNormal.png",
@@ -170,11 +170,11 @@
 			"units":	1,
 			"names":	["flashlight"],
 			"visibilities":	[true],
-			"models":	[[-0.88922035694122314, 0, 0.4574790894985199, 0, -0.1021306961774826, 0.974761962890625, -0.19851550459861755, 0, -0.445933222770691, -0.223246693611145, -0.86677819490432739, 0, -632.65814208984375, 158.40364074707031, 1308.0352783203125, 1]],
-			"color":	[0.10000000149011612, 1, 0.800000011920929],
-			"intensity":	10,
+			"models":	[[1, 0, 0, 0, 0, 1, 0, 0, 0, 0, 1, 0, -20, -30, -70, 1]],
+			"color":	[0.17578125, 0.9296875, 0.65625],
+			"intensity":	5,
 			"max_distance":	2500,
-			"cone_angle":	20,
+			"cone_angle":	100,
 			"cone_exp":	30,
 			"cast_shadows":	true,
 			"shadow_bias":	0.00100000004749745,

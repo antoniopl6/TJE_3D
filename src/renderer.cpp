@@ -1,6 +1,7 @@
 #include "renderer.h"
 #include "game.h"
 #include "framework.h"
+#include "extra/hdre.h"
 
 constexpr int SHOW_ATLAS_RESOLUTION = 300;
 constexpr int SHADOW_MAP_RESOLUTION = 2048;
@@ -64,7 +65,7 @@ void Renderer::loadGUIs() {
 
 void Renderer::renderGUIs() {
 
-	Game* g = Game::instance;
+	Game* g = Game::instance; 
 	int screenWidth = g->window_width;
 	int screenHeight = g->window_height;
 
@@ -184,6 +185,10 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 	//Compute Shadow Atlas (only spot light are able to cast shadows so far)
 	computeShadowMap();
 
+	//Use global model for flashlight
+	Matrix44 local_model = scene->main_character->light->model;
+	scene->main_character->light->model = local_model * scene->main_character->model;
+
 	//Enable shader
 	scene->shader->enable();
 
@@ -198,6 +203,9 @@ void Renderer::renderScene(Scene* scene, Camera* camera)
 
 	//Disable shader
 	scene->shader->disable();
+
+	//Reset flashlight local model
+	scene->main_character->light->model = local_model;
 
 	//Debug shadow maps
 	if (scene->show_atlas) showShadowAtlas();
@@ -557,6 +565,10 @@ void Renderer::MultiPassLoop(Shader* shader, Mesh* mesh)
 		//Current light
 		LightEntity* light = scene->lights[i];
 
+		//Check the visibility of the light
+		if (!light->visible)
+			continue;			
+
 		//Light uniforms
 		shader->setUniform("u_light_position", light->model.getTranslation());
 		shader->setUniform("u_light_color", light->color);
@@ -812,4 +824,32 @@ void Renderer::showShadowAtlas()
 	//Reset
 	glViewport(0, 0, window_width, window_height);
 
+}
+
+//Cubemap texture
+Texture* CubemapFromHDRE(const char* filename)
+{
+	HDRE* hdre = HDRE::Get(filename);
+	if (!hdre)
+		return NULL;
+
+	Texture* texture = new Texture();
+	if (hdre->getFacesf(0))
+	{
+		texture->createCubemap(hdre->width, hdre->height, (Uint8**)hdre->getFacesf(0),
+			hdre->header.numChannels == 3 ? GL_RGB : GL_RGBA, GL_FLOAT);
+		for (int i = 1; i < hdre->levels; ++i)
+			texture->uploadCubemap(texture->format, texture->type, false,
+				(Uint8**)hdre->getFacesf(i), GL_RGBA32F, i);
+	}
+	else
+		if (hdre->getFacesh(0))
+		{
+			texture->createCubemap(hdre->width, hdre->height, (Uint8**)hdre->getFacesh(0),
+				hdre->header.numChannels == 3 ? GL_RGB : GL_RGBA, GL_HALF_FLOAT);
+			for (int i = 1; i < hdre->levels; ++i)
+				texture->uploadCubemap(texture->format, texture->type, false,
+					(Uint8**)hdre->getFacesh(i), GL_RGBA16F, i);
+		}
+	return texture;
 }

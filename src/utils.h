@@ -90,6 +90,8 @@ void replaceJSONVector3(cJSON* obj, const char* name, Vector3 vector);
 void replaceJSONVector4(cJSON* obj, const char* name, Vector4 vector);
 
 //Custom methods
+float computeDegrees(Vector2 a, Vector2 b);
+float sign(float num);
 float angleBetween(Vector3 vtr1, Vector3 vtr2); //Angle between vtr1 and vtr2
 void addOffset(float& angle_in_rad, float offset_in_rad); //Maps angle + offset to [0,2pi] domain
 

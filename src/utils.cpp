@@ -820,6 +820,23 @@ void replaceJSONVector4(cJSON* obj, const char* name, Vector4 vector)
 
 
 //Custom methods
+float computeDegrees(Vector2 a, Vector2 b) {
+	float modA = sqrt(a.x * a.x + a.y * a.y);
+	float modB = sqrt(b.x * b.x + b.y * b.y);
+	float dot = a.x * b.x + a.y * b.y;
+	float degrees = acos(a.dot(b) / (modA * modB));
+	float smallest = 1.17549e-38;
+	//std::cout << "Grados a rotar" << degrees << std::endl;
+	if (degrees > smallest)
+		return degrees;
+	return 0;
+}
+
+float sign(float num) {
+	return num >= 0.0f ? 1.0f : -1.0f;
+}
+
+//This function doesn't work because the direction of the normal vector depends on the angle between vtr1 and vtr2 (above 180 degrees changes), which ironically we are looking for :)
 float angleBetween(Vector3 vtr1, Vector3 vtr2)
 {
 	//Check normalization

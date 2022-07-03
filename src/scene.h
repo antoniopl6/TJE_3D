@@ -28,6 +28,11 @@ public:
 	Vector3 ambient_light;
 	Camera* main_camera;
 	Shader* shader;
+	float battery_time = 0.0f; //Handles battery consumption
+	float battery_life = 2.5f; // The time that the battery reduction has before it's spent
+	float battery_reduction = 5.0f;
+	float battery_off = 0.0f; //Time the battery is on off state
+	float last_recovery_health = 0.0f; //Handles recovery of health by time
 
 	//Scene shadows
 	FBO* fbo; //Frame Buffer Object

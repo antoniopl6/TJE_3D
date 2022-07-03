@@ -58,7 +58,7 @@ Game::Game(int window_width, int window_height, SDL_Window* window)
 	//Load the scene JSON
 	if (!scene->load("data/scene.json"))
 		exit(1);
-	
+
 	//Create an entity editor
 	entity_editor = new Editor3D(scene);
 

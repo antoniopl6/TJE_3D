@@ -124,6 +124,18 @@ void Vector3::rotate(float theta, Vector3 axis)
 	this->set(rotated_vector.x, rotated_vector.y, rotated_vector.z);
 }
 
+void Vector3::inverse()
+{
+	this->x = -this->x;
+	this->y = -this->y;
+	this->z = -this->z;
+}
+
+Vector3 Vector3::getInverse()
+{
+	return Vector3(-this->x,-this->y,-this->z);
+}
+
 void Vector3::random(float range)
 {
 	//rand returns a value between 0 and RAND_MAX

@@ -77,7 +77,7 @@ public:
 
 	//Methods
 	void updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked);
-	void updateFlashlight(Vector3 position_delta, float seconds_elapsed);
+	void updateModel();
 
 	//JSON methods
 	void load(cJSON* main_json);
@@ -105,6 +105,7 @@ public:
 	Route* route;
 	bool isInPathRoute;
 	Point* closestPoint;
+	float bounding = 7.0f;
 	int idx;
 
 	//Triggers
@@ -220,6 +221,7 @@ public:
 
 	//Sound features
 	int sound_id;
+	float volume;
 	float sound_area;
 	string filename;
 	Audio* audio;
@@ -229,6 +231,7 @@ public:
 	void Play();
 	void Stop();
 	void changeVolume(float volume);
+	void changeArea(float area);
 
 	//JSON methods
 	void load(cJSON* sound_json, int sound_index);

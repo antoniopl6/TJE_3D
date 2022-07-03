@@ -3,31 +3,6 @@
 #include "game.h"
 #include <limits>
 
-float computeDeg(Vector2 a, Vector2 b) {
-	float modA = sqrt(a.x * a.x + a.y * a.y);
-	float modB = sqrt(b.x * b.x + b.y * b.y);
-	float dot = a.x * b.x + a.y * b.y;
-	float degrees = acos(a.dot(b) / (modA * modB));
-	float smallest = 1.17549e-38;
-	//std::cout << "Grados a rotar" << degrees << std::endl;
-	if (degrees > smallest)
-		return degrees;
-	return 0;
-}
-float computeDeg(Vector3 a, Vector3 b) {
-	float modA = sqrt(a.x * a.x + a.y * a.y + a.z * b.z);
-	float modB = sqrt(b.x * b.x + b.y * b.y + a.z * b.z);
-	float dot = a.x * b.x + a.y * b.y;
-	float degrees = acos(a.dot(b) / (modA * modB));
-	float smallest = 1.17549e-38;
-	//std::cout << "Grados a rotar" << degrees << std::endl;
-	if (degrees > smallest)
-		return degrees;
-	return 0;
-}
-float sign(float num) {
-	return num >= 0.0f ? 1.0f : -1.0f;
-}
 
 //Entity
 Entity::Entity() {
@@ -116,19 +91,9 @@ void MainCharacterEntity::save(cJSON* main_json)
 	if (material)material->save(main_json);
 }
 
-//Handles battery consumption
-float battery_time = 0.0f;
-//Battery_life is the time that the battery_reduction has, before is spent
-float battery_life = 2.5f;
-float battery_reduction = 5.0f;
-//Time the battery is on off state
-float battery_off = 0.0f;
-//Handles recovery of health by time
-float last_recovery_health = 0.0f;
-
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
 {
-	//Mouse input to rotate
+	//Mouse input to rotate the camera
 	if (((Input::mouse_state) || mouse_locked)) //is left button pressed?
 	{
 		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
@@ -164,27 +129,21 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 	//Update flashlight position
 	if(!Game::instance->render_editor)
-		updateFlashlight(position_delta, seconds_elapsed);
+		updateModel();
 
 	if (mouse_locked)
 		Input::centerMouse();
 }
 
-void MainCharacterEntity::updateFlashlight(Vector3 position_delta, float seconds_elapsed)
+void MainCharacterEntity::updateModel()
 {
-	//Camera position and front
-	Vector3 camera_position = camera->eye;
-	Vector3 camera_front = camera->getFrontVector();
-
-	model.setTranslation(camera->eye.x, 0, camera->eye.z);
-	model.setFrontAndOrthonormalize(camera->getFrontVector() - Vector3(0.f, -camera->eye.y, 0.f));
+	//Translation and rotation
+	model.setTranslation(camera->eye.x, camera->eye.y, camera->eye.z);
+	model.setFrontAndOrthonormalize(camera->getFrontVector().getInverse());
 
 	//Update flashlight model based on main character model
 	flashlight->updateBoundingBox();
-
-	//Update light position
-	light->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 50, camera_position.y + camera_front.y * 100 - camera->up.y * 50, camera_position.z + camera_front.z * 80 - camera->up.z * 50);
-	light->model.setFrontAndOrthonormalize(light->model.getTranslation() - camera->center);
+	
 }
 
 void MainCharacterEntity::updateBoundingBox()
@@ -194,19 +153,22 @@ void MainCharacterEntity::updateBoundingBox()
 
 void MainCharacterEntity::update(float elapsed_time)
 {	
+	//Scene singleton
+	Scene* scene = Scene::instance;
+
 	//Battery consumption
 	float currTime = Game::instance->time;
 	if (!this->flashIsOn || this->battery == 0) {
-		battery_off = currTime - battery_time;;
+		scene->battery_off = currTime - scene->battery_time;;
 		this->flashIsOn = false;
 		light->visible = false;
 	}
 	else if (this->flashIsOn) {
-		battery_time = currTime - battery_off;
-		if (battery_time > battery_life) {
-			this->battery = max(this->battery - battery_reduction, 0);
-			battery_time = 0;
-			battery_off = currTime;
+		scene->battery_time = currTime - scene->battery_off;
+		if (scene->battery_time > scene->battery_life) {
+			this->battery = max(this->battery - scene->battery_reduction, 0);
+			scene->battery_time = 0;
+			scene->battery_off = currTime;
 		}
 	}
 
@@ -218,8 +180,8 @@ void MainCharacterEntity::update(float elapsed_time)
 	}
 
 	//With time, the player recovers health
-	if (currTime - last_recovery_health > 9.0f) {
-		last_recovery_health = currTime;
+	if (currTime - scene->last_recovery_health > 9.0f) {
+		scene->last_recovery_health = currTime;
 		health = min(100, health + 25);
 	}
 	
@@ -359,7 +321,7 @@ bool MonsterEntity::isInFollowRange(MainCharacterEntity* mainCharacter)
 			mainCharacter->health = max(0, mainCharacter->health - 25);
 			mainCharacter->isHitted = true;
 			mainCharacter->playerHittedTime = Game::instance->time;
-			last_recovery_health = Game::instance->time;
+			Scene::instance->last_recovery_health = Game::instance->time;
 		}
 		return true;
 	}
@@ -396,8 +358,6 @@ void MonsterEntity::updateFollow(float elapsed_time, Camera* camera) //Running a
 	this->updateBoundingBox();
 
 }
-
-float bounding = 7.0f;
 
 void MonsterEntity::followPath(float elapsed_time) //Iddle / walking animation
 {
@@ -438,7 +398,7 @@ bool MonsterEntity::moveToTarget(float elapsed_time, Vector3 pos)
 	float forwardDot = forward.dot(toTarget);
 	Vector3 translate = forward * -walkSpeed * elapsed_time;
 
-	float degrees = computeDeg(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
+	float degrees = computeDegrees(Vector2(forward.x, forward.z), Vector2(toTarget.x, toTarget.z));
 
 	model.rotate(degrees * sign(sideDot), Vector3(0, 1, 0));
 	model.translateGlobal(translate.x, 0, translate.z);
@@ -794,8 +754,7 @@ SoundEntity::SoundEntity()
 
 void SoundEntity::Play()
 {
-	const char* filenamecr = filename.c_str();
-	audio->Play(filenamecr);
+	audio->Play(filename.c_str());
 }
 
 void SoundEntity::Stop()
@@ -805,7 +764,12 @@ void SoundEntity::Stop()
 
 void SoundEntity::changeVolume(float volume)
 {
+	this->volume = volume;
+}
 
+void SoundEntity::changeArea(float area)
+{
+	this->sound_area = area;
 }
 
 void SoundEntity::load(cJSON* sound_json, int sound_index)
