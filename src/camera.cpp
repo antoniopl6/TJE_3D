@@ -57,6 +57,11 @@ Vector3 Camera::getLocalVector(const Vector3& v)
 	return result;
 }
 
+Vector3 Camera::getFrontVector()
+{
+	return (this->center - this->eye).normalize();
+}
+
 void Camera::move(Vector3 delta)
 {
 	Vector3 localDelta = getLocalVector(delta);

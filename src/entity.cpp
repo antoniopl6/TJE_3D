@@ -128,7 +128,7 @@ float last_recovery_health = 0.0f;
 
 void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_speed, bool mouse_locked)
 {
-	//Mouse input to rotate the camera
+	//Mouse input to rotate
 	if (((Input::mouse_state) || mouse_locked)) //is left button pressed?
 	{
 		camera->rotate(Input::mouse_delta.x * 0.005f, Vector3(0.0f, -1.0f, 0.0f));
@@ -145,7 +145,7 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 
 	if (Input::isKeyPressed(SDL_SCANCODE_W) || Input::isKeyPressed(SDL_SCANCODE_S) || Input::isKeyPressed(SDL_SCANCODE_A) || Input::isKeyPressed(SDL_SCANCODE_D))
 	{
-		camera_front = ((camera->center - camera->eye) * Vector3(1.f, 0.f, 1.f)).normalize();
+		camera_front = Vector3(1.f,0.f,1.f) * camera->getFrontVector();
 		camera_side = Vector3(-camera_front.z, 0.f, camera_front.x);
 	}
 
@@ -163,7 +163,8 @@ void MainCharacterEntity::updateMainCamera(double seconds_elapsed, float mouse_s
 	camera->lookAt(next_position, next_position + (camera->center - camera->eye), camera->up);
 
 	//Update flashlight position
-	updateFlashlight(position_delta, seconds_elapsed);
+	if(!Game::instance->render_editor)
+		updateFlashlight(position_delta, seconds_elapsed);
 
 	if (mouse_locked)
 		Input::centerMouse();
@@ -173,11 +174,12 @@ void MainCharacterEntity::updateFlashlight(Vector3 position_delta, float seconds
 {
 	//Camera position and front
 	Vector3 camera_position = camera->eye;
-	Vector3 camera_front = (camera->center - camera->eye).normalize();
+	Vector3 camera_front = camera->getFrontVector();
 
-	//Update flashlight position and rotate based on camera vectors
-	flashlight->model.setTranslation(camera_position.x + camera_front.x * 80 - camera->up.x * 35, camera_position.y + camera_front.y * 80 - camera->up.y * 35, camera_position.z + camera_front.z * 80 - camera->up.z * 35);
-	flashlight->model.setFrontAndOrthonormalize(flashlight->model.getTranslation() - camera->center);
+	model.setTranslation(camera->eye.x, 0, camera->eye.z);
+	model.setFrontAndOrthonormalize(camera->getFrontVector() - Vector3(0.f, -camera->eye.y, 0.f));
+
+	//Update flashlight model based on main character model
 	flashlight->updateBoundingBox();
 
 	//Update light position
@@ -468,17 +470,19 @@ ObjectEntity::ObjectEntity() {
 	parent = NULL;
 }
 
-Matrix44 ObjectEntity::computeGlobalMatrix()
+Matrix44 ObjectEntity::computeGlobalModel()
 {
 	if (parent)
-		return parent->computeGlobalMatrix() * this->model;
+		return this->model * parent->computeGlobalModel();
+	else if (name == "flashlight")
+		return this->model * Scene::instance->main_character->model;
 	else
 		return this->model;
 }
 
 void ObjectEntity::updateBoundingBox()
 {
-	if (mesh) world_bounding_box = transformBoundingBox(this->model, this->mesh->box);
+	if (mesh) world_bounding_box = transformBoundingBox(this->computeGlobalModel(), this->mesh->box);
 }
 
 void ObjectEntity::load(cJSON* object_json, int object_index)

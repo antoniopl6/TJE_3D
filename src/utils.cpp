@@ -817,3 +817,39 @@ void replaceJSONVector4(cJSON* obj, const char* name, Vector4 vector)
 	cJSON* new_item = cJSON_CreateFloatArray(new_array, 4);
 	cJSON_ReplaceItemInObjectCaseSensitive(obj, name, new_item);
 }
+
+
+//Custom methods
+float angleBetween(Vector3 vtr1, Vector3 vtr2)
+{
+	//Check normalization
+	vtr1.normalize();
+	vtr2.normalize();
+
+	//Support vectors
+	Vector3 normal_vector = vtr1.cross(vtr2).normalize();
+	Vector3 side_vector = vtr1; // We do the angle between vtr1 and vtr2, not the other way around
+	side_vector.rotate(-PI / 2, normal_vector);
+	side_vector.normalize();
+
+	//Dot products
+	float side_product = side_vector.dot(vtr2);
+	float angle_product = vtr1.dot(vtr2);
+	
+	//Length products
+	float length_product = vtr1.length() * vtr2.length();
+
+	//Angle result
+	float angle = acos(angle_product / length_product);
+
+	if (side_product > 0.f)
+		return angle;
+	else
+		return 2 * PI - angle;
+}
+
+void addOffset(float& angle_in_rad, float offset_in_rad)
+{
+	angle_in_rad += offset_in_rad;
+	angle_in_rad = angle_in_rad > 2 * PI ? angle_in_rad - 2 * PI : angle_in_rad;
+}

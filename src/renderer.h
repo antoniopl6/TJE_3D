@@ -11,12 +11,12 @@
 struct RenderCall {
 	Mesh* mesh;
 	Material* material;
-	Matrix44* model;
+	Matrix44 model;
 	BoundingBox* world_bounding_box;
 	float distance_to_camera;
 
 	RenderCall() { distance_to_camera = 10.0f;}
-	RenderCall(Mesh* mesh, Material* material, Matrix44* model, BoundingBox* world_bounding_box, Camera* camera) 
+	RenderCall(Mesh* mesh, Material* material, Matrix44 model, BoundingBox* world_bounding_box, Camera* camera) 
 	{
 			this->mesh = mesh;
 			this->material = material;

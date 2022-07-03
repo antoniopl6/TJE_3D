@@ -92,6 +92,7 @@ public:
 	};
 
 	Vector3() { x = y = z = 0.0f; }
+	Vector3(float v) { this->x = v; this->y = v; this->z = v; }
 	Vector3(float x, float y, float z) { this->x = x; this->y = y; this->z = z;	}
 
 	double length();
@@ -108,9 +109,9 @@ public:
 	void random(Vector3 range);
 
 	float distance(const Vector3& v) const;
-
 	Vector3 cross( const Vector3& v ) const;
 	float dot( const Vector3& v ) const;
+	void rotate(float theta, Vector3 axis);
 
 	void parseFromText(const char* text, const char separator);
 

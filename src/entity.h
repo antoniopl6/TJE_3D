@@ -202,7 +202,7 @@ public:
 	ObjectEntity();
 
 	//Children methods
-	Matrix44 computeGlobalMatrix();
+	Matrix44 computeGlobalModel();
 
 	//JSON methods
 	void load(cJSON* object_json, int object_index);

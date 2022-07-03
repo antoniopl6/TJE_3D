@@ -105,14 +105,23 @@ float Vector3::distance(const Vector3& v) const
 	return (float)(v - *this).length();
 }
 
-Vector3 Vector3::cross( const Vector3& b ) const
+Vector3 Vector3::cross( const Vector3& v ) const
 {
-	return Vector3(y*b.z - z*b.y, z*b.x - x*b.z, x*b.y - y*b.x);
+
+	return Vector3(y*v.z - z*v.y, z*v.x - x*v.z, x*v.y - y*v.x);
 }
 
 float Vector3::dot( const Vector3& v ) const
 {
 	return x*v.x + y*v.y + z*v.z;
+}
+
+//Angle-Axis rotation: https://www.youtube.com/watch?v=dttFiVn0rvc
+void Vector3::rotate(float theta, Vector3 axis)
+{
+	Vector3 v = *this;
+	Vector3 rotated_vector = v * cos(theta) + v.dot(axis) * axis * (1 - cos(theta)) + (axis.cross(v) * sin (theta)) ;
+	this->set(rotated_vector.x, rotated_vector.y, rotated_vector.z);
 }
 
 void Vector3::random(float range)

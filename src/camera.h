@@ -57,6 +57,9 @@ public:
 	//transform a local camera vector to world coordinates
 	Vector3 getLocalVector(const Vector3& v);
 
+	//Front 
+	Vector3 getFrontVector();
+
 	//set the info
 	void setPerspective(float fov, float aspect, float near_plane, float far_plane);
 	void setOrthographic(float left, float right, float bottom, float top, float near_plane, float far_plane);

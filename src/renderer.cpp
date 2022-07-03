@@ -130,12 +130,12 @@ void Renderer::createRenderCalls()
 	//Main character render call
 	MainCharacterEntity* mc = scene->main_character;
 	if (mc->visible && mc->mesh && mc->material)
-		render_calls.push_back(new RenderCall(mc->mesh, mc->material, &mc->model, &mc->world_bounding_box, camera));
+		render_calls.push_back(new RenderCall(mc->mesh, mc->material, mc->model, &mc->world_bounding_box, camera));
 
 	//Monster render call
 	MonsterEntity* monster = scene->monster;
 	if (monster->visible && monster->mesh && monster->material)
-		render_calls.push_back(new RenderCall(monster->mesh, monster->material, &monster->model, &monster->world_bounding_box, camera));
+		render_calls.push_back(new RenderCall(monster->mesh, monster->material, monster->model, &monster->world_bounding_box, camera));
 
 	//Objects render calls	
 	for (int i = 0; i < scene->objects.size(); ++i)
@@ -143,8 +143,11 @@ void Renderer::createRenderCalls()
 		ObjectEntity* object = scene->objects[i];
 		if (object->visible && object->mesh && object->material)
 		{
-			render_calls.push_back(new RenderCall(object->mesh, object->material, &object->model, &object->world_bounding_box, camera));
+			Matrix44 global_matrix = object->computeGlobalModel();
+			render_calls.push_back(new RenderCall(object->mesh, object->material, global_matrix, &object->world_bounding_box, camera));
 		}
+			
+			
 	}
 
 	//Now we sort the RenderCalls vector according to the boolean method sortRenderCall
@@ -382,7 +385,7 @@ void Renderer::renderDrawCall(Shader* shader, RenderCall* rc, Camera* camera)
 	shader->setUniform1Array("u_textures", (int*)&textures[0], 8);
 
 	//Upload entity uniforms
-	shader->setMatrix44("u_model", *rc->model);
+	shader->setMatrix44("u_model", rc->model);
 	shader->setUniform("u_color", rc->material->albedo_factor);
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
@@ -630,7 +633,7 @@ void Renderer::renderDepthMap(RenderCall* rc, Camera* light_camera)
 	shader->enable();
 
 	//Upload scene uniforms
-	shader->setMatrix44("u_model", *rc->model);
+	shader->setMatrix44("u_model", rc->model);
 	shader->setUniform("u_viewprojection", light_camera->viewprojection_matrix);
 	shader->setUniform("u_alpha_cutoff", rc->material->alpha_mode == AlphaMode::MASK ? rc->material->alpha_cutoff : 0); //this is used to say which is the alpha threshold to what we should not paint a pixel on the screen (to cut polygons according to texture alpha)
 
