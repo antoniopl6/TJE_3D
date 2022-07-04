@@ -558,7 +558,7 @@ void ObjectEntity::save(vector<cJSON*> json)
 
 	//Children IDs
 	cJSON_AddItemToObject(object_json, "children_ID", children_IDs_array);
-	cJSON_AddIntVectorToArray(object_json, &children_ids[0], children_ids.size());
+	cJSON_AddIntVectorToArray(children_IDs_array, &children_ids[0], children_ids.size());
 
 	//Type
 	writeJSONNumber(object_json, "Object_type", type);

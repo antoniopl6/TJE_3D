@@ -53,6 +53,9 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 				//Assign ID
 				scene->assignID(current_object);
 
+				//Add the object to the scene
+				scene->addEntity(current_object);
+
 			}
 			else if (buffer.find("mesh") != string::npos)
 			{
@@ -344,29 +347,19 @@ vector<ObjectEntity*> cMTL::Parse(string root, string asset)
 		{
 			//Create the parent object
 			ObjectEntity* parent_object = new ObjectEntity();
-			parent_object->parent = NULL;
 			parent_object->name = asset;
 
 			//Assign ID
 			scene->assignID(parent_object);
 
-			//Iterate over the children objects
-			for (auto i = objects.begin(); i != objects.end(); ++i)
-			{
-				//Current object
-				ObjectEntity* object = *i;
-
-				//Assign children to parent and parent to children
-				parent_object->children.push_back(object);
-				object->parent = parent_object;
-
-				//Assign children ID to parent (JSON support)
-				parent_object->children_ids.push_back(object->node_id);
-
-			}
+			//Assign parent to children and children to parent
+			scene->assignRelation(parent_object, objects);
 
 			//Push parent
 			objects.push_back(parent_object);
+
+			//Add parent to the scene
+			scene->addEntity(parent_object);
 		}
 
 		return objects;

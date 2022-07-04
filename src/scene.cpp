@@ -74,6 +74,106 @@ void Scene::clear()
 	sounds.resize(0);
 }
 
+void Scene::addEntity(Entity* entity)
+{
+	switch (entity->entity_type)
+	{
+	case(Entity::EntityType::MAIN):
+		main_character = (MainCharacterEntity*)entity;
+		break;
+	case(Entity::EntityType::MONSTER):
+		monster = (MonsterEntity*)entity;
+		break;
+	case(Entity::EntityType::OBJECT):
+		objects.push_back((ObjectEntity*)entity);
+		num_objects++;
+		break;
+	case(Entity::EntityType::LIGHT):
+		lights.push_back((LightEntity*)entity);
+		num_lights++;
+		break;
+	case(Entity::EntityType::SOUND):
+		sounds.push_back((SoundEntity*)entity);
+		num_sounds++;
+		break;
+	}
+}
+
+void Scene::removeEntity(Entity* entity)
+{
+	if (entity == NULL)
+		return;
+
+	//Only for entity vectors
+	switch (entity->entity_type)
+	{
+	case(Entity::EntityType::MAIN):
+		if (main_character == entity) main_character = NULL;
+		break;
+	case(Entity::EntityType::MONSTER):
+		if (monster == entity) monster = NULL;
+		break;
+	case(Entity::EntityType::OBJECT):
+		{
+			//Downcast
+			ObjectEntity* object = (ObjectEntity*)entity;
+
+			//Children
+			for (auto it = object->children.begin(); it != object->children.end(); ++it) {
+				auto result = find(objects.begin(), objects.end(), *it);
+				if (result != objects.end())
+				{
+					objects.erase(result);
+					num_objects--;
+				}
+				delete *it;
+			}
+
+			//Just in case
+			object->children.clear();
+
+			//Parent
+			auto result = find(objects.begin(), objects.end(), object);
+			if (result != objects.end())
+			{
+				objects.erase(result);
+				num_objects--;
+			}
+		}
+		break;
+	case(Entity::EntityType::LIGHT):
+		{
+			//Downcast
+			LightEntity* light = (LightEntity*)entity;
+
+			//Light removal
+			auto result = find(lights.begin(), lights.end(), light);
+			if (result != lights.end())
+			{
+				lights.erase(result);
+				num_lights--;
+			}
+		}
+		break;
+	case(Entity::EntityType::SOUND):
+		{
+			//Downcast
+			SoundEntity* sound = (SoundEntity*)entity;
+
+			//Sound removal
+			auto result = find(sounds.begin(), sounds.end(), sound);
+			if (result != sounds.end())
+			{
+				sounds.erase(result);
+				num_sounds--;
+			}
+		}
+		break;
+	}
+
+	delete entity;
+}
+
 void Scene::assignID(Entity* entity)
 {
 	//Support variables
@@ -123,7 +223,7 @@ void Scene::assignID(Entity* entity)
 
 		//Find an available node ID
 		while (find(node_IDs.begin(), node_IDs.end(), new_node_ID) != node_IDs.end()) new_node_ID++;
-	
+
 		//Assign the new node IDs
 		object->node_id = new_node_ID;
 
@@ -147,7 +247,7 @@ void Scene::assignID(Entity* entity)
 			}
 
 			//Fill vector
-			if(!registered_entity) entity_IDs.push_back(current_light->light_id);
+			if (!registered_entity) entity_IDs.push_back(current_light->light_id);
 		}
 
 		//Find and assign an available light ID
@@ -176,7 +276,7 @@ void Scene::assignID(Entity* entity)
 				registered_entity = true;
 			}
 
-			if(!registered_entity) entity_IDs.push_back(current_sound->sound_id);
+			if (!registered_entity) entity_IDs.push_back(current_sound->sound_id);
 		}
 
 		//Find and assign an available sound ID
@@ -185,71 +285,30 @@ void Scene::assignID(Entity* entity)
 			while (find(entity_IDs.begin(), entity_IDs.end(), new_entity_ID) != entity_IDs.end()) new_entity_ID++;
 			sound->sound_id = new_entity_ID;
 		}
-		
+
 		break;
 	}
 }
 
-void Scene::addEntity(Entity* entity)
+void Scene::assignRelation(ObjectEntity* parent_object, vector<ObjectEntity*> children)
 {
-	switch (entity->entity_type)
+	//Set parent object parent to NULL
+	parent_object->parent = NULL;
+
+	//Iterate over the children objects
+	for (auto i = children.begin(); i != children.end(); ++i)
 	{
-	case(Entity::EntityType::MAIN):
-		main_character = (MainCharacterEntity*)entity;
-		break;
-	case(Entity::EntityType::MONSTER):
-		monster = (MonsterEntity*)entity;
-		break;
-	case(Entity::EntityType::OBJECT):
-		objects.push_back((ObjectEntity*)entity);
-		num_objects++;
-		break;
-	case(Entity::EntityType::LIGHT):
-		lights.push_back((LightEntity*)entity);
-		num_lights++;
-		break;
-	case(Entity::EntityType::SOUND):
-		sounds.push_back((SoundEntity*)entity);
-		num_sounds++;
-		break;
+		//Current object
+		ObjectEntity* children_object = *i;
+
+		//Assign children to parent and parent to children
+		parent_object->children.push_back(children_object);
+		children_object->parent = parent_object;
+
+		//Assign children ID to parent (JSON support)
+		parent_object->children_ids.push_back(children_object->node_id);
+
 	}
-}
-
-void Scene::removeEntity(Entity* entity)
-{
-	if (entity == NULL)
-		return;
-
-	//Only for entity vectors
-	switch (entity->entity_type)
-	{
-	case(Entity::EntityType::MAIN):
-		if (main_character == entity) main_character = NULL;
-		break;
-	case(Entity::EntityType::MONSTER):
-		if (monster == entity) monster = NULL;
-		break;
-	case(Entity::EntityType::OBJECT):
-		for (auto it = objects.begin(); it != objects.end(); ++it) {
-			if (*it == entity) objects.erase(it);
-			num_objects--;
-		}
-		break;
-	case(Entity::EntityType::LIGHT):
-		for (auto it = lights.begin(); it != lights.end(); ++it) {
-			if (*it == entity) lights.erase(it);
-			num_lights--;
-		}
-		break;
-	case(Entity::EntityType::SOUND):
-		for (auto it = sounds.begin(); it != sounds.end(); ++it) {
-			if (*it == entity) sounds.erase(it);
-			num_sounds--;
-		}
-		break;
-	}
-
-	delete entity;
 }
 
 Vector3 Scene::testCollisions(Vector3 currPos, Vector3 deltaPos, float elapsed_time)

@@ -552,6 +552,7 @@ void Editor3D::addEntity()
 				float distance = (object_position - main_position).length();
 				if (distance > 800.f)
 				{
+					scene->removeEntity(object);
 					cout << "ERROR: The spawn position is too far away, try a closer position" << endl << endl;
 					return;
 				}
@@ -559,9 +560,6 @@ void Editor3D::addEntity()
 
 			//Update object bounding box
 			object->updateBoundingBox();
-
-			//Add new objects to the scene
-			scene->addEntity(object);
 		}
 
 		//Feedback
